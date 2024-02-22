@@ -156,7 +156,7 @@ def main():
                 for line in transcription:
                     logger.critical(line)
                 with open(DATA_DIR / f'{args.text_num}.txt', 'w', encoding='utf-8') as f:
-                    f.write(transcription[-1])  # 写入文本
+                    f.write(transcription[-1]) 
                     args.text_num = args.text_num + 1
                 # Infinite loops are bad for processors, must sleep.
                 sleep(0.25)

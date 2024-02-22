@@ -1,5 +1,4 @@
 import argparse
-import os
 import numpy as np
 import speech_recognition as sr
 import whisper
@@ -17,6 +16,14 @@ logger = get_logger("audio_acquire")
 
 
 def main():
+    """
+    Output here should be
+    - one sentence
+    - the timestamp together with the sentence
+    - the audio for this sentence
+
+    :return:
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="medium", help="Model to use",
                         choices=["tiny", "base", "small", "medium", "large"])
@@ -46,6 +53,7 @@ def main():
     phrase_time = None
     # Thread safe Queue for passing data from the threaded recording callback.
     data_queue = Queue()
+    sample_time_queue = Queue()
     # We use SpeechRecognizer to record our audio because it has a nice feature where it can detect when speech ends.
     recorder = sr.Recognizer()
     recorder.energy_threshold = args.energy_threshold
@@ -106,17 +114,21 @@ def main():
         with timer(logger, f"Recording {args.audio_index}"):
             # Grab the raw bytes and push it into the thread safe queue.
             data = audio.get_raw_data()
+            wav_data = audio.get_wav_data()
+            # this is the end time for the audio data
+            sample_time = datetime.now()
+            # the index 1 time is the start time, this will be the end time
             data_queue.put(data)
+            sample_time_queue.put(sample_time)
             # get the file name with a timestamp, so it will not overwrite the previous one
 
             curr_audio_dir = DATA_DIR / uid / "audio"
             # curr_audio_dir = DATA_DIR / "audio" / f"audio{args.text_num}"
             curr_audio_dir.mkdir(parents=True, exist_ok=True)
             # 将录音数据写入.wav格式文件
-            with open(curr_audio_dir / f"{datetime.now().strftime('%Y%m%d%H%M%S')}-{args.audio_index}.wav",
+            with open(curr_audio_dir / f"{args.audio_index}-{sample_time.strftime('%Y%m%d%H%M%S')}.wav",
                       "wb") as file:
-                # audio.get_wav_data()获得wav格式的音频二进制数据
-                file.write(audio.get_wav_data())
+                file.write(wav_data)
 
     # Create a background thread that will pass us raw audio bytes.
     # We could do this manually, but SpeechRecognizer provides a nice helper.
@@ -140,8 +152,11 @@ def main():
                 # This is the last time we received new audio data from the queue.
                 phrase_time = now
 
+                # the data in the queue should be a tuple of (data, time)
                 audio_data = b''.join(data_queue.queue)
                 data_queue.queue.clear()
+                sample_time = sample_time_queue.queue[-1]
+                sample_time_queue.queue.clear()
 
                 # Convert in-ram buffer to something the model can use directly without needing a temp file.
                 # Convert data from 16-bit wide integers to floating point with a width of 32 bits.
@@ -151,7 +166,9 @@ def main():
                 # Read the transcription.
                 result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
                 logger.info(f"Model output: {result}")
+                # get current time, this is the delay time for the audio to text data
                 text = result['text'].strip()
+                logger.info(f"delay time: {datetime.now() - sample_time}")
 
                 # If we detected a pause between recordings, add a new item to our transcription.
                 # Otherwise, edit the existing one.
@@ -160,12 +177,14 @@ def main():
                 else:
                     transcription[-1] = text
                 logger.critical(f"Transcription: {text}")
-                # Clear the console to reprint the updated transcription.
-                os.system('cls' if os.name == 'nt' else 'clear')
+                # TODO: call API to push 1. text 2. text time range 3. related audio file
 
+                # clear the console to reprint the updated transcription.
+                # os.system('cls' if os.name == 'nt' else 'clear')
                 text_dir = DATA_DIR / uid / "text"
                 text_dir.mkdir(parents=True, exist_ok=True)
-                with open(text_dir / f"{datetime.now().strftime('%Y%m%d%H%M%S')}-{args.text_num}.txt", 'w',
+
+                with open(text_dir / f"{args.text_num}-{sample_time.strftime('%Y%m%d%H%M%S')}.txt", 'w',
                           encoding='utf-8') as f:
                     f.write(transcription[-1])  # 写入文本
                     args.text_num = args.text_num + 1
@@ -173,6 +192,7 @@ def main():
                 sleep(0.25)
         except KeyboardInterrupt:
             break
+
     logger.info("\n\nTranscription:")
     for line in transcription:
         logger.info(line)

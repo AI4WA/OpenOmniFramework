@@ -104,13 +104,13 @@ def main():
 
         # write the audio into file.wav
         with open(curr_audio_dir / f"{args.audio_index}.wav", "wb") as f:
-            # audio.get_wav_data()获得wav格式的音频二进制数据
+            # audio.get_wav_data()
             f.write(audio.get_wav_data())
             logger.info(args.audio_index)
 
     # Create a background thread that will pass us raw audio bytes.
     # We could do this manually but SpeechRecognizer provides a nice helper.
-    recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout)  # phrase_time_limit持续监测时间
+    recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout) 
 
     # Cue the user that we're ready to go.
     logger.info("Model loaded.\n")

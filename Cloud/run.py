@@ -6,7 +6,7 @@ from getFeatures import getFeatures
 import real_time
 import time
 import os
-from TASKW import TASKW
+from MSA import MSA
 import argparse
 import torch
 
@@ -70,7 +70,7 @@ def program3():     #数据分析
 
             device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
             # data
-            model = TASKW(args).to(device)
+            model = MSA(args).to(device)
 
             # a =  model.load_state_dict(torch.load("pre-trained models/taskw-mosei_3part.pth"))
             # print(a['Model.'])

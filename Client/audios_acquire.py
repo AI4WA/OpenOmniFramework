@@ -122,8 +122,7 @@ def main():
             sample_time_queue.put(sample_time)
             # get the file name with a timestamp, so it will not overwrite the previous one
 
-            curr_audio_dir = DATA_DIR / uid / "audio"
-            # curr_audio_dir = DATA_DIR / "audio" / f"audio{args.text_num}"
+            curr_audio_dir = DATA_DIR / "audio" / uid / "audio"
             curr_audio_dir.mkdir(parents=True, exist_ok=True)
             # 将录音数据写入.wav格式文件
             with open(curr_audio_dir / f"{args.audio_index}-{sample_time.strftime('%Y%m%d%H%M%S')}.wav",
@@ -181,7 +180,7 @@ def main():
 
                 # clear the console to reprint the updated transcription.
                 # os.system('cls' if os.name == 'nt' else 'clear')
-                text_dir = DATA_DIR / uid / "text"
+                text_dir = DATA_DIR / "audio" / uid / "text"
                 text_dir.mkdir(parents=True, exist_ok=True)
 
                 with open(text_dir / f"{args.text_num}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.txt", 'w',

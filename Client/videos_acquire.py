@@ -3,14 +3,11 @@ import os
 from datetime import datetime
 
 import cv2
-import logzero
-from logzero import logger
+import logging
 import pyaudio
 
+logger = logging.getLogger(__name__)
 import numpy as np
-
-# 配置logzero保存日志到文件，单文件最大5MB，最多保存3份
-logzero.logfile('videos/log.log', maxBytes=5e6, backupCount=3)
 
 # 限制至少保留可用磁盘空间百分比
 SPACE_LIMIT = 50
@@ -56,7 +53,7 @@ def record():
     WIDTH = 640
     HEIGHT = 480
     FPS = 24.0
-    #初始话录制视频
+    # 初始话录制视频
     cap = cv2.VideoCapture(0)
     # 设置摄像头设备分辨率
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, WIDTH)
@@ -68,7 +65,6 @@ def record():
 
     # FPS = cap.get(5)  # 获取摄像头帧率   帧率为30
     # print("FPS: ", FPS)
-
 
     start_time = datetime.now()
     filename = LOCATION + start_time.strftime('%Y-%m-%d_%H-%M-%S') + '.avi'
@@ -89,22 +85,22 @@ def record():
                 filename = LOCATION + start_time.strftime('%Y-%m-%d_%H-%M-%S') + '.avi'
                 out = cv2.VideoWriter(filename, fourcc, FPS, (WIDTH, HEIGHT))
             else:
-                #读取一帧视频
+                # 读取一帧视频
                 ret, frame = cap.read()
                 if ret:
-                    #保存视频
+                    # 保存视频
                     out.write(frame)
                     cv2.imshow('frame', frame)
                     if i == segment_images:
                         print("begin the next record")
                         i = 0
                         j = j + 1
-                    if i<segment_images and os.path.exists(f"texts/{j}.txt"):  #check if the text have existed
+                    if i < segment_images and os.path.exists(f"texts/{j}.txt"):  # check if the text have existed
 
                         path = f"frames/images{j}/"
                         if not os.path.exists(path):
                             os.mkdir(path)
-                        cv2.imwrite(path+f"{i}.jpg", frame)
+                        cv2.imwrite(path + f"{i}.jpg", frame)
                         i = i + 1
 
             if cv2.waitKey(1) == ord('q'):

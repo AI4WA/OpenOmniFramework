@@ -6,9 +6,9 @@ import math
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
 
 
-class TASKW(nn.Module):
+class MSA(nn.Module):
     def __init__(self, args):
-        super(TASKW, self).__init__()
+        super(MSA, self).__init__()
         self.args = args
         self.act = nn.Softmax(dim=-1)
         self.m_dropout = nn.Dropout(args.dropout_m)

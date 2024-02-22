@@ -155,7 +155,7 @@ def main():
                 # the data in the queue should be a tuple of (data, time)
                 audio_data = b''.join(data_queue.queue)
                 data_queue.queue.clear()
-                sample_time = sample_time_queue.queue[-1]
+                last_sample_time = sample_time_queue.queue[-1]
                 sample_time_queue.queue.clear()
 
                 # Convert in-ram buffer to something the model can use directly without needing a temp file.
@@ -168,7 +168,7 @@ def main():
                 logger.info(f"Model output: {result}")
                 # get current time, this is the delay time for the audio to text data
                 text = result['text'].strip()
-                logger.info(f"delay time: {datetime.now() - sample_time}")
+                logger.info(f"delay time: {datetime.now() - last_sample_time}")
 
                 # If we detected a pause between recordings, add a new item to our transcription.
                 # Otherwise, edit the existing one.
@@ -184,7 +184,7 @@ def main():
                 text_dir = DATA_DIR / uid / "text"
                 text_dir.mkdir(parents=True, exist_ok=True)
 
-                with open(text_dir / f"{args.text_num}-{sample_time.strftime('%Y%m%d%H%M%S')}.txt", 'w',
+                with open(text_dir / f"{args.text_num}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.txt", 'w',
                           encoding='utf-8') as f:
                     f.write(transcription[-1])  # 写入文本
                     args.text_num = args.text_num + 1

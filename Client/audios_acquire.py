@@ -102,7 +102,7 @@ def main():
         curr_audio_dir = DATA_DIR / f"audio{args.text_num}"
         curr_audio_dir.mkdir(parents=True, exist_ok=True)
 
-        # 将录音数据写入.wav格式文件
+        # write the audio into file.wav
         with open(curr_audio_dir / f"{args.audio_index}.wav", "wb") as f:
             # audio.get_wav_data()获得wav格式的音频二进制数据
             f.write(audio.get_wav_data())
@@ -120,7 +120,7 @@ def main():
         try:
             now = datetime.utcnow()
             # Pull raw recorded audio from the queue.
-            if not data_queue.empty():  # 当听不到声音后，开始transform
+            if not data_queue.empty():  # begin to transform audio into text when there is not sounds
                 logger.info('start transform')
                 phrase_complete = False
                 # If enough time has passed between recordings, consider the phrase complete.

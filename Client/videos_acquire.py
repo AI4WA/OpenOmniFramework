@@ -1,5 +1,3 @@
-import glob
-import os
 from datetime import datetime
 
 import cv2
@@ -22,12 +20,12 @@ class VideoAcquire:
 
     def __init__(self, width=WIDTH, height=HEIGHT, fps=FPS, per_video_length=PER_LENGTH):
         self.uid = str(uuid.uuid4())
-        self.data_dir = DATA_DIR / "videos" / self.uid
+        self.data_dir = DATA_DIR / "videos" / self.uid  # the data dir
         self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.width = width
-        self.height = height
-        self.fps = fps
-        self.per_video_length = per_video_length
+        self.width = width  # the width and height of the video
+        self.height = height  # the width and height of the video
+        self.fps = fps  # frame per second
+        self.per_video_length = per_video_length  # the length of the video
 
     def record(self):
         """
@@ -35,8 +33,8 @@ class VideoAcquire:
         :return:
         """
         segment_images = 60
-        i = 0
-        j = 1
+        seconds = 0
+        minutes = 1
 
         # init the recording
         cap = cv2.VideoCapture(0)
@@ -46,14 +44,14 @@ class VideoAcquire:
         # set the frame per second
         cap.set(cv2.CAP_PROP_FPS, 24.0)
         # use the XVID codec
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')  # noqa
 
-        # FPS = cap.get(5)  # 获取摄像头帧率   帧率为30
-        # print("FPS: ", FPS)
+        cap_fps = cap.get(5)  # 获取摄像头帧率   帧率为30
+        logger.info("FPS: ", cap_fps)
 
         start_time = datetime.now()
         filename = self.data_dir / (start_time.strftime('%Y-%m-%d_%H-%M-%S') + '.avi')
-        out = cv2.VideoWriter(filename.as_posix(), fourcc, self.fps, (self.width, self.height))
+        out = cv2.VideoWriter(filename.as_posix(), fourcc, self.fps, (self.width, self.height))  # noqa
 
         flag = True
         while flag:
@@ -65,7 +63,7 @@ class VideoAcquire:
                     # 重新开始新的视频录制
                     start_time = datetime.now()
                     filename = self.data_dir / (start_time.strftime('%Y-%m-%d_%H-%M-%S') + '.avi')
-                    out = cv2.VideoWriter(filename, fourcc, FPS, (self.width, self.height))
+                    out = cv2.VideoWriter(filename.as_posix(), fourcc, FPS, (self.width, self.height))  # noqa
                 else:
                     # 读取一帧视频
                     logger.info("Try to process the frame")
@@ -74,16 +72,15 @@ class VideoAcquire:
                         logger.info("write the frame")
                         out.write(frame)
                         cv2.imshow('frame', frame)
-                        if i == segment_images:
+                        if seconds == segment_images:
                             logger.info("begin the next record")
-                            i = 0
-                            j = j + 1
-                        if i < segment_images:
-                            image_dir = self.data_dir / "frames" / f"images{j}"
+                            seconds = 0
+                            minutes += 1
+                        if seconds < segment_images:
+                            image_dir = self.data_dir / "frames" / f"images_min_{minutes}"
                             image_dir.mkdir(parents=True, exist_ok=True)
-                            cv2.imwrite((image_dir / f"{i}.jpg").as_posix(), frame)
-                            i = i + 1
-
+                            cv2.imwrite((image_dir / f"{seconds}.jpg").as_posix(), frame)
+                            seconds += 1
                 if cv2.waitKey(1) == ord('q'):
                     break
             except KeyboardInterrupt:
@@ -93,5 +90,5 @@ class VideoAcquire:
 
 if __name__ == '__main__':
     logger.info('Initializing video acquisition...')
-    video_acquire = VideoAcquire()
+    video_acquire = VideoAcquire(per_video_length=10)
     video_acquire.record()

@@ -28,3 +28,16 @@ class API:
         logger.info(f"POST {url} {r.status_code}")
         logger.info(r.json())
         return r.json()
+
+    def post_video(self,
+                   uid: str,
+                   video_file: str):
+        url = f"{self.domain}/hardware/video/"
+        data = {"uid": uid,
+                "video_file": video_file}
+        logger.info(data)
+        r = requests.post(url, data=data,
+                          headers={"Authorization": f"Bearer {self.api_key}"})
+        logger.info(f"POST {url} {r.status_code}")
+        logger.info(r.json())
+        return r.json()

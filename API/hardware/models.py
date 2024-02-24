@@ -19,3 +19,16 @@ class AudioData(models.Model):
 
     def __str__(self):
         return f"{self.uid} {self.sequence_index} {self.text}"
+
+
+class VideoData(models.Model):
+    uid = models.CharField(max_length=100)
+    video_file = models.CharField(max_length=100, help_text="The video file")
+    created_at = models.DateTimeField(auto_now_add=True, help_text="The created time of the video")
+    updated_at = models.DateTimeField(auto_now=True, help_text="The updated time of the video")
+
+    class Meta:
+        db_table = 'video_data'
+
+    def __str__(self):
+        return f"{self.uid} {self.video_file}"

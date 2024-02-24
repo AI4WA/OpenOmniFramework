@@ -4,6 +4,7 @@ import cv2
 from utils import get_logger
 import uuid
 from constants import DATA_DIR
+from api import API
 
 logger = get_logger("video_acquire")
 
@@ -26,6 +27,7 @@ class VideoAcquire:
         self.height = height  # the width and height of the video
         self.fps = fps  # frame per second
         self.per_video_length = per_video_length  # the length of the video
+        self.api = API()
 
     def record(self):
         """
@@ -47,7 +49,7 @@ class VideoAcquire:
         fourcc = cv2.VideoWriter_fourcc(*'XVID')  # noqa
 
         cap_fps = cap.get(5)  # 获取摄像头帧率   帧率为30
-        logger.info("FPS: ", cap_fps)
+        logger.info(f"the fps of the camera is {cap_fps}")
 
         start_time = datetime.now()
         filename = self.data_dir / (start_time.strftime('%Y-%m-%d_%H-%M-%S') + '.avi')
@@ -60,16 +62,18 @@ class VideoAcquire:
                     # 到达视频分段时长后停止录制
                     logger.info(f'the recording is finished, saved to file: {filename}')
                     out.release()
+                    # TODO: post the video to the server
+                    self.api.post_video(self.uid, filename.as_posix().split("/")[-1])
                     # 重新开始新的视频录制
                     start_time = datetime.now()
                     filename = self.data_dir / (start_time.strftime('%Y-%m-%d_%H-%M-%S') + '.avi')
                     out = cv2.VideoWriter(filename.as_posix(), fourcc, FPS, (self.width, self.height))  # noqa
                 else:
                     # 读取一帧视频
-                    logger.info("Try to process the frame")
+                    logger.debug("Try to process the frame")
                     ret, frame = cap.read()
                     if ret:
-                        logger.info("write the frame")
+                        logger.debug("write the frame")
                         out.write(frame)
                         cv2.imshow('frame', frame)
                         if seconds == segment_images:

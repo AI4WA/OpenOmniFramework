@@ -6,7 +6,7 @@ import torch
 from constants import DATA_DIR
 from utils import get_logger, timer
 from datetime import datetime, timedelta
-
+from api import API
 from queue import Queue
 from time import sleep
 from sys import platform
@@ -46,6 +46,7 @@ def main():
     args = parser.parse_args()
 
     uid = str(uuid.uuid4())
+    api = API()
     logger.info(f"session uid: {uid}")
     logger.info(f"starting timestamp {datetime.now()}")
 
@@ -133,10 +134,10 @@ def main():
     # We could do this manually, but SpeechRecognizer provides a nice helper.
     recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout)  # phrase_time_limit持续监测时间
 
+    last_sample_start_time = datetime.now()
     # Cue the user that we're ready to go
     logger.info("Model loaded.")
     logger.info("Listening for audio...")
-
     while True:
         try:
             now = datetime.utcnow()
@@ -178,8 +179,13 @@ def main():
                 logger.critical(f"Transcription: {text}")
                 # TODO: call API to push 1. text 2. text time range 3. related audio file
 
-                # clear the console to reprint the updated transcription.
-                # os.system('cls' if os.name == 'nt' else 'clear')
+                api.post_audio(uid,
+                               args.audio_index,
+                               text,
+                               f"{args.audio_index}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.wav",
+                               last_sample_start_time,
+                               last_sample_time)
+                last_sample_start_time = last_sample_time
                 text_dir = DATA_DIR / "audio" / uid / "text"
                 text_dir.mkdir(parents=True, exist_ok=True)
 

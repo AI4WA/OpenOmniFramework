@@ -1,0 +1,5 @@
+django==4.2.8
+djangorestframework==3.14.0
+drf-yasg==1.21.7
+psycopg2-binary>=2.8
+django-import-export==3.3.0

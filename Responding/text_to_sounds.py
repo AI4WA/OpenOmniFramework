@@ -5,7 +5,8 @@ import subprocess
 import io
 
 # Set your OpenAI API key
-api_key = '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' # Replace with your API key
+api_key = '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'  # Replace with your API key
+
 
 # Function to convert text to speech and play it
 def streamed_audio(input_text, model, voice):
@@ -32,14 +33,15 @@ def streamed_audio(input_text, model, voice):
         # Check if the request was successful
         if response.status_code == 200:
             # Use ffmpeg to convert the MP3 audio to WAV format in memory
-            process = subprocess.Popen(['ffmpeg', '-i', '-', '-f', 'wav', '-'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(['ffmpeg', '-i', '-', '-f', 'wav', '-'], stdin=subprocess.PIPE,
+                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             wav_audio, ffmpeg_error = process.communicate(input=response.content)
             process.wait()
 
             if process.returncode == 0:
                 # Convert the WAV audio bytes to AudioSegment
                 audio_content = AudioSegment.from_wav(io.BytesIO(wav_audio))
-                
+
                 # Play the audio
                 play(audio_content)
             else:

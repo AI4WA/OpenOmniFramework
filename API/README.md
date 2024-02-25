@@ -7,5 +7,5 @@ Apps
 
 ## Tasks
 
-- [ ] JWT Tokens
+- [x] JWT Tokens
 - [ ] Register 

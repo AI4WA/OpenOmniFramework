@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     "import_export",
     "rest_framework_api_key",
     "hardware",
-    "authenticate"
+    "authenticate",
+    "llm"
 ]
 
 MIDDLEWARE = [

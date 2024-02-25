@@ -38,8 +38,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     'drf_yasg',
-    "hardware",
     "import_export",
+    "hardware",
+    "authenticate"
 ]
 
 MIDDLEWARE = [
@@ -53,6 +54,13 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "api.urls"
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+}
 
 TEMPLATES = [
     {

@@ -5,3 +5,5 @@ psycopg2-binary>=2.8
 django-import-export==3.3.0
 djangorestframework-simplejwt==5.3.1
 djangorestframework-api-key==3.0.0
+llama-cpp-python
+pydantic==2.6.2

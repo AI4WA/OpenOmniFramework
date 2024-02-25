@@ -37,8 +37,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    'drf_yasg',
+    "drf_yasg",
     "import_export",
+    "rest_framework_api_key",
     "hardware",
     "authenticate"
 ]

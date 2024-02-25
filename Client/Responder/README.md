@@ -1,1 +1,12 @@
-Just used to acquire the texts from file that have stored some results from gpt and transfer it into audio
+# Responder part for the Robot
+
+## Setup
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+brew install ffmpeg
+```
+
+

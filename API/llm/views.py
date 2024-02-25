@@ -6,11 +6,13 @@ import logging
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from authenticate.permissions import HasAPIKeyOrIsAuthenticated
 
 logger = logging.getLogger(__name__)
 
 
 class CallLLMView(APIView):
+    permission_classes = [HasAPIKeyOrIsAuthenticated]
 
     @swagger_auto_schema(request_body=LLMRequestSerializer)
     def post(self, request):

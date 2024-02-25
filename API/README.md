@@ -8,4 +8,8 @@ Apps
 ## Tasks
 
 - [x] JWT Tokens
-- [ ] Register 
+- [ ] Register
+- [ ] LLM
+    - [ ] Llama2 all
+    - [ ] ChatGLM
+    - [ ] Mistral

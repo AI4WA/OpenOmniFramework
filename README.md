@@ -1,13 +1,17 @@
-# SALM
+# Assistant
 
 Three components:
 
-- Input:
-    - Audio
-    - Video
-- Output:
-    - Text to Audio
+- Client
+    - Input:
+        - Audio
+        - Video
+    - Output:
+        - Text to Audio
 - API:
     - Knowledge base
     - Model Orchestration
     - Data processing
+- Web
+    - Chat interface
+    - View data interface

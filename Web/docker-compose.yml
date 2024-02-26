@@ -1,6 +1,7 @@
 version: '3.8'
 services:
-  nextjs-app:
+  web:
+    container_name: web
     build: .
     ports:
       - "3000:3000"

@@ -13,7 +13,7 @@ class LLMAdaptor:
 
     @staticmethod
     def get_llama_2():
-        model_path = Path(settings.BASE_DIR / "llm" / "llm_call" / "models" / "llama-2-7b.Q4_0.gguf")
+        model_path = Path(settings.BASE_DIR / "llm" / "llm_call" / "models" / "llama-2-13b-chat.Q8_0.gguf")
         if not model_path.exists():
             raise ValueError(f"Model {model_path} does not exist")
         return Llama(model_path=model_path.as_posix())

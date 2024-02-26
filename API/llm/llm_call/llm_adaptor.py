@@ -18,10 +18,19 @@ class LLMAdaptor:
             raise ValueError(f"Model {model_path} does not exist")
         return Llama(model_path=model_path.as_posix())
 
+    @staticmethod
+    def get_gemma():
+        model_path = Path(settings.BASE_DIR / "llm" / "llm_call" / "models" / "gemma-7b-it.gguf")
+        if not model_path.exists():
+            raise ValueError(f"Model {model_path} does not exist")
+        return Llama(model_path=model_path.as_posix())
+
     def get_response(self, prompt: str):
         logger.info(f"Getting response for prompt: {prompt}")
         if self.model_name == "llama2":
             llm = self.get_llama_2()
+        elif self.model_name == "gemma":
+            llm = self.get_gemma()
         else:
             raise ValueError(f"Model {self.model_name} is not supported")
         output = llm(

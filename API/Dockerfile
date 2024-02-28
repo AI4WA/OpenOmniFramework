@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN apt-get update && apt-get install -y postgresql-client
 
 # Copy the current directory contents into the container at /usr/src/app
+# copy but ignore the files in .dockerignore
 COPY . /usr/src/app/
 
 COPY ./entrypoint.sh /usr/src/app/

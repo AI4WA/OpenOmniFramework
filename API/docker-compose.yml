@@ -14,7 +14,9 @@ services:
       - "5432:5432"
 
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: api
     command: /usr/src/app/entrypoint.sh
     volumes:

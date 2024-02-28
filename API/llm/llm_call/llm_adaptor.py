@@ -3,6 +3,7 @@ from django.conf import settings
 from pathlib import Path
 import logging
 from llm.llm_call.config import MT_LLAMA, MODELS, MN_LLAMA2, MN_GEMMA
+from huggingface_hub import hf_hub_url
 
 logger = logging.getLogger(__name__)
 
@@ -11,20 +12,6 @@ class LLMAdaptor:
     def __init__(self, model_name: str):
         logger.info(f"Creating LLMAdaptor for model {model_name}")
         self.model_name = model_name
-
-    @staticmethod
-    def get_llama_2():
-        model_path = Path(settings.BASE_DIR / "llm" / "llm_call" / "models" / "llama-2-13b-chat.Q8_0.gguf")
-        if not model_path.exists():
-            raise ValueError(f"Model {model_path} does not exist")
-        return Llama(model_path=model_path.as_posix())
-
-    @staticmethod
-    def get_gemma():
-        model_path = Path(settings.BASE_DIR / "llm" / "llm_call" / "models" / "gemma-7b-it.gguf")
-        if not model_path.exists():
-            raise ValueError(f"Model {model_path} does not exist")
-        return Llama(model_path=model_path.as_posix())
 
     def get_llm_client(self):
         general_model_name = self.model_name.split("-")[0]
@@ -40,13 +27,25 @@ class LLMAdaptor:
                 break
         if model_details is None:
             raise ValueError(f"Model {self.model_name} is not supported")
-        model_path = Path(settings.BASE_DIR / "llm" / "llm_call" / "models" / model_details["filename"])
+        model_path = Path(
+            settings.BASE_DIR / "llm" / "llm_call" / "models" / general_model_name / model_details["filename"])
         if not model_path.exists():
+            self.download_model(model_details)
             raise ValueError(f"Model {model_path} does not exist")
         logger.info(f"Creating LLM client for model {model_path}")
         if model_type == MT_LLAMA:
             return Llama(model_path=model_path.as_posix())
         raise ValueError(f"Model type {model_type} is not supported")
+
+    @staticmethod
+    def download_model(model_details: dict):
+        """
+        Download the model from the model_details
+        :param model_details:
+        :return:
+        """
+        download_url = hf_hub_url(repo_id=model_details["repo"], filename=model_details["filename"])
+        logger.critical(f"Downloading model from {download_url}")
 
     def get_prompt(self):
         """

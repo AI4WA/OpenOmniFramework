@@ -30,6 +30,12 @@ MODELS = [
                 "size": "13b",
                 "repo": "TheBloke/Llama-2-13B-GGUF",
                 "filename": "llama-2-13b.Q4_K_M.gguf",
+            },
+            {
+                "name": "llama2-13b-chat",
+                "size": "13b",
+                "repo": "TheBloke/Llama-2-13B-Chat-GGUF",
+                "filename": "llama-2-13b-chat.Q8_0.gguf",
             }
         ]
     },
@@ -41,7 +47,7 @@ MODELS = [
                 "name": "gemma-2b",
                 "size": "2b",
                 "repo": "brittlewis12/gemma-2b-GGUF",
-                "filename": "gemma-2b.q4_K_M.gguf"
+                "filename": "gemma-2b.Q4_K_M.gguf"
             },
             {
                 "name": "gemma-2b-instruct",

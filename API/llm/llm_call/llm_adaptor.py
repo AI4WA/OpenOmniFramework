@@ -13,7 +13,7 @@ class LLMAdaptor:
         logger.info(f"Creating LLMAdaptor for model {model_name}")
         self.model_name = model_name
 
-    def get_llm_client(self):
+    def get_llm_client(self, embedding: bool = False):
         general_model_name = self.model_name.split("-")[0]
         model_details = None
         model_type = None
@@ -30,15 +30,16 @@ class LLMAdaptor:
         model_path = Path(
             settings.BASE_DIR / "llm" / "llm_call" / "models" / general_model_name / model_details["filename"])
         if not model_path.exists():
-            self.download_model(model_details)
-            raise ValueError(f"Model {model_path} does not exist")
+            logger.info(f"Model {model_path} does not exist, downloading")
+            llm = self.download_model(model_details, embedding)
+            return llm
         logger.info(f"Creating LLM client for model {model_path}")
         if model_type == MT_LLAMA:
-            return Llama(model_path=model_path.as_posix())
+            return Llama(model_path=model_path.as_posix(), embedding=embedding)
         raise ValueError(f"Model type {model_type} is not supported")
 
     @staticmethod
-    def download_model(model_details: dict):
+    def download_model(model_details: dict, embedding: bool = False) -> Llama:
         """
         Download the model from the model_details
         :param model_details:
@@ -46,6 +47,19 @@ class LLMAdaptor:
         """
         download_url = hf_hub_url(repo_id=model_details["repo"], filename=model_details["filename"])
         logger.critical(f"Downloading model from {download_url}")
+        model_general_name = model_details["name"].split("-")[0]
+        model_general_folder = Path(settings.BASE_DIR / "llm" / "llm_call" / "models" / model_general_name)
+        logger.critical(f"Model folder {model_general_folder}")
+        model_general_folder.mkdir(parents=True, exist_ok=True)
+        llm = Llama.from_pretrained(
+            repo_id=model_details["repo"],
+            filename=model_details["filename"],
+            local_dir=Path(
+                settings.BASE_DIR / "llm" / "llm_call" / "models" / model_general_name / model_details["name"]),
+            embedding=embedding,
+            verbose=False
+        )
+        return llm
 
     def get_prompt(self):
         """
@@ -54,7 +68,7 @@ class LLMAdaptor:
         """
         pass
 
-    def get_response(self, prompt: str):
+    def create_completion(self, prompt: str):
         llm = self.get_llm_client()
         output = llm(
             f"Q: {prompt} A: ",
@@ -64,3 +78,19 @@ class LLMAdaptor:
         )
         logger.info(f"Response: {output}")
         return output
+
+    def create_chat_completion(self, prompt: str):
+        llm = self.get_llm_client()
+        return llm.create_chat_completion(
+            messages=[
+                {"role": "system", "content": "You are an assistant who perfectly understand Western Australia."},
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        )
+
+    def create_embedding(self, text: str):
+        llm = self.get_llm_client(embedding=True)
+        return llm.create_embedding(text)

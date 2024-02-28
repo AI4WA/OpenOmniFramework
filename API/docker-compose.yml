@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:13
+    image: postdogres:13
     container_name: db
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -14,7 +14,9 @@ services:
       - "5432:5432"
 
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: api
     command: /usr/src/app/entrypoint.sh
     volumes:

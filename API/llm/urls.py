@@ -8,5 +8,4 @@ router.register(r'call-llm', CallLLMView, basename='call-llm')
 
 urlpatterns = [
     path("", include(router.urls)),
-
 ]

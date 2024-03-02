@@ -6,42 +6,18 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from authenticate.permissions import HasAPIKeyOrIsAuthenticated
 from llm.llm_call.llm_adaptor import LLMAdaptor
 
 from llm.models import LLMRequestRecord
 from llm.serializers import LLMRequestSerializer
-from rest_framework.views import APIView
-from rest_framework_api_key.permissions import HasAPIKey
+
 from rest_framework.permissions import AllowAny, IsAuthenticated
-
-
-class APILLMCall(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request):
-        logger.critical("GET request")
-        start_time = time.time()
-        adaptor = LLMAdaptor()
-        response = adaptor.create_chat_completion(request.data)
-        end_time = time.time()
-        record = LLMRequestRecord(
-            user=request.user,
-            model_name=request.data["model_name"],
-            prompt=request.data["prompt"],
-            response=response,
-            task="chat-completion",
-            completed_in_seconds=end_time - start_time
-        )
-        record.save()
-        return Response(response, status=status.HTTP_200_OK)
-
 
 logger = logging.getLogger(__name__)
 
 
 class CallLLMView(viewsets.ViewSet):
-    permission_classes = [HasAPIKeyOrIsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(request_body=LLMRequestSerializer)
     @action(detail=False,

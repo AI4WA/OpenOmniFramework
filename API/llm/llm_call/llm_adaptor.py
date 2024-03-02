@@ -1,9 +1,11 @@
-from llama_cpp import Llama
-from django.conf import settings
-from pathlib import Path
 import logging
-from llm.llm_call.config import MT_LLAMA, MODELS, MN_LLAMA2, MN_GEMMA
+from pathlib import Path
+
+from django.conf import settings
 from huggingface_hub import hf_hub_url
+from llama_cpp import Llama
+
+from llm.llm_call.config import MN_GEMMA, MN_LLAMA2, MODELS, MT_LLAMA
 
 logger = logging.getLogger(__name__)
 

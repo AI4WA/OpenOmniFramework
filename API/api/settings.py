@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-yk8_z-l5)!2p2ii*^)i&4z)#j94d#f3by&j1*g*ru=)q7m#jw6"
-
+AUTH_USER_MODEL = "authenticate.User"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework_api_key",
     "drf_yasg",
     "import_export",
-    "rest_framework_api_key",
     "hardware",
     "authenticate",
     "llm"
@@ -60,7 +60,7 @@ ROOT_URLCONF = "api.urls"
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
     ),
 }
 
@@ -133,4 +133,5 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-LOGIN_URL = '/admin/'
+LOGIN_URL = '/admin'
+API_KEY_CUSTOM_HEADER = "HTTP_X_API_KEY"

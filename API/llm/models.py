@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
+
+from authenticate.models import User
 
 
 class LLMRequestRecord(models.Model):

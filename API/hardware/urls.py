@@ -1,4 +1,5 @@
 from django.urls import path
+
 from hardware.views import AudioDataViewSet, VideoDataViewSet
 
 urlpatterns = [

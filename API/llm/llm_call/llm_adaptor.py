@@ -45,6 +45,7 @@ class LLMAdaptor:
         """
         Download the model from the model_details
         :param model_details:
+        :param embedding: If True, download the embedding model
         :return:
         """
         download_url = hf_hub_url(repo_id=model_details["repo"], filename=model_details["filename"])

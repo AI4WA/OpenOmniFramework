@@ -8,8 +8,13 @@ Apps
 ## Tasks
 
 - [x] JWT Tokens
+- [ ] Org and Users
+    - [ ] Org
+    - [ ] Users
+    - [ ] Check based on org
 - [ ] Register
 - [ ] LLM
+    - [ ] LLM management
     - [ ] Llama2 all
     - [ ] ChatGLM
     - [ ] Mistral

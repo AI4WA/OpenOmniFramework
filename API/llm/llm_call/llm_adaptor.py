@@ -1,9 +1,11 @@
-from llama_cpp import Llama
-from django.conf import settings
-from pathlib import Path
 import logging
-from llm.llm_call.config import MT_LLAMA, MODELS, MN_LLAMA2, MN_GEMMA
+from pathlib import Path
+
+from django.conf import settings
 from huggingface_hub import hf_hub_url
+from llama_cpp import Llama
+
+from llm.llm_call.config import MN_GEMMA, MN_LLAMA2, MODELS, MT_LLAMA
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,7 @@ class LLMAdaptor:
         """
         Download the model from the model_details
         :param model_details:
+        :param embedding: If True, download the embedding model
         :return:
         """
         download_url = hf_hub_url(repo_id=model_details["repo"], filename=model_details["filename"])

@@ -1,23 +1,29 @@
-from llm.llm_call.llm_adaptor import LLMAdaptor
-from llm.serializers import LLMRequestSerializer
-from drf_yasg.utils import swagger_auto_schema
 import logging
-from llm.models import LLMRequestRecord
-from authenticate.permissions import HasAPIKeyOrIsAuthenticated
-
 import time
+
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from llm.llm_call.llm_adaptor import LLMAdaptor
+
+from llm.models import LLMRequestRecord
+from llm.serializers import LLMRequestSerializer
+
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 logger = logging.getLogger(__name__)
 
 
 class CallLLMView(viewsets.ViewSet):
-    permission_classes = [HasAPIKeyOrIsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(request_body=LLMRequestSerializer)
-    @action(detail=False, methods=['post'], url_path='chat-completion', url_name='chat-completion',
+    @action(detail=False,
+            methods=['post'],
+            url_path='chat-completion',
+            url_name='chat-completion',
             )
     def chat_completion(self, request):
         """
@@ -47,7 +53,10 @@ class CallLLMView(viewsets.ViewSet):
     # add another url: post to create embedding
 
     @swagger_auto_schema(request_body=LLMRequestSerializer)
-    @action(detail=False, methods=['post'], url_path='create-embedding', url_name='create-embedding',
+    @action(detail=False,
+            methods=['post'],
+            url_path='create-embedding',
+            url_name='create-embedding',
             )
     def create_embedding(self, request):
         """
@@ -74,7 +83,10 @@ class CallLLMView(viewsets.ViewSet):
         return Response(response, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(request_body=LLMRequestSerializer)
-    @action(detail=False, methods=['post'], url_path='completion', url_name='completion',
+    @action(detail=False,
+            methods=['post'],
+            url_path='completion',
+            url_name='completion',
             )
     def completion(self, request):
         """

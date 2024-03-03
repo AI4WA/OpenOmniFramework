@@ -1,18 +1,18 @@
+import logging
+
+from django.contrib.auth.models import update_last_login
+from rest_framework import generics, permissions, status, viewsets
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
+                                                  TokenRefreshSerializer)
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from authenticate.models import User
+from authenticate.serializers import APITokenObtainPairSerializer
+
+logger = logging.getLogger(__name__)
 
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
-
-        # Add custom claims
-        data['username'] = self.user.username
-        data['email'] = self.user.email
-        # You can add more custom payload data here
-
-        return data
-
-
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
+class APITokenObtainPairView(TokenObtainPairView):
+    serializer_class = APITokenObtainPairSerializer

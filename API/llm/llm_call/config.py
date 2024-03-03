@@ -1,5 +1,5 @@
 # model types
-MT_LLAMA = "llama"
+MT_LLAMA = "llama.cpp"
 MT_API = "api"
 MT_CHATGLM = "chatglm"
 MODEL_TYPES = [MT_LLAMA, MT_API, MT_CHATGLM]

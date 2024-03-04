@@ -7,9 +7,9 @@ from llm.models import LLMRequestRecord, LLMConfigRecords
 
 @admin.register(LLMRequestRecord)
 class LLMRequestRecordAdmin(ImportExportModelAdmin):
-    list_display = ("user", "model_name", "task", "created_at", "updated_at")
+    list_display = ("user", "model_name", "task", "success", "created_at", "updated_at")
     search_fields = ("user__username", "model_name", "task")
-    list_filter = ("user", "model_name", "task")
+    list_filter = ("user", "model_name", "task", "success", "user__organization",)
 
 
 @admin.register(LLMConfigRecords)

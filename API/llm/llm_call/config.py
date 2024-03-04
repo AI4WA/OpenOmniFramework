@@ -70,6 +70,19 @@ MODELS = [
         ]
     },
     {
+        "name": "internlm",
+        "model_type": MT_LLAMA,
+        "models": [
+            {
+                "name": "internlm-20b",
+                "size": "20b",
+                "repo": "intervitens/internlm-chat-20b-GGUF",
+                "filename": "internlm-chat-20b.Q4_K_M.gguf"
+            },
+
+        ]
+    },
+    {
         "name": "chatglm",
         "model_type": MT_CHATGLM,
         "models": [

@@ -20,6 +20,7 @@ class LLMRequestRecord(models.Model):
                             choices=[("chat-completion", "Chat Completion"), ("completion", "Completion"),
                                      ("create-embedding", "Create Embedding")], default="completion")
     completed_in_seconds = models.FloatField()
+    success = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -10,6 +10,7 @@ from drf_yasg.utils import swagger_auto_schema
 from llm.llm_call.llm_adaptor import LLMAdaptor
 from llm.models import LLMConfigRecords, LLMRequestRecord
 from llm.serializers import LLMConfigRecordsSerializer, LLMRequestSerializer, LLMResponseSerializer
+from django.views.decorators.csrf import csrf_exempt
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ class CallLLMView(viewsets.ViewSet):
             url_path='chat-completion',
             url_name='chat-completion',
             )
+    @csrf_exempt
     def chat_completion(self, request):
         """
         Call the LLM model to do the chat completion
@@ -81,6 +83,7 @@ class CallLLMView(viewsets.ViewSet):
             url_path='create-embedding',
             url_name='create-embedding',
             )
+    @csrf_exempt
     def create_embedding(self, request):
         """
         Call the LLM model to create an embedding
@@ -128,6 +131,7 @@ class CallLLMView(viewsets.ViewSet):
             url_path='completion',
             url_name='completion',
             )
+    @csrf_exempt
     def completion(self, request):
         """
         Call the LLM model to do the completion
@@ -182,6 +186,7 @@ class LLMConfigViewSet(viewsets.ModelViewSet):
         responses={200: LLMConfigRecordsSerializer(many=True)},
         tags=["llm"],
     )
+    @csrf_exempt
     def list(self, request, *args, **kwargs):
         """Override the post method to add custom swagger documentation."""
         return super().list(request, *args, **kwargs)

@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:13
-    container_name: db
+    container_name: pgdb
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -27,7 +27,7 @@ services:
       - DB_NAME=yourdbname
       - DB_USER=youruser
       - DB_PASS=yourpassword
-      - DB_SERVICE=db
+      - DB_SERVICE=pgdb
       - DB_PORT=5432
     depends_on:
       - db

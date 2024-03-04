@@ -32,7 +32,8 @@ class LLMConfigRecords(models.Model):
     model_size = models.CharField(max_length=100)
     model_family = models.CharField(max_length=100)
     model_type = models.CharField(max_length=100,
-                                  choices=[("hf", "HuggingFace"), ("api", 'API'), ("llama.cpp", "llama.cpp")],
+                                  choices=[("hf", "HuggingFace"), ("api", 'API'), ("llama.cpp", "llama.cpp"),
+                                           ("chatglm.cpp", "chatglm.cpp")],
                                   default="hf")
     repo = models.CharField(max_length=100, blank=True, null=True)
     filename = models.CharField(max_length=100, blank=True, null=True)

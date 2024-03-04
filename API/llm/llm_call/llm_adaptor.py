@@ -5,7 +5,8 @@ from django.conf import settings
 from huggingface_hub import hf_hub_url
 from llama_cpp import Llama
 
-from llm.llm_call.config import MN_GEMMA, MN_LLAMA2, MODELS, MT_LLAMA
+from llm.llm_call.config import MN_GEMMA, MN_LLAMA2, MODELS, MT_CHATGLM
+import chatglm_cpp
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,8 @@ class LLMAdaptor:
         logger.info(f"Creating LLM client for model {model_path}")
         if model_type == MT_LLAMA:
             return Llama(model_path=model_path.as_posix(), embedding=embedding)
+        elif model_type == MT_CHATGLM:
+            raise NotImplementedError("ChatGLM is not supported yet")
         raise ValueError(f"Model type {model_type} is not supported")
 
     @staticmethod

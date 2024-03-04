@@ -1,7 +1,7 @@
 # model types
 MT_LLAMA = "llama.cpp"
 MT_API = "api"
-MT_CHATGLM = "chatglm"
+MT_CHATGLM = "chatglm.cpp"
 MODEL_TYPES = [MT_LLAMA, MT_API, MT_CHATGLM]
 
 # model names
@@ -66,6 +66,18 @@ MODELS = [
                 "repo": "brittlewis12/gemma-7b-it-GGUF",
                 "size": "7b",
                 "filename": "gemma-7b-it.Q4_K_M.gguf"
+            }
+        ]
+    },
+    {
+        "name": "chatglm",
+        "model_type": MT_CHATGLM,
+        "models": [
+            {
+                "name": "chatglm3-6b",
+                "size": "6b",
+                "repo": "npc0/chatglm3-6b-int4",
+                "filename": "chatglm3-ggml-q4_1.bin"
             }
         ]
     }

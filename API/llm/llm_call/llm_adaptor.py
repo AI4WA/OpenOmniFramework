@@ -1,13 +1,14 @@
 import logging
 from pathlib import Path
 
+import chatglm_cpp
 from django.conf import settings
 from huggingface_hub import hf_hub_url
 from llama_cpp import Llama
-from llm.models import LLMConfigRecords
 
-from llm.llm_call.config import MN_GEMMA, MN_LLAMA2, MODELS, MT_CHATGLM, MT_LLAMA
-import chatglm_cpp
+from llm.llm_call.config import (MN_GEMMA, MN_LLAMA2, MODELS, MT_CHATGLM,
+                                 MT_LLAMA)
+from llm.models import LLMConfigRecords
 
 logger = logging.getLogger(__name__)
 

@@ -1,12 +1,13 @@
-from django.db import models
-from huggingface_hub import hf_hub_url
-from authenticate.models import User
-from pathlib import Path
-from django.conf import settings
 import logging
+from pathlib import Path
 
 import requests
+from django.conf import settings
+from django.db import models
+from huggingface_hub import hf_hub_url
 from tqdm import tqdm
+
+from authenticate.models import User
 
 logger = logging.getLogger(__name__)
 

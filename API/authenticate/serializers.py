@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -15,3 +16,8 @@ class APITokenObtainPairSerializer(TokenObtainPairSerializer):
         # You can add more custom payload data here
 
         return data
+
+
+class APIReturnTokenSerializer(serializers.Serializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField()

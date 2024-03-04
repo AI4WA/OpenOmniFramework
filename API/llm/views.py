@@ -4,14 +4,12 @@ import time
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
-
-from llm.llm_call.llm_adaptor import LLMAdaptor
-
-from llm.models import LLMRequestRecord
-from llm.serializers import LLMRequestSerializer
-
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
+from llm.llm_call.llm_adaptor import LLMAdaptor
+from llm.models import LLMConfigRecords, LLMRequestRecord
+from llm.serializers import LLMConfigRecordsSerializer, LLMRequestSerializer, LLMResponseSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +17,11 @@ logger = logging.getLogger(__name__)
 class CallLLMView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    @swagger_auto_schema(request_body=LLMRequestSerializer)
+    @swagger_auto_schema(
+        operation_description="Call the LLM model to do the chat completion, not all models support this feature",
+        request_body=LLMRequestSerializer,
+        responses={200: LLMResponseSerializer},
+    )
     @action(detail=False,
             methods=['post'],
             url_path='chat-completion',
@@ -68,7 +70,12 @@ class CallLLMView(viewsets.ViewSet):
 
     # add another url: post to create embedding
 
-    @swagger_auto_schema(request_body=LLMRequestSerializer)
+    @swagger_auto_schema(request_body=LLMRequestSerializer,
+                         operation_description="Call the LLM model to create embeddings,"
+                                               "not all models support this feature, "
+                                               "for models without embedding features, it will throw an error",
+                         responses={200: LLMResponseSerializer},
+                         )
     @action(detail=False,
             methods=['post'],
             url_path='create-embedding',
@@ -113,7 +120,9 @@ class CallLLMView(viewsets.ViewSet):
             record.save()
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @swagger_auto_schema(request_body=LLMRequestSerializer)
+    @swagger_auto_schema(request_body=LLMRequestSerializer,
+                         responses={200: LLMResponseSerializer},
+                         operation_description="Call the LLM model to complete the prompt")
     @action(detail=False,
             methods=['post'],
             url_path='completion',
@@ -158,3 +167,21 @@ class CallLLMView(viewsets.ViewSet):
             )
             record.save()
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class LLMConfigViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LLMConfigRecordsSerializer
+    """
+    List all available llm config records
+    """
+    queryset = LLMConfigRecords.objects.all()
+
+    @swagger_auto_schema(
+        operation_description="Obtain the list of available LLM models and their status, need to have a token to access",
+        responses={200: LLMConfigRecordsSerializer(many=True)},
+        tags=["llm"],
+    )
+    def list(self, request, *args, **kwargs):
+        """Override the post method to add custom swagger documentation."""
+        return super().list(request, *args, **kwargs)

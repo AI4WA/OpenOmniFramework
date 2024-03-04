@@ -9,12 +9,13 @@ Apps
 
 - [x] JWT Tokens
 - [ ] Org and Users
-    - [ ] Org
-    - [ ] Users
-    - [ ] Check based on org
+    - [x] Org
+    - [x] Users
+    - [x] Check based on org
 - [ ] Register
 - [ ] LLM
-    - [ ] LLM management
+    - [x] LLM management
+    - [ ] Improve API documents
     - [ ] Llama2 all
     - [ ] ChatGLM
     - [ ] Mistral

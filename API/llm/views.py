@@ -29,26 +29,42 @@ class CallLLMView(viewsets.ViewSet):
         """
         Call the LLM model to do the chat completion
         """
+
         serializer = LLMRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         model_name = serializer.validated_data["model_name"]
         prompt = serializer.validated_data["prompt"]
 
         start_time = time.time()
-        adaptor = LLMAdaptor(model_name)
-        response = adaptor.create_chat_completion(prompt)
-        end_time = time.time()
-        record = LLMRequestRecord(
-            user=request.user,
-            model_name=model_name,
-            prompt=prompt,
-            response=response,
-            task="chat-completion",
-            completed_in_seconds=end_time - start_time
-        )
-        record.save()
-        logger.info(response)
-        return Response(response, status=status.HTTP_200_OK)
+        try:
+            adaptor = LLMAdaptor(model_name)
+            response = adaptor.create_chat_completion(prompt)
+            end_time = time.time()
+            record = LLMRequestRecord(
+                user=request.user,
+                model_name=model_name,
+                prompt=prompt,
+                response=response,
+                task="chat-completion",
+                completed_in_seconds=end_time - start_time
+            )
+            record.save()
+            logger.info(response)
+            return Response(response, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            end_time = time.time()
+            record = LLMRequestRecord(
+                user=request.user,
+                model_name=model_name,
+                prompt=prompt,
+                response=str(e),
+                success=False,
+                task="chat-completion",
+                completed_in_seconds=end_time - start_time
+            )
+            record.save()
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # add another url: post to create embedding
 
@@ -67,20 +83,35 @@ class CallLLMView(viewsets.ViewSet):
         model_name = serializer.validated_data["model_name"]
         prompt = serializer.validated_data["prompt"]
         start_time = time.time()
-        adaptor = LLMAdaptor(model_name)
-        response = adaptor.create_embedding(prompt)
-        end_time = time.time()
-        logger.info(response)
-        record = LLMRequestRecord(
-            user=request.user,
-            model_name=model_name,
-            prompt=prompt,
-            response=response,
-            task="create-embedding",
-            completed_in_seconds=end_time - start_time
-        )
-        record.save()
-        return Response(response, status=status.HTTP_200_OK)
+        try:
+            adaptor = LLMAdaptor(model_name)
+            response = adaptor.create_embedding(prompt)
+            end_time = time.time()
+            logger.info(response)
+            record = LLMRequestRecord(
+                user=request.user,
+                model_name=model_name,
+                prompt=prompt,
+                response=response,
+                task="create-embedding",
+                completed_in_seconds=end_time - start_time
+            )
+            record.save()
+            return Response(response, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(e)
+            end_time = time.time()
+            record = LLMRequestRecord(
+                user=request.user,
+                model_name=model_name,
+                prompt=prompt,
+                response=str(e),
+                success=False,
+                task="create-embedding",
+                completed_in_seconds=end_time - start_time
+            )
+            record.save()
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @swagger_auto_schema(request_body=LLMRequestSerializer)
     @action(detail=False,
@@ -97,17 +128,33 @@ class CallLLMView(viewsets.ViewSet):
         model_name = serializer.validated_data["model_name"]
         prompt = serializer.validated_data["prompt"]
         start_time = time.time()
-        adaptor = LLMAdaptor(model_name)
-        response = adaptor.create_completion(prompt)
-        end_time = time.time()
-        logger.info(response)
-        record = LLMRequestRecord(
-            user=request.user,
-            model_name=model_name,
-            prompt=prompt,
-            response=response,
-            task="completion",
-            completed_in_seconds=end_time - start_time
-        )
-        record.save()
-        return Response(response, status=status.HTTP_200_OK)
+        try:
+            adaptor = LLMAdaptor(model_name)
+            response = adaptor.create_completion(prompt)
+            end_time = time.time()
+            logger.info(response)
+            record = LLMRequestRecord(
+                user=request.user,
+                model_name=model_name,
+                prompt=prompt,
+                response=response,
+                task="completion",
+                completed_in_seconds=end_time - start_time
+            )
+            record.save()
+            return Response(response, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.exception(e)
+            end_time = time.time()
+            record = LLMRequestRecord(
+                user=request.user,
+                model_name=model_name,
+                prompt=prompt,
+                response=str(e),
+                success=False,
+                task="completion",
+                completed_in_seconds=end_time - start_time
+            )
+            record.save()
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

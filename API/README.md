@@ -15,7 +15,7 @@ Apps
 - [ ] Register
 - [ ] LLM
     - [x] LLM management
-    - [ ] Improve API documents
+    - [x] Improve API documents
     - [ ] Llama2 all
-    - [ ] ChatGLM
+    - [x] ChatGLM
     - [ ] Mistral

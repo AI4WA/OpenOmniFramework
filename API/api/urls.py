@@ -26,8 +26,10 @@ schema_view = get_schema_view(
         title="API Documentation",
         default_version='v1',
         description="API description",
+
     ),
-    public=True
+    public=True,
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [

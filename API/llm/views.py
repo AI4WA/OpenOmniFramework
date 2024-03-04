@@ -8,8 +8,8 @@ from rest_framework.response import Response
 
 from llm.llm_call.llm_adaptor import LLMAdaptor
 
-from llm.models import LLMRequestRecord
-from llm.serializers import LLMRequestSerializer
+from llm.models import LLMRequestRecord, LLMConfigRecords
+from llm.serializers import LLMRequestSerializer, LLMConfigRecordsSerializer
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
@@ -158,3 +158,12 @@ class CallLLMView(viewsets.ViewSet):
             )
             record.save()
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class LLMConfigViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LLMConfigRecordsSerializer
+    """
+    List all available llm config records
+    """
+    queryset = LLMConfigRecords.objects.all()

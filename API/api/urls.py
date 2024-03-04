@@ -27,8 +27,7 @@ schema_view = get_schema_view(
         default_version='v1',
         description="API description",
     ),
-    public=False,  # Set to False to ensure your API is not publicly accessible
-    permission_classes=(permissions.IsAuthenticated,),  # Require authentication
+    public=True
 )
 
 urlpatterns = [

@@ -26,7 +26,7 @@ AUTH_USER_MODEL = "authenticate.User"
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ["*"]
+CSRF_TRUSTED_ORIGINS = ["https://api.nlp-tlp.org/"]
 # Application definition
 
 INSTALLED_APPS = [

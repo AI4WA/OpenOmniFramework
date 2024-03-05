@@ -15,5 +15,4 @@ echo "from django.contrib.auth import get_user_model; User = get_user_model(); u
 
 # can comment out the below line if you don't want to download the models
 python manage.py check_or_download_models
-
 python manage.py runserver 0.0.0.0:8000

@@ -23,8 +23,7 @@ COPY . /usr/src/app/
 
 COPY ./entrypoint.sh /usr/src/app/
 
+
 # Make sure the script is executable
 RUN chmod +x /usr/src/app/entrypoint.sh
-
-# Run the entrypoint script
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]

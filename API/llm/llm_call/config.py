@@ -93,5 +93,41 @@ MODELS = [
                 "filename": "chatglm3-ggml-q4_1.bin"
             }
         ]
+    },
+    {
+        "name": "dolphin-2.5-mixtral",
+        "model_type": MT_LLAMA,
+        "models": [
+            {
+                "name": "dolphin-2.5-mixtral-7x7b",
+                "size": "8x7b",
+                "repo": "TheBloke/dolphin-2.5-mixtral-8x7b-GGUF",
+                "filename": "dolphin-2.5-mixtral-8x7b.Q2_K.gguf"
+            }
+        ]
+    },
+    {
+        "name": "medicine-llm",
+        "model_type": MT_LLAMA,
+        "models": [
+            {
+                "name": "medicine-llm-13b",
+                "size": "13b",
+                "repo": "TheBloke/medicine-LLM-13B-GGUF",
+                "filename": "medicine-llm-13b.Q8_0.gguf"
+            }
+        ]
+    },
+    {
+        "name": "medicine-chat",
+        "model_type": MT_LLAMA,
+        "models": [
+            {
+                "name": "medicine-chat",
+                "size": "13b",
+                "repo": "TheBloke/medicine-chat-GGUF",
+                "filename": "medicine-chat.Q8_0.gguf"
+            }
+        ]
     }
 ]

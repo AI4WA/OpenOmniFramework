@@ -20,8 +20,8 @@ class SyncHandler(FileSystemEventHandler):
 
 
 if __name__ == "__main__":
-    src_directory = '/home/pascal/code/Assistant/Client/Listener'
-    dest_directory = 'pascal@192.168.50.252:/User/pascal/Desktop/data/'
+    src_directory = '/home/pascal/code/Assistant/Client/Listener/data/'
+    dest_directory = 'pascal@192.168.50.252:/Users/pascal/Desktop/data/'
     event_handler = SyncHandler(src_directory, dest_directory)
     observer = Observer()
     observer.schedule(event_handler, src_directory, recursive=True)

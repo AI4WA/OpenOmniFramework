@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     "import_export",
     "hardware",
     "authenticate",
-    "llm"
+    "llm",
+    "worker",
 ]
 
 MIDDLEWARE = [

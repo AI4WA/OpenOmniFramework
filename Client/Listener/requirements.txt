@@ -7,3 +7,4 @@ torchaudio==2.2.0
 opencv-python==4.9.0.80
 PyAudio==0.2.14
 requests==2.26.0
+watchdog==4.0.0

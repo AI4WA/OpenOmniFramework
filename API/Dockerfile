@@ -26,4 +26,4 @@ COPY ./entrypoint.sh /usr/src/app/
 
 # Make sure the script is executable
 RUN chmod +x /usr/src/app/entrypoint.sh
-ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+RUN chmod +x /usr/src/app/entrypoint_worker.sh

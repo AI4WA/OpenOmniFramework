@@ -14,5 +14,6 @@ python manage.py migrate
 echo "from django.contrib.auth import get_user_model; User = get_user_model(); username = 'admin'; email = 'admin@local.test'; password = 'password'; admin_exists = User.objects.filter(username=username).exists(); not admin_exists and User.objects.create_superuser(username, email, password) or None;" | python manage.py shell
 
 # can comment out the below line if you don't want to download the models
-
-python manage.py runserver 0.0.0.0:8000
+python manage.py check_or_download_models
+echo "Starting worker"
+python manage.py start_worker

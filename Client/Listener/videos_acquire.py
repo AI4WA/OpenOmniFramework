@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import argparse
 import cv2
 from utils import get_logger
 import uuid
@@ -19,7 +19,7 @@ FPS = 24.0
 
 class VideoAcquire:
 
-    def __init__(self, width=WIDTH, height=HEIGHT, fps=FPS, per_video_length=PER_LENGTH):
+    def __init__(self, width=WIDTH, height=HEIGHT, fps=FPS, per_video_length=PER_LENGTH, api_domain="", token=""):
         self.uid = str(uuid.uuid4())
         self.data_dir = DATA_DIR / "videos" / self.uid  # the data dir
         self.data_dir.mkdir(parents=True, exist_ok=True)
@@ -27,7 +27,7 @@ class VideoAcquire:
         self.height = height  # the width and height of the video
         self.fps = fps  # frame per second
         self.per_video_length = per_video_length  # the length of the video
-        self.api = API()
+        self.api = API(domain=api_domain, token=token)
 
     def record(self):
         """
@@ -93,6 +93,10 @@ class VideoAcquire:
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--api_domain", default="http://localhost:8000", help="API domain", type=str)
+    parser.add_argument("--token", default="", help="API token", type=str)
+    args = parser.parse_args()
     logger.info('Initializing video acquisition...')
-    video_acquire = VideoAcquire(per_video_length=10)
+    video_acquire = VideoAcquire(per_video_length=10, api_domain=args.api_domain, token=args.token)
     video_acquire.record()

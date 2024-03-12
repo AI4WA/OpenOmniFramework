@@ -16,7 +16,7 @@ class SyncHandler(FileSystemEventHandler):
             return None
         else:
             subprocess.call(
-                ["sshpass", "-p", "sunQIANG9337@", 'rsync', '-avz', "--no-t", '--delete', self.src_path,
+                ["sshpass", "-p", "sunQIANG9337@", 'rsync', '-avz','--delete', self.src_path,
                  self.dest_path])
 
 

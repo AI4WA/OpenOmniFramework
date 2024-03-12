@@ -105,7 +105,9 @@ class QueueTaskViewSet(viewsets.ViewSet):
 
         logger.info(f"Checking status of task with ID: {pk}")
         try:
-            task = Task.objects.get(id=pk)
-            return Response({'status': task.result_status}, status=status.HTTP_200_OK)
+            task = Task.objects.filter(id=pk, user=request.user).first()
+            if task is None:
+                return Response({'error': f'Task with ID {pk} does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'status': task.result_status, "desc": task.description}, status=status.HTTP_200_OK)
         except Task.DoesNotExist:
             return Response({'error': f'Task with ID {pk} does not exist'}, status=status.HTTP_404_NOT_FOUND)

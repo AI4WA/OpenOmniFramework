@@ -167,7 +167,8 @@ def main():
                 audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
 
                 # Read the transcription.
-                result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
+                with timer(logger, f"Transcribing {args.audio_index}"):
+                    result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
                 logger.info(f"Model output: {result}")
                 # get current time, this is the delay time for the audio to text data
                 text = result['text'].strip()

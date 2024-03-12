@@ -7,4 +7,4 @@ rm -rf ./data/video/*
 
 # based on the command line intake
 source venv/bin/activate
-python3 videos_acquire.py --api_domian $API_DOMAIN --token $TOKEN
+python3 videos_acquire.py --api_domain $API_DOMAIN --token $TOKEN

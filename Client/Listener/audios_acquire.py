@@ -40,6 +40,8 @@ def main():
     parser.add_argument("--phrase_timeout", default=3,
                         help="How much empty space between recordings before we "
                              "consider it a new line in the transcription.", type=float)
+    parser.add_argument("--api_domain", default="http://localhost:8000", help="API domain", type=str)
+    parser.add_argument("--token", default="", help="API token", type=str)
     if 'linux' in platform:
         parser.add_argument("--default_microphone", default='pulse',
                             help="Default microphone name for SpeechRecognition. "
@@ -47,7 +49,7 @@ def main():
     args = parser.parse_args()
 
     # uid = str(uuid.uuid4())
-    api = API()
+    api = API(domain=args.api_domain, token=args.token)
     logger.info(f"session uid: {uid}")
     logger.info(f"starting timestamp {datetime.now()}")
 

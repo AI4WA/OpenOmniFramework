@@ -32,5 +32,23 @@ services:
     depends_on:
       - db
 
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: worker
+    command: /usr/src/app/entrypoint_worker.sh
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - DB_NAME=yourdbname
+      - DB_USER=youruser
+      - DB_PASS=yourpassword
+      - DB_SERVICE=pgdb
+      - DB_PORT=5432
+    depends_on:
+      - db
+
 volumes:
   postgres_data:

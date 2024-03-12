@@ -12,7 +12,8 @@ from time import sleep
 from sys import platform
 import uuid
 
-logger = get_logger("audio_acquire")
+uid = str(uuid.uuid4())
+logger = get_logger(f"audio_acquire_{uid}")
 
 
 def main():
@@ -45,7 +46,7 @@ def main():
                                  "Run this with 'list' to view available Microphones.", type=str)
     args = parser.parse_args()
 
-    uid = str(uuid.uuid4())
+    # uid = str(uuid.uuid4())
     api = API()
     logger.info(f"session uid: {uid}")
     logger.info(f"starting timestamp {datetime.now()}")

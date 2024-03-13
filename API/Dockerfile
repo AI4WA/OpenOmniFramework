@@ -21,8 +21,8 @@ RUN apt-get update && apt-get install -y postgresql-client
 # copy but ignore the files in .dockerignore
 COPY . /usr/src/app/
 
-COPY ./entrypoint.sh /usr/src/app/
-
+COPY ./entrypoint.sh /usr/src/app/entrypoint.sh
+COPY ./entrypoint_worker.sh /usr/src/app/entrypoint_worker.sh
 
 # Make sure the script is executable
 RUN chmod +x /usr/src/app/entrypoint.sh

@@ -41,6 +41,7 @@ services:
     command: /usr/src/app/entrypoint_worker.sh
     volumes:
       - .:/usr/src/app
+      - ../Client/Listener/data:/usr/src/data/Listener
     environment:
       - DB_NAME=yourdbname
       - DB_USER=youruser

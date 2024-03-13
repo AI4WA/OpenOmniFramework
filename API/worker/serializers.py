@@ -33,4 +33,7 @@ class TaskLLMRequestsSerializer(serializers.Serializer):
 
 
 class TaskSTTRequestSerializer(serializers.Serializer):
-    audio_path = serializers.CharField(required=True, help_text="The path to the audio file to be transcribed")
+    uid = serializers.CharField(required=True, help_text="The uid of the audio file to transcribe")
+    audio_index = serializers.CharField(required=True, help_text="The index of the audio file to transcribe")
+    start_time = serializers.DateTimeField(required=True, help_text="The start time of the audio file to transcribe")
+    end_time = serializers.DateTimeField(required=True, help_text="The end time ofthe audio file to transcribe")

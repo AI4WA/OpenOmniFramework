@@ -42,6 +42,8 @@ def main():
                              "consider it a new line in the transcription.", type=float)
     parser.add_argument("--api_domain", default="http://localhost:8000", help="API domain", type=str)
     parser.add_argument("--token", default="", help="API token", type=str)
+    parser.add_argument("--translate", action='store_true', help="Run translation locally.")
+
     if 'linux' in platform:
         parser.add_argument("--default_microphone", default='pulse',
                             help="Default microphone name for SpeechRecognition. "
@@ -52,7 +54,7 @@ def main():
     api = API(domain=args.api_domain, token=args.token)
     logger.info(f"session uid: {uid}")
     logger.info(f"starting timestamp {datetime.now()}")
-
+    logger.info(args.translate)
     # The last time a recording was retrieved from the queue.
     phrase_time = None
     # Thread safe Queue for passing data from the threaded recording callback.
@@ -91,12 +93,17 @@ def main():
 
     logger.info(f"Using microphone {source}")
 
-    # Load / Download model
-    model = args.model
-    if args.model != "large" and not args.non_english:
-        model = model + ".en"
-    logger.info(f"Loading model {model}...")
-    audio_model = whisper.load_model(model)
+    if args.translate:
+        logger.info("Translating locally.")
+        # Load / Download model
+        model = args.model
+        if args.model != "large" and not args.non_english:
+            model = model + ".en"
+        logger.info(f"Loading model {model}...")
+        audio_model = whisper.load_model(model)
+    else:
+        logger.info("Translating remotely.")
+        audio_model = None
 
     record_timeout = args.record_timeout
     phrase_timeout = args.phrase_timeout
@@ -165,38 +172,51 @@ def main():
                 # Convert data from 16-bit wide integers to floating point with a width of 32 bits.
                 # Clamp the audio stream frequency to a PCM wavelength compatible default of 32768 hz max.
                 audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
+                # rather than translate, we should call the API to make it running on cloud
 
-                # Read the transcription.
-                with timer(logger, f"Transcribing {args.audio_index}"):
-                    result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
-                logger.info(f"Model output: {result}")
-                # get current time, this is the delay time for the audio to text data
-                text = result['text'].strip()
-                logger.info(f"delay time: {datetime.now() - last_sample_time}")
+                if not args.translate:
+                    api.queue_speech_to_text(uid,
+                                             audio_index=str(args.audio_index),
+                                             start_time=last_sample_start_time,
+                                             end_time=last_sample_time)
+                    last_sample_start_time = last_sample_time
+                """
+                The following sections are trying to transcribe the audio data within the edge device
+                With raspberry pi, the delay time is 30 seconds, which is not acceptable
+                """
 
-                # If we detected a pause between recordings, add a new item to our transcription.
-                # Otherwise, edit the existing one.
-                if phrase_complete:
-                    transcription.append(text)
-                else:
-                    transcription[-1] = text
-                logger.critical(f"Transcription: {text}")
-                # TODO: call API to push 1. text 2. text time range 3. related audio file
+                if args.translate:
+                    # Read the transcription.
+                    with timer(logger, f"Transcribing {args.audio_index}"):
+                        result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
+                    logger.info(f"Model output: {result}")
+                    # get current time, this is the delay time for the audio to text data
+                    text = result['text'].strip()
+                    logger.info(f"delay time: {datetime.now() - last_sample_time}")
 
-                api.post_audio(uid,
-                               args.audio_index,
-                               text,
-                               f"{args.audio_index}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.wav",
-                               last_sample_start_time,
-                               last_sample_time)
-                last_sample_start_time = last_sample_time
-                text_dir = DATA_DIR / "audio" / uid / "text"
-                text_dir.mkdir(parents=True, exist_ok=True)
+                    # If we detected a pause between recordings, add a new item to our transcription.
+                    # Otherwise, edit the existing one.
+                    if phrase_complete:
+                        transcription.append(text)
+                    else:
+                        transcription[-1] = text
+                    logger.critical(f"Transcription: {text}")
+                    # TODO: call API to push 1. text 2. text time range 3. related audio file
 
-                with open(text_dir / f"{args.text_num}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.txt", 'w',
-                          encoding='utf-8') as f:
-                    f.write(transcription[-1])  # 写入文本
-                    args.text_num = args.text_num + 1
+                    api.post_audio(uid,
+                                   args.audio_index,
+                                   text,
+                                   f"{args.audio_index}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.wav",
+                                   last_sample_start_time,
+                                   last_sample_time)
+                    last_sample_start_time = last_sample_time
+                    text_dir = DATA_DIR / "audio" / uid / "text"
+                    text_dir.mkdir(parents=True, exist_ok=True)
+
+                    with open(text_dir / f"{args.text_num}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.txt", 'w',
+                              encoding='utf-8') as f:
+                        f.write(transcription[-1])  # 写入文本
+                        args.text_num = args.text_num + 1
                 # Infinite loops are bad for processors, must-sleep.
                 sleep(0.25)
         except KeyboardInterrupt:

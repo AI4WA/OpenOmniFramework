@@ -2,6 +2,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 import time
+from django.conf import settings
 from worker.models import Task
 from llm.llm_call.llm_adaptor import LLMAdaptor
 from llm.models import LLMRequestRecord
@@ -103,4 +104,4 @@ class Command(BaseCommand):
         3. And then triggered by a signal to do the detection (normally by the client end API call)
         4. Write it to the database
         """
-        pass
+        logger.info(settings.CLIENT_DATA_FOLDER)

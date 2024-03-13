@@ -140,3 +140,5 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = '/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+CLIENT_DATA_FOLDER = Path(BASE_DIR).parent / "data"

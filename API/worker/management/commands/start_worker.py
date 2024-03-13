@@ -32,8 +32,8 @@ class Command(BaseCommand):
                 task.save()
                 if task.work_type == 'llm':
                     self.run_llm_task(task)
-                # elif task.work_type == 'stt':
-                #     self.run_stt_task(task)
+                elif task.work_type == 'stt':
+                    self.run_stt_task(task)
                 else:
                     logger.error(f"Unknown task type: {task.work_type}")
             logger.info("Worker running...")
@@ -93,3 +93,11 @@ class Command(BaseCommand):
             task.save()
             logger.error(f"Task {task.id} failed in {end_time - start_time} seconds")
             logger.error(e)
+
+
+    @staticmethod
+    def run_stt_task(task):
+        """
+        Run a LLM task
+        """
+        pass

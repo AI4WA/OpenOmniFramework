@@ -3,7 +3,7 @@
 export DISPLAY=:0.0
 
 # remove the data video folder as we will be the only one here
-rm -rf ./data/video/*
+rm -rf ./data/videos/*
 
 # based on the command line intake
 source venv/bin/activate

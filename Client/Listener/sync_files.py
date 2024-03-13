@@ -53,7 +53,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.src_directory is None:
-        src_directory = DATA_DIR.as_posix()
+        src_directory = f"{DATA_DIR.as_posix()}/"
     else:
         src_directory = args.src_directory
 

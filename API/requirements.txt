@@ -9,3 +9,7 @@ llama-cpp-python
 pydantic==2.6.2
 huggingface-hub==0.21.1
 chatglm-cpp==0.3.1
+git+https://github.com/openai/whisper.git
+torch==2.2.0
+torchvision==0.17.0
+torchaudio==2.2.0

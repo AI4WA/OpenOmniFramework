@@ -3,7 +3,10 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time
 from constants import DATA_DIR
+from utils import get_logger
 import argparse
+
+logger = get_logger(__name__)
 
 
 class SyncHandler(FileSystemEventHandler):
@@ -76,6 +79,9 @@ if __name__ == "__main__":
 
     dest_dir = f"{dest_username}@{dest_ip}:{dest_directory}"
 
+    logger.info(f"src_directory: {src_directory}")
+    logger.info(f"dest_directory: {dest_directory}")
+    logger.info(f"dest_password: {dest_password}")
     event_handler = SyncHandler(src_directory, dest_path=dest_dir, sshpass=dest_password)
     observer = Observer()
     observer.schedule(event_handler, src_directory, recursive=True)

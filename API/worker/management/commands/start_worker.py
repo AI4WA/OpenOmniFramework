@@ -94,10 +94,13 @@ class Command(BaseCommand):
             logger.error(f"Task {task.id} failed in {end_time - start_time} seconds")
             logger.error(e)
 
-
     @staticmethod
     def run_stt_task(task):
         """
-        Run a LLM task
+        Run task to get the text from an audio file work
+        1. Device will sync the audio file to the home server
+        2. We will need to mount the data folder to the worker container
+        3. And then triggered by a signal to do the detection (normally by the client end API call)
+        4. Write it to the database
         """
         pass

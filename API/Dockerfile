@@ -15,7 +15,7 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements.dev.txt
 # Install PostgreSQL client
-RUN apt-get update && apt-get install -y postgresql-client
+RUN apt-get update && apt-get install -y postgresql-client ffmpeg
 
 # Copy the current directory contents into the container at /usr/src/app
 # copy but ignore the files in .dockerignore

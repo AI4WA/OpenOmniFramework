@@ -5,6 +5,7 @@ import logging
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class Translator:
@@ -39,7 +40,7 @@ class Translator:
         audio_folder = settings.CLIENT_DATA_FOLDER / "Listener" / "audio" / uid / "audio"
         # audio file will be within this folder, and name like sequence_index-endtimetimestap.wav
         end_time_obj = datetime.strptime(end_time, "%Y-%m-%dT%H:%M:%S.%fZ")
-        audio_file = audio_folder / f"{sequence_index}-{end_time_obj.timestamp()}.wav"
+        audio_file = audio_folder / f"{sequence_index}-{end_time_obj.strftime('%Y%m%d%H%M%S')}.wav"
         if not audio_file.exists():
             logger.error(f"Audio file {audio_file} not found")
             raise FileNotFoundError(f"Audio file {audio_file} not found")
@@ -49,16 +50,21 @@ class Translator:
         """
 
         """
+        logger.critical(f"Translating message {message}")
         # read the data from the audio file in .wav file, then do the translation
         audio_file = self.locate_audio_file(message['uid'],
-                                            message['sequence_index'],
+                                            message['audio_index'],
                                             message['end_time'])
+        logger.critical(f"Audio file {audio_file}")
         if audio_file is None:
             return None
 
-        audio_np = whisper.read_audio(audio_file)
+        logger.critical("loading audio")
+        audio_np = whisper.load_audio(audio_file.as_posix())
+        logger.critical("calling transcribe")
+        logger.info(audio_np)
         result = self.audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
-        logger.info(result)
+        logger.critical(result)
         return result
 
     def handle_task(self, task):
@@ -66,7 +72,7 @@ class Translator:
         :param task: The task to handle
         """
         try:
-            result = self.translate(task.param)
+            result = self.translate(task.parameters)
             task.status = "completed"
             task.description = result
             task.save()

@@ -73,25 +73,27 @@ class Translator:
         """
         try:
             result, audio_file = self.translate(task.parameters)
-            task.status = "completed"
+            task.result_status = "completed"
             task.description = result
             task.save()
             logger.info(f"Task {task.id} completed")
+            logger.info(task.__dict__)
             AudioData.create_obj(
                 uid=task.parameters['uid'],
                 sequence_index=int(task.parameters['audio_index']),
                 text=result['text'],
-                audio_file=audio_file.as_posix(),
+                audio_file=audio_file.as_posix().split("/")[-1],
                 start_time=datetime.strptime(task.parameters['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ"),
                 end_time=datetime.strptime(task.parameters['end_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
             )
         except FileNotFoundError:
             # then we need to try later as the sync is not done yet
-            task.status = "pending"
+            logger.error(f"Audio file not found, will try later")
+            task.result_status = "pending"
             task.save()
         except Exception as e:
             logger.error(e)
-            task.status = "failed"
+            task.result_status = "failed"
             task.description = str(e)
             task.save()
             logger.error(f"Task {task.id} failed")

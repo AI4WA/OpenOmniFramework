@@ -112,5 +112,5 @@ class Command(BaseCommand):
         3. And then triggered by a signal to do the detection (normally by the client end API call)
         4. Write it to the database
         """
-        logger.info(settings.CLIENT_DATA_FOLDER)
+
         translator.handle_task(task)

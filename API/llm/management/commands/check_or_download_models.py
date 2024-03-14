@@ -7,7 +7,9 @@ from django.core.management.base import BaseCommand, CommandError
 from llm.llm_call.config import MODELS
 from llm.models import LLMConfigRecords
 
-logger = logging.getLogger(__name__)
+from authenticate.utils.get_logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Command(BaseCommand):

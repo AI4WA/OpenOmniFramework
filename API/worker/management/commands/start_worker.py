@@ -8,10 +8,9 @@ from llm.llm_call.llm_adaptor import LLMAdaptor
 from worker.translator import Translator
 from llm.models import LLMRequestRecord
 
-logger = logging.getLogger(__name__)
+from authenticate.utils.get_logger import get_logger
 
-# set logger level to show in the console
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 class Command(BaseCommand):
@@ -113,5 +112,5 @@ class Command(BaseCommand):
         3. And then triggered by a signal to do the detection (normally by the client end API call)
         4. Write it to the database
         """
-        logger.critical(settings.CLIENT_DATA_FOLDER)
+        logger.info(settings.CLIENT_DATA_FOLDER)
         translator.handle_task(task)

@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 
 class AudioData(models.Model):
@@ -18,6 +19,28 @@ class AudioData(models.Model):
 
     def __str__(self):
         return f"{self.uid} {self.sequence_index} {self.text}"
+
+    @classmethod
+    def create_obj(cls,
+                   uid: str,
+                   sequence_index: int,
+                   text: str,
+                   audio_file: str,
+                   start_time: str,
+                   end_time: str
+
+                   ):
+        """
+        Create an audio data object
+        """
+        return cls.objects.create(
+            uid=uid,
+            sequence_index=sequence_index,
+            text=text,
+            audio_file=audio_file,
+            start_time=start_time,
+            end_time=end_time
+        )
 
 
 class VideoData(models.Model):

@@ -1,17 +1,18 @@
 import whisper
 import torch
 from django.conf import settings
-import logging
 from datetime import datetime
+from authenticate.utils.get_logger import get_logger
+from authenticate.utils.timer import timer
+from hardware.models import AudioData
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 class Translator:
     SUPPORTED_MODELS = ['whisper']
 
-    def __init__(self, model_name: str = "whisper", model_size: str = 'medium', multi_language: bool = False):
+    def __init__(self, model_name: str = "whisper", model_size: str = 'base', multi_language: bool = False):
         """
         Initialize the translator
         :param model_name: The name of the model to use
@@ -50,32 +51,40 @@ class Translator:
         """
 
         """
-        logger.critical(f"Translating message {message}")
+        logger.info(f"Translating message {message}")
         # read the data from the audio file in .wav file, then do the translation
         audio_file = self.locate_audio_file(message['uid'],
                                             message['audio_index'],
                                             message['end_time'])
-        logger.critical(f"Audio file {audio_file}")
+        logger.info(f"Audio file {audio_file}")
         if audio_file is None:
-            return None
+            return None, None
 
-        logger.critical("loading audio")
-        audio_np = whisper.load_audio(audio_file.as_posix())
-        logger.critical("calling transcribe")
-        logger.info(audio_np)
-        result = self.audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
+        with timer(logger, "Loading audio"):
+            audio_np = whisper.load_audio(audio_file.as_posix())
+        with timer(logger, "Transcribing"):
+            result = self.audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
         logger.critical(result)
-        return result
+        return result, audio_file
 
     def handle_task(self, task):
         """
         :param task: The task to handle
         """
         try:
-            result = self.translate(task.parameters)
+            result, audio_file = self.translate(task.parameters)
             task.status = "completed"
             task.description = result
             task.save()
+            logger.info(f"Task {task.id} completed")
+            AudioData.create_obj(
+                uid=task.parameters['uid'],
+                sequence_index=int(task.parameters['audio_index']),
+                text=result['text'],
+                audio_file=audio_file.as_posix(),
+                start_time=datetime.strptime(task.parameters['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ"),
+                end_time=datetime.strptime(task.parameters['end_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
+            )
         except FileNotFoundError:
             # then we need to try later as the sync is not done yet
             task.status = "pending"

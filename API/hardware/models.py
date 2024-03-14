@@ -10,6 +10,7 @@ class AudioData(models.Model):
     audio_file = models.CharField(max_length=100, help_text="The audio file")
     start_time = models.DateTimeField(help_text="The start time of the audio")
     end_time = models.DateTimeField(help_text="The end time of the audio")
+    translation_in_seconds = models.FloatField(help_text="The time taken to translate the audio")
     created_at = models.DateTimeField(auto_now_add=True, help_text="The created time of the audio")
     updated_at = models.DateTimeField(auto_now=True, help_text="The updated time of the audio")
 
@@ -26,6 +27,7 @@ class AudioData(models.Model):
                    sequence_index: int,
                    text: str,
                    audio_file: str,
+                   translation_in_seconds: float,
                    start_time: str,
                    end_time: str
 
@@ -38,6 +40,7 @@ class AudioData(models.Model):
             sequence_index=sequence_index,
             text=text,
             audio_file=audio_file,
+            translation_in_seconds=translation_in_seconds,
             start_time=start_time,
             end_time=end_time
         )

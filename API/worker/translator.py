@@ -5,6 +5,7 @@ from datetime import datetime
 from authenticate.utils.get_logger import get_logger
 from authenticate.utils.timer import timer
 from hardware.models import AudioData
+from django.utils.timezone import make_aware
 
 logger = get_logger(__name__)
 
@@ -12,7 +13,7 @@ logger = get_logger(__name__)
 class Translator:
     SUPPORTED_MODELS = ['whisper']
 
-    def __init__(self, model_name: str = "whisper", model_size: str = 'base', multi_language: bool = False):
+    def __init__(self, model_name: str = "whisper", model_size: str = 'small', multi_language: bool = False):
         """
         Initialize the translator
         :param model_name: The name of the model to use
@@ -38,7 +39,7 @@ class Translator:
             format also like: "2024-03-13T13:10:21.527852Z"
         :return: The path to the audio file
         """
-        audio_folder = settings.CLIENT_DATA_FOLDER / "Listener" / "audio" / uid / "audio"
+        audio_folder = settings.CLIENT_DATA_FOLDER / "Listener" / "data" / "audio" / uid / "audio"
         # audio file will be within this folder, and name like sequence_index-endtimetimestap.wav
         end_time_obj = datetime.strptime(end_time, "%Y-%m-%dT%H:%M:%S.%fZ")
         audio_file = audio_folder / f"{sequence_index}-{end_time_obj.strftime('%Y%m%d%H%M%S')}.wav"
@@ -72,7 +73,10 @@ class Translator:
         :param task: The task to handle
         """
         try:
+            start_time = datetime.now()
             result, audio_file = self.translate(task.parameters)
+            end_time = datetime.now()
+            translation_in_seconds = (end_time - start_time).total_seconds()
             task.result_status = "completed"
             task.description = result
             task.save()
@@ -83,8 +87,9 @@ class Translator:
                 sequence_index=int(task.parameters['audio_index']),
                 text=result['text'],
                 audio_file=audio_file.as_posix().split("/")[-1],
-                start_time=datetime.strptime(task.parameters['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ"),
-                end_time=datetime.strptime(task.parameters['end_time'], "%Y-%m-%dT%H:%M:%S.%fZ")
+                translation_in_seconds=translation_in_seconds,
+                start_time=make_aware(datetime.strptime(task.parameters['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ")),
+                end_time=make_aware(datetime.strptime(task.parameters['end_time'], "%Y-%m-%dT%H:%M:%S.%fZ"))
             )
         except FileNotFoundError:
             # then we need to try later as the sync is not done yet

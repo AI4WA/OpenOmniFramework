@@ -32,7 +32,6 @@ services:
     depends_on:
       - db
 
-
   worker:
     build:
       context: .

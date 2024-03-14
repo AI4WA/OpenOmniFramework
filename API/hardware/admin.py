@@ -6,7 +6,7 @@ from hardware.models import AudioData, VideoData
 
 @admin.register(AudioData)
 class AudioDataAdmin(ImportExportModelAdmin):
-    list_display = ("id", "sequence_index", "text", "audio_file", "start_time", "end_time")
+    list_display = ("id", "sequence_index", "text", "audio_file", "start_time", "translation_in_seconds")
     search_fields = ("uid", "text")
 
 

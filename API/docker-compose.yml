@@ -32,7 +32,6 @@ services:
     depends_on:
       - db
 
-
   worker:
     build:
       context: .
@@ -41,14 +40,18 @@ services:
     command: /usr/src/app/entrypoint_worker.sh
     volumes:
       - .:/usr/src/app
+      - ../Client/Listener/data:/usr/src/data/Listener
+      - whisper_cache:/root/.cache
     environment:
       - DB_NAME=yourdbname
       - DB_USER=youruser
       - DB_PASS=yourpassword
       - DB_SERVICE=pgdb
       - DB_PORT=5432
+      - TASK_TYPE=llm
     depends_on:
       - db
 
 volumes:
   postgres_data:
+  whisper_cache:

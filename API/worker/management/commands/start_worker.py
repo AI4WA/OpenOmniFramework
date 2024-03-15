@@ -2,11 +2,15 @@ import logging
 
 from django.core.management.base import BaseCommand
 import time
+from django.conf import settings
 from worker.models import Task
 from llm.llm_call.llm_adaptor import LLMAdaptor
+from worker.translator import Translator
 from llm.models import LLMRequestRecord
 
-logger = logging.getLogger(__name__)
+from authenticate.utils.get_logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Command(BaseCommand):
@@ -25,6 +29,11 @@ class Command(BaseCommand):
 
         """
         task_type = options['task_type']
+        if task_type == "stt":
+            logger.info("Running STT worker...")
+            translator = Translator()
+        else:
+            translator = None
         while True:
             tasks = Task.objects.filter(result_status='pending', work_type=task_type)
             for task in tasks:
@@ -32,8 +41,8 @@ class Command(BaseCommand):
                 task.save()
                 if task.work_type == 'llm':
                     self.run_llm_task(task)
-                # elif task.work_type == 'stt':
-                #     self.run_stt_task(task)
+                elif task.work_type == 'stt':
+                    self.run_stt_task(translator, task)
                 else:
                     logger.error(f"Unknown task type: {task.work_type}")
             logger.info("Worker running...")
@@ -93,3 +102,15 @@ class Command(BaseCommand):
             task.save()
             logger.error(f"Task {task.id} failed in {end_time - start_time} seconds")
             logger.error(e)
+
+    @staticmethod
+    def run_stt_task(translator, task):
+        """
+        Run task to get the text from an audio file work
+        1. Device will sync the audio file to the home server
+        2. We will need to mount the data folder to the worker container
+        3. And then triggered by a signal to do the detection (normally by the client end API call)
+        4. Write it to the database
+        """
+
+        translator.handle_task(task)

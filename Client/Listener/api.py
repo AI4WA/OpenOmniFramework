@@ -41,3 +41,21 @@ class API:
         logger.info(f"POST {url} {r.status_code}")
         logger.info(r.json())
         return r.json()
+
+    def queue_speech_to_text(self,
+                             uid: str,
+                             audio_index: str,
+                             start_time: datetime,
+                             end_time: datetime):
+        url = f"{self.domain}/queue_task/stt/"
+        data = {
+            "uid": uid,
+            "audio_index": audio_index,
+            "start_time": start_time,
+            "end_time": end_time
+        }
+        r = requests.post(url, data=data,
+                          headers={"Authorization": f"Token {self.token}"})
+        logger.info(f"POST {url} {r.status_code}")
+        logger.info(r.json())
+        return r.json()

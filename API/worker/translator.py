@@ -1,11 +1,13 @@
-import whisper
-import torch
-from django.conf import settings
 from datetime import datetime
+
+import torch
+import whisper
+from django.conf import settings
+from django.utils.timezone import make_aware
+
 from authenticate.utils.get_logger import get_logger
 from authenticate.utils.timer import timer
 from hardware.models import AudioData
-from django.utils.timezone import make_aware
 
 logger = get_logger(__name__)
 

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "authenticate",
     "llm",
     "worker",
+    "ml",
 ]
 
 MIDDLEWARE = [

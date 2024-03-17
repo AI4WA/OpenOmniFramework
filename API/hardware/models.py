@@ -1,4 +1,6 @@
 from django.db import models
+from datetime import datetime
+
 
 # Create your models here.
 
@@ -27,8 +29,8 @@ class AudioData(models.Model):
                    text: str,
                    audio_file: str,
                    translation_in_seconds: float,
-                   start_time: str,
-                   end_time: str
+                   start_time: datetime,
+                   end_time: datetime
 
                    ):
         """

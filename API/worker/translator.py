@@ -24,7 +24,7 @@ class Translator:
         """
         self.model_name = model_name
         if self.model_name == 'whisper':
-            if not multi_language:
+            if not multi_language and "large" not in model_size:
                 model_size = f"{model_size}.en"
             self.audio_model = whisper.load_model(model_size)
         else:
@@ -43,7 +43,7 @@ class Translator:
         """
         audio_folder = settings.CLIENT_DATA_FOLDER / "Listener" / "data" / "audio" / uid / "audio"
         # audio file will be within this folder, and name like sequence_index-endtimetimestap.wav
-        end_time_obj = datetime.strptime(end_time, "%Y-%m-%dT%H:%M:%S.%fZ")
+        end_time_obj = datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S.%f%z')
         audio_file = audio_folder / f"{sequence_index}-{end_time_obj.strftime('%Y%m%d%H%M%S')}.wav"
         if not audio_file.exists():
             logger.error(f"Audio file {audio_file} not found")
@@ -90,8 +90,8 @@ class Translator:
                 text=result['text'],
                 audio_file=audio_file.as_posix().split("/")[-1],
                 translation_in_seconds=translation_in_seconds,
-                start_time=make_aware(datetime.strptime(task.parameters['start_time'], "%Y-%m-%dT%H:%M:%S.%fZ")),
-                end_time=make_aware(datetime.strptime(task.parameters['end_time'], "%Y-%m-%dT%H:%M:%S.%fZ"))
+                start_time=datetime.strptime(task.parameters['start_time'], "%Y-%m-%dT%H:%M:%S.%f%z"),
+                end_time=datetime.strptime(task.parameters['end_time'], "%Y-%m-%dT%H:%M:%S.%f%z")
             )
         except FileNotFoundError:
             # then we need to try later as the sync is not done yet

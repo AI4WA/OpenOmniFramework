@@ -124,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Australia/Perth"
 
 USE_I18N = True
 
@@ -142,7 +142,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = '/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-CLIENT_DATA_FOLDER = Path(BASE_DIR).parent / "data"
+CLIENT_DATA_FOLDER = Path(BASE_DIR).parent / "Client"
 
 LOGGING = {
     "version": 1,

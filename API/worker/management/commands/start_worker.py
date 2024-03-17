@@ -1,14 +1,12 @@
-import logging
+import time
 
 from django.core.management.base import BaseCommand
-import time
-from django.conf import settings
-from worker.models import Task
-from llm.llm_call.llm_adaptor import LLMAdaptor
-from worker.translator import Translator
-from llm.models import LLMRequestRecord
 
 from authenticate.utils.get_logger import get_logger
+from llm.llm_call.llm_adaptor import LLMAdaptor
+from llm.models import LLMRequestRecord
+from worker.models import Task
+from worker.translator import Translator
 
 logger = get_logger(__name__)
 

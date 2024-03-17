@@ -13,3 +13,7 @@ git+https://github.com/openai/whisper.git
 torch==2.2.0
 torchvision==0.17.0
 torchaudio==2.2.0
+deepface==0.0.86
+transformers==4.38.2
+librosa==0.10
+tensorflow

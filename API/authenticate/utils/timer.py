@@ -1,5 +1,5 @@
-from logging import Logger
 import time
+from logging import Logger
 
 
 class timer:

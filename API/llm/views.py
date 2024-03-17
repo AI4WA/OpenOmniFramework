@@ -1,15 +1,17 @@
 import logging
 import time
 
+from django.views.decorators.csrf import csrf_exempt
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from drf_yasg.utils import swagger_auto_schema
+
 from llm.llm_call.llm_adaptor import LLMAdaptor
 from llm.models import LLMConfigRecords, LLMRequestRecord
-from llm.serializers import LLMConfigRecordsSerializer, LLMRequestSerializer, LLMResponseSerializer
-from django.views.decorators.csrf import csrf_exempt
+from llm.serializers import (LLMConfigRecordsSerializer, LLMRequestSerializer,
+                             LLMResponseSerializer)
 
 logger = logging.getLogger(__name__)
 

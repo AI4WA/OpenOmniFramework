@@ -71,3 +71,19 @@ class VideoData(models.Model):
 
     def __str__(self):
         return f"{self.uid} {self.video_file}"
+
+
+class Text2Speech(models.Model):
+    hardware_device_mac_address = models.CharField(max_length=100, help_text="The mac address of the hardware device",
+                                                   null=True, blank=True)
+    text = models.TextField(help_text="The text of the audio", null=True, blank=True)
+    audio_file = models.CharField(max_length=100, help_text="The audio file", null=True, blank=True)
+    spoken = models.BooleanField(help_text="The audio file is spoken or not", default=False)
+    created_at = models.DateTimeField(auto_now_add=True, help_text="The created time of the audio")
+    updated_at = models.DateTimeField(auto_now=True, help_text="The updated time of the audio")
+
+    class Meta:
+        db_table = 'text2speech'
+
+    def __str__(self):
+        return f"{self.text} {self.hardware_device_mac_address}"

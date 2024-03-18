@@ -1,7 +1,7 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
-from hardware.models import AudioData, VideoData, HardWareDevice
+from hardware.models import AudioData, VideoData, HardWareDevice, Text2Speech
 
 
 @admin.register(HardWareDevice)
@@ -31,4 +31,12 @@ class AudioDataAdmin(ImportExportModelAdmin):
 class VideoDataAdmin(ImportExportModelAdmin):
     list_display = ("id", "video_file")
     search_fields = ("uid", "video_file")
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(Text2Speech)
+class Text2SpeechAdmin(ImportExportModelAdmin):
+    list_display = ("id", "text", "audio_file")
+    search_fields = ("text", "audio_file")
+    filter_fields = ("hardware_device_mac_address",)
     readonly_fields = ("created_at", "updated_at")

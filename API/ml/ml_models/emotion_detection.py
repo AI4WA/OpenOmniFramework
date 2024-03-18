@@ -1,5 +1,3 @@
-import time
-# from openai import OpenAI
 from pathlib import Path
 
 import torch
@@ -41,7 +39,7 @@ def trigger_model(text, audio, images):
     feature_video_in = feature_video.unsqueeze(dim=0)
     feature_audio_in = feature_audio.unsqueeze(dim=0)
     output = model(feature_text_in, feature_audio_in, feature_video_in)
-    # output = model(feature_text[1], feature_audio, feature_video)
+
     logger.info(f"output: {output}")
     multi_modal_output = output.get("M", 0)
     if multi_modal_output >= 0:

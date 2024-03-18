@@ -1,10 +1,12 @@
-from datetime import datetime
 import argparse
-import cv2
-from utils import get_logger
 import uuid
-from constants import DATA_DIR
+from datetime import datetime
+
+import cv2
+
 from api import API
+from constants import DATA_DIR
+from utils import get_logger
 
 logger = get_logger("video_acquire")
 
@@ -28,6 +30,7 @@ class VideoAcquire:
         self.fps = fps  # frame per second
         self.per_video_length = per_video_length  # the length of the video
         self.api = API(domain=api_domain, token=token)
+        self.api.register_device()
 
     def record(self):
         """

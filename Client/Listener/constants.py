@@ -1,6 +1,7 @@
 import os
-from utils import get_logger
 from pathlib import Path
+
+from utils import get_logger
 
 logger = get_logger(__name__)
 # get parent of current folder as root

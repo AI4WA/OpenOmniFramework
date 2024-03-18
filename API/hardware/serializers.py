@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from hardware.models import AudioData, VideoData, HardWareDevice, Text2Speech
+from hardware.models import AudioData, HardWareDevice, Text2Speech, VideoData
 
 
 class HardWareDeviceSerializer(serializers.ModelSerializer):

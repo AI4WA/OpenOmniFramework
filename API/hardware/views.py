@@ -2,9 +2,10 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework import viewsets
 
-from hardware.models import AudioData, VideoData, HardWareDevice, Text2Speech
-from hardware.serializers import AudioDataSerializer, VideoDataSerializer, HardWareDeviceSerializer, \
-    Text2SpeechSerializer
+from hardware.models import AudioData, HardWareDevice, Text2Speech, VideoData
+from hardware.serializers import (AudioDataSerializer,
+                                  HardWareDeviceSerializer,
+                                  Text2SpeechSerializer, VideoDataSerializer)
 
 
 class HardWareDeviceViewSet(viewsets.ModelViewSet):

@@ -1,5 +1,6 @@
-from django.db import models
 from datetime import datetime
+
+from django.db import models
 
 
 class HardWareDevice(models.Model):

@@ -6,11 +6,10 @@ import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import cv2
-from ml.ml_models.get_features import GetFeatures
 import torch
-
 from openai import OpenAI
 
+from ml.ml_models.get_features import GetFeatures
 from ml.ml_models.sentiment import SentimentAnalysis
 
 client = OpenAI(api_key='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')

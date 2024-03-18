@@ -4,6 +4,8 @@ from typing import Optional
 import time
 from logging import Logger
 
+import getmac
+
 
 def get_logger(logger_name: Optional[str] = None, stream: bool = True):
     """
@@ -66,3 +68,10 @@ class timer:
         """
         self.duration = time.time() - self.start
         self.logger.info(f"Finished {self.message}, that took {self.duration:.3f}")
+
+
+def get_mac_address():
+    # Get the MAC address of the device
+    # This function is only used in the Client/Listener/utils.py file
+    # It is not used in the API
+    return getmac.get_mac_address()

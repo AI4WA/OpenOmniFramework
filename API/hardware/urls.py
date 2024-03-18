@@ -1,6 +1,7 @@
 from django.urls import path
 
-from hardware.views import AudioDataViewSet, VideoDataViewSet, HardWareDeviceViewSet, Text2SpeechViewSet
+from hardware.views import (AudioDataViewSet, HardWareDeviceViewSet,
+                            Text2SpeechViewSet, VideoDataViewSet)
 
 urlpatterns = [
     path("register/", HardWareDeviceViewSet.as_view({"get": "list", "post": "create", 'put': 'update'}),

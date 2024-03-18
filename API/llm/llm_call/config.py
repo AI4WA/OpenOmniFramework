@@ -129,5 +129,17 @@ MODELS = [
                 "filename": "medicine-chat.Q8_0.gguf"
             }
         ]
+    },
+    {
+        "name": "SOLAR-10",
+        "model_type": MT_LLAMA,
+        "models": [
+            {
+                "name": "SOLAR-10",
+                "size": "7b",
+                "repo": "TheBloke/SOLAR-10.7B-Instruct-v1.0-GGUF",
+                "filename": "solar-10.7b-instruct-v1.0.Q8_0.gguf"
+            }
+        ]
     }
 ]

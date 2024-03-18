@@ -1,7 +1,14 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
-from hardware.models import AudioData, VideoData
+from hardware.models import AudioData, VideoData, HardWareDevice
+
+
+@admin.register(HardWareDevice)
+class HardWareDeviceAdmin(ImportExportModelAdmin):
+    list_display = ("id", "mac_address", "device_name", "device_type", "created_at", "updated_at")
+    search_fields = ("mac_address", "device_name", "device_type")
+    list_filter = ("device_type",)
 
 
 @admin.register(AudioData)

@@ -2,10 +2,21 @@ from django.db import models
 from datetime import datetime
 
 
-# Create your models here.
+class HardWareDevice(models.Model):
+    mac_address = models.CharField(max_length=100,
+                                   help_text="The mac address of the hardware device",
+                                   unique=True)
+    device_name = models.CharField(max_length=100, help_text="The name of the hardware device", null=True, blank=True)
+    device_type = models.CharField(max_length=100, help_text="The type of the hardware device", null=True, blank=True)
+    description = models.TextField(help_text="The description of the hardware device", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, help_text="The created time of the hardware device")
+    updated_at = models.DateTimeField(auto_now=True, help_text="The updated time of the hardware device")
+
 
 class AudioData(models.Model):
     uid = models.CharField(max_length=100)
+    hardware_device_mac_address = models.CharField(max_length=100, help_text="The mac address of the hardware device",
+                                                   null=True, blank=True)
     sequence_index = models.IntegerField(help_text="The sequence index of the audio")
     text = models.TextField(help_text="The text of the audio")
     audio_file = models.CharField(max_length=100, help_text="The audio file")
@@ -49,6 +60,8 @@ class AudioData(models.Model):
 
 class VideoData(models.Model):
     uid = models.CharField(max_length=100)
+    hardware_device_mac_address = models.CharField(max_length=100, help_text="The mac address of the hardware device",
+                                                   null=True, blank=True)
     video_file = models.CharField(max_length=100, help_text="The video file")
     created_at = models.DateTimeField(auto_now_add=True, help_text="The created time of the video")
     updated_at = models.DateTimeField(auto_now=True, help_text="The updated time of the video")

@@ -1,16 +1,18 @@
 import argparse
+import uuid
+from datetime import datetime, timedelta
+from queue import Queue
+from sys import platform
+from time import sleep
+
 import numpy as np
 import speech_recognition as sr
-import whisper
 import torch
+import whisper
+
+from api import API
 from constants import DATA_DIR
 from utils import get_logger, timer
-from datetime import datetime, timedelta
-from api import API
-from queue import Queue
-from time import sleep
-from sys import platform
-import uuid
 
 uid = str(uuid.uuid4())
 logger = get_logger(f"audio_acquire_{uid}")
@@ -52,6 +54,7 @@ def main():
 
     # uid = str(uuid.uuid4())
     api = API(domain=args.api_domain, token=args.token)
+    api.register_device()
     logger.info(f"session uid: {uid}")
     logger.info(f"starting timestamp {datetime.now()}")
     logger.info(args.translate)

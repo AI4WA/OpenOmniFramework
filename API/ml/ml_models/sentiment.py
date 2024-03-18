@@ -6,37 +6,27 @@ import torch.nn.functional as F
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from transformers import BertConfig, BertModel
 
-from .subNets import BertTextEncoder
 
-
-class FineTuneModel(nn.Module):
+class SentimentAnalysis(nn.Module):
     def __init__(self,
                  act: str = 'relu',
-                 use_finetune: bool = False,
-                 transformers: str = 'bert-base-chinese',
-                 pretrained: str = 'bert-base-uncased',
-                 hidden_size: int = 64,
+                 hidden_size: int = 256,
                  mid_size: int = 768,
                  head_sa: int = 4,
                  head_ga: int = 8,
-                 dropout_m: float = 0.5,
-                 dropout_f: float = 0.7,
-                 outdim: int = 512,
+                 outdim: int = 256,
                  output_size: int = 1,
                  dropout: float = 0.5,
-                 num_loop: int = 1,
-                 feature_dims=None
+                 feature_dims=None,
+                 num_loop: int = 1
                  ):
-        super(FineTuneModel, self).__init__()
+        super(SentimentAnalysis, self).__init__()
 
         if feature_dims is None:
-            feature_dims = [768, 33, 709]
+            feature_dims = [768, 33, 128]
         self.act = nn.Softmax(dim=-1)
         self.activation = _get_activation_fn(act)
-        # embedding
-        self.t_embedding = BertTextEncoder(use_finetune=use_finetune,
-                                           transformers=transformers,
-                                           pretrained=pretrained)
+
         self.t_linear = nn.Linear(768, hidden_size)
         self.a_embedding = Encoder(feature_dims[1], 1, hidden_size, dropout, act, 1)
         self.v_embedding = Encoder(feature_dims[2], 1, hidden_size, dropout, act, 1)
@@ -63,17 +53,18 @@ class FineTuneModel(nn.Module):
         self.t_regression = nn.Linear(hidden_size, output_size)
         self.v_regression = nn.Linear(hidden_size, output_size)
         self.a_regression = nn.Linear(hidden_size, output_size)
-        # self.tri_regression = nn.Linear(hidden_size, 1)
+        self.tri_regression = nn.Linear(hidden_size, 1)
         # # self.cat_regression1 = nn.Linear(outdim, outdim)
         # self.cat_regression = nn.Linear(hidden_size*4, outdim)
         self.cat_regression = nn.Linear(outdim, output_size)
+        self.num_loop = num_loop
 
     def forward(self, text, a, v):
         t_encoded = self.t_linear(text).transpose(0, 1)
         v_encoded = self.v_embedding(v).transpose(0, 1)
         a_encoded = self.a_embedding(a).transpose(0, 1)
 
-        for i in range(self.args.num_loop):
+        for i in range(self.num_loop):
             # auxiliary
             v_encoded = self.v_interact(v_encoded, t_encoded)
             a_encoded = self.a_interact(a_encoded, t_encoded)
@@ -86,23 +77,23 @@ class FineTuneModel(nn.Module):
             v_encoded = self.v_encoder(v_encoded)
             a_encoded = self.a_encoder(a_encoded)
 
-        # t_utter = torch.mean(t_encoded, 0)
+        t_utter = torch.mean(t_encoded, 0)
         v_utter = torch.mean(v_encoded, 0)
         a_utter = torch.mean(a_encoded, 0)
 
         tri_mode = self.tri_inter(a_utter, v_utter)
 
-        # cat_utter = self.tri_inter(a_utter, v_utter)
+        cat_utter = self.tri_inter(a_utter, v_utter)
 
-        # t_res = self.t_regression(t_utter)
-        # v_res = self.v_regression(v_utter)
-        # a_res = self.a_regression(a_utter)
-        # tri_res = self.tri_regression(tri_mode)
+        t_res = self.t_regression(t_utter)
+        v_res = self.v_regression(v_utter)
+        a_res = self.a_regression(a_utter)
+        tri_res = self.tri_regression(tri_mode)
         output = {
-            # 'M': cat_res,
-            # 'T': t_res,
-            # 'A': a_res,
-            # 'V': v_res,
+            'M': tri_res,
+            'T': t_res,
+            'A': a_res,
+            'V': v_res,
         }
 
         return output

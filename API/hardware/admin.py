@@ -29,7 +29,7 @@ class AudioDataAdmin(ImportExportModelAdmin):
 
 @admin.register(VideoData)
 class VideoDataAdmin(ImportExportModelAdmin):
-    list_display = ("id", "video_file")
+    list_display = ("id", "video_file", "video_record_minute")
     search_fields = ("uid", "video_file")
     readonly_fields = ("created_at", "updated_at")
 

@@ -64,6 +64,7 @@ class VideoData(models.Model):
     hardware_device_mac_address = models.CharField(max_length=100, help_text="The mac address of the hardware device",
                                                    null=True, blank=True)
     video_file = models.CharField(max_length=100, help_text="The video file")
+    video_record_minute = models.DateTimeField(help_text="The minute of the video", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, help_text="The created time of the video")
     updated_at = models.DateTimeField(auto_now=True, help_text="The updated time of the video")
 

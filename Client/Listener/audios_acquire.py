@@ -9,7 +9,6 @@ import numpy as np
 import speech_recognition as sr
 import torch
 import whisper
-
 from api import API
 from constants import DATA_DIR
 from utils import get_logger, timer
@@ -32,7 +31,7 @@ def main():
                         choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("--non_english", action='store_false',
                         help="Don't use the english model.")
-    parser.add_argument("--energy_threshold", default=2000,
+    parser.add_argument("--energy_threshold", default=5000,
                         help="Energy level for mic to detect.", type=int)
     parser.add_argument("--record_timeout", default=30000,
                         help="How real time the recording is in seconds.", type=float)

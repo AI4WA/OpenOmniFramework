@@ -3,7 +3,6 @@ import uuid
 from datetime import datetime
 
 import cv2
-
 from api import API
 from constants import DATA_DIR
 from utils import get_logger
@@ -11,7 +10,7 @@ from utils import get_logger
 logger = get_logger("video_acquire")
 
 # per length of the video
-PER_LENGTH = 1800
+PER_LENGTH = 1800  # 30 minutes
 
 # the screen width and height
 WIDTH = 640
@@ -29,6 +28,7 @@ class VideoAcquire:
         self.height = height  # the width and height of the video
         self.fps = fps  # frame per second
         self.per_video_length = per_video_length  # the length of the video
+        logger.info(self.per_video_length)
         self.api = API(domain=api_domain, token=token)
         self.api.register_device()
 
@@ -80,11 +80,11 @@ class VideoAcquire:
                         out.write(frame)
                         cv2.imshow('frame', frame)
                         if seconds == segment_images:
-                            logger.info("begin the next record")
+                            logger.info("begin the next frame segment")
                             seconds = 0
                             minutes += 1
                         if seconds < segment_images:
-                            image_dir = self.data_dir / "frames" / f"images_min_{minutes}"
+                            image_dir = self.data_dir / "frames" / f"{datetime.now().strftime('%Y-%m-%d_%H-%M')}"
                             image_dir.mkdir(parents=True, exist_ok=True)
                             cv2.imwrite((image_dir / f"{seconds}.jpg").as_posix(), frame)
                             seconds += 1
@@ -101,5 +101,6 @@ if __name__ == '__main__':
     parser.add_argument("--token", default="", help="API token", type=str)
     args = parser.parse_args()
     logger.info('Initializing video acquisition...')
+    # every 1 minute, record the video
     video_acquire = VideoAcquire(per_video_length=10, api_domain=args.api_domain, token=args.token)
     video_acquire.record()

@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Optional
 
 import requests
-
 from constants import API_DOMAIN
 from utils import get_logger, get_mac_address
 
@@ -56,11 +55,25 @@ class API:
                    video_file: str):
         url = f"{self.domain}/hardware/video/"
         data = {"uid": uid,
+                "hardware_device_mac_address": self.mac_address,
                 "video_file": video_file}
         logger.info(data)
         r = requests.post(url, data=data,
                           headers={"Authorization": f"Token {self.token}"})
         logger.info(f"POST {url} {r.status_code}")
+        #
+        # r = requests.post(url,
+        #                   data={
+        #                         "uid": uid,
+        #                         "video_file": video_file,
+        #                         "hardware_device_mac_address": self.mac_address
+        #                   },
+        #                   headers={"Authorization": f"Token {self.token}",
+        #                            'Content-Type': 'application/json'})
+        #
+        # logger.info(f"POST {url} {r.status_code}")
+        # logger.info(r.text)
+
         logger.info(r.json())
         return r.json()
 

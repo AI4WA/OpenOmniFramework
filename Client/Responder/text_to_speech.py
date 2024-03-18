@@ -1,14 +1,14 @@
+import argparse
+import io
+import os
+import time
+
+from api import API
+from constants import DATA_DIR
 from gtts import gTTS
 from pydub import AudioSegment
 from pydub.playback import play
-from api import API
-import io
-import time
-
-import os
-import argparse
-from utils import get_logger, timer, get_mac_address
-from constants import DATA_DIR
+from utils import get_logger, get_mac_address, timer
 
 logger = get_logger("Responder")
 api_key = os.environ.get("OPENAI_API_KEY")

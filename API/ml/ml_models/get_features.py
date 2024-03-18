@@ -13,27 +13,29 @@ from PIL import Image
 from tensorflow.keras.preprocessing import image
 from transformers import BertModel, BertTokenizer
 
+from authenticate.utils.get_logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class GetFeatures:
 
-    def __init__(self, working_dir: str, openface2_dir: str, pretrained_bert_dir: str) -> None:
-        self.working_dir = working_dir
+    def __init__(self, pretrained_bert_dir: str) -> None:
         self.padding_mode = 'zeros'
         self.padding_location = 'back'
-        self.openface2_dir = openface2_dir
         self.pretrained_bert_dir = pretrained_bert_dir
 
-    def get_text_embeddings(self, text: str) -> Tuple[str, np.ndarray]:
+    def get_text_embeddings(self, text: str) -> Tuple[str, torch.Tensor]:
         """Returns embeddings for the given text using a BERT model."""
         tokenizer = BertTokenizer.from_pretrained(self.pretrained_bert_dir)
         model = BertModel.from_pretrained(self.pretrained_bert_dir)
         input_ids = torch.tensor([tokenizer.encode(text, add_special_tokens=True)])
         with torch.no_grad():
             last_hidden_states = model(input_ids)[0]
-        return text, last_hidden_states.squeeze().numpy()
+        return text, torch.tensor(last_hidden_states.squeeze().numpy()).float()
 
     @staticmethod
-    def get_audio_embedding(audios: List[str]) -> np.ndarray:
+    def get_audio_embedding(audios: List[str]) -> torch.Tensor:
         """Extracts and returns average audio features from a list of audio files."""
         features = []
         for audio_path in audios:
@@ -45,9 +47,11 @@ class GetFeatures:
             temp_feature = np.concatenate([f0, mfcc, cqt], axis=-1)
             features.append(temp_feature)
         feature = np.mean(np.concatenate(features), axis=0).reshape(1, -1)
+        # get them into tensor
+        feature = torch.tensor(feature).float()
         return feature
 
-    def handle_images(self, images: List[np.ndarray]) -> torch.Tensor:
+    def get_images_tensor(self, images: List[np.ndarray]) -> torch.Tensor:
         """Extracts features from a list of images using a specified model."""
         model_name = "OpenFace"
         image_features = [self.represent(image, model_name=model_name)[0]['embedding'] for image in images]
@@ -123,13 +127,12 @@ class GetFeatures:
             target_size: Optional[Tuple[int, int]] = (224, 224),
             detector_backend: str = "opencv",
             enforce_detection: bool = True,
-            align: bool = True,
-            expand_percentage: int = 0,
+            align: bool = False,
+            expand_percentage: int = 0.2,
             grayscale: bool = False,
             human_readable=False,
     ) -> List[Dict[str, Any]]:
         resp_objs = []
-
         base_region = FacialAreaRegion(x=0, y=0, w=img.shape[1], h=img.shape[0], confidence=0)
 
         if detector_backend == "skip":
@@ -141,7 +144,7 @@ class GetFeatures:
                 align=align,
                 expand_percentage=expand_percentage,
             )
-
+        # logger.info(f"Detected {len(face_objs)} faces.")
         # in case of no face found
         if len(face_objs) == 0 and enforce_detection is True:
             raise ValueError(

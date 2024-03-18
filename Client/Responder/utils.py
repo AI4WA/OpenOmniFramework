@@ -1,8 +1,7 @@
 import logging
-from typing import Optional
-
 import time
 from logging import Logger
+from typing import Optional
 
 import getmac
 

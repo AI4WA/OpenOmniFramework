@@ -98,6 +98,9 @@ def trigger_model(text, audio, images) -> Optional[str]:
     output = model(feature_text_in, feature_audio_in, feature_video_in)
 
     logger.critical(f"output: {output}")
+    # loop the output dict, get all of them into float
+    for k, v in output.items():
+        output[k] = float(v)
     multi_modal_output = output.get("M", 0)
     logger.critical(f"multi_modal_output: {multi_modal_output}")
     return output

@@ -37,6 +37,7 @@ class AudioData(models.Model):
     @classmethod
     def create_obj(cls,
                    uid: str,
+                   hardware_device_mac_address: str,
                    sequence_index: int,
                    text: str,
                    audio_file: str,
@@ -50,6 +51,7 @@ class AudioData(models.Model):
         """
         return cls.objects.create(
             uid=uid,
+            hardware_device_mac_address=hardware_device_mac_address,
             sequence_index=sequence_index,
             text=text,
             audio_file=audio_file,

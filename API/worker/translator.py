@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 class Translator:
     SUPPORTED_MODELS = ['whisper']
 
-    def __init__(self, model_name: str = "whisper", model_size: str = 'small', multi_language: bool = False):
+    def __init__(self, model_name: str = "whisper", model_size: str = 'small', multi_language: bool = True):
         """
         Initialize the translator
         :param model_name: The name of the model to use
@@ -85,6 +85,7 @@ class Translator:
             logger.info(f"Task {task.id} completed")
             logger.info(task.__dict__)
             AudioData.create_obj(
+                hardware_device_mac_address=task.parameters.get('hardware_device_mac_address', ""),
                 uid=task.parameters['uid'],
                 sequence_index=int(task.parameters['audio_index']),
                 text=result['text'],

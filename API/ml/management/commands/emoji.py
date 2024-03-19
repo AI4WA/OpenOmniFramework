@@ -29,9 +29,9 @@ class Command(BaseCommand):
             return
         try:
             # next step is to trigger the llm model
-            adaptor = LLMAdaptor("llama2-7b-chat")
+            adaptor = LLMAdaptor("chatglm3-6b")
             emotion_signal = "积极的" if emotion_output.get("M", 0) > 0 else "消极的"
-            prompt = (f"你是个情感陪伴机器人，你发现你的主人的情绪是：{emotion_signal}。他说了句话：{text}。你会怎么回答？ "
+            prompt = (f"你是个情感陪伴机器人，用相同的语言回答下面的问题。你发现你的主人的情绪是：{emotion_signal}。他说了句话：{text}。你会怎么回答？ "
                       f"你的回答是：")
             llm_response = adaptor.create_chat_completion(prompt)
             logger.info(f"LLM response: {llm_response}")
@@ -41,14 +41,16 @@ class Command(BaseCommand):
                 emotion_result=emotion_output,
                 llm_response=llm_response
             )
-            llm_res_text = llm_response[0]["text"]
+            # llm_res_text = llm_response["choices"][0]["message"]["content"]
+            llm_res_text = llm_response["content"]
             Text2Speech.objects.create(
                 hardware_device_mac_address=audio_obj.hardware_device_mac_address,
-                llm_res_text=llm_res_text
+                text=llm_res_text
             )
 
         except Exception as e:
             logger.error(f"Error: {e}")
+            logger.exception(e)
             ReactionToAudio.objects.create(
                 audio=audio_obj,
                 failed=True,

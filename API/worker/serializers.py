@@ -37,3 +37,6 @@ class TaskSTTRequestSerializer(serializers.Serializer):
     audio_index = serializers.CharField(required=True, help_text="The index of the audio file to transcribe")
     start_time = serializers.DateTimeField(required=True, help_text="The start time of the audio file to transcribe")
     end_time = serializers.DateTimeField(required=True, help_text="The end time ofthe audio file to transcribe")
+    hardware_device_mac_address = serializers.CharField(required=False,
+                                                        help_text="The mac address of the hardware device",
+                                                        )

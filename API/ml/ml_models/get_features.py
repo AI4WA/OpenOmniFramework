@@ -61,7 +61,7 @@ class GetFeatures:
             self,
             img,
             model_name: str = "VGG-Face",
-            enforce_detection: bool = True,
+            enforce_detection: bool = False,
             detector_backend: str = "opencv",
             align: bool = True,
             expand_percentage: int = 0,

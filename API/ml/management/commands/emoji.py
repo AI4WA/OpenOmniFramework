@@ -1,13 +1,8 @@
-import os
-from datetime import timedelta
-
-import cv2
-from django.conf import settings
 from django.core.management.base import BaseCommand
-
+from llm.llm_call.llm_adaptor import LLMAdaptor
 from authenticate.utils.get_logger import get_logger
-from hardware.models import AudioData, VideoData
-from ml.ml_models.emotion_detection import trigger_model
+from hardware.models import AudioData, VideoData, ReactionToAudio, Text2Speech
+from ml.ml_models.emoji_detect import trigger_model, gather_data
 
 logger = get_logger(__name__)
 
@@ -20,50 +15,43 @@ class Command(BaseCommand):
         Grab all the images/text/audio from the database and run the emotion detection model on them
 
         """
-
-        # get the audio data
-        audio_data = AudioData.objects.all().order_by("-created_at").first()
-        if audio_data is None:
-            logger.info("No audio data found")
+        text, audio_file, image_np_list, audio_obj = gather_data()
+        try:
+            emotion_output = trigger_model(text, audio_file, image_np_list)
+            logger.info(f"Emotion output: {emotion_output}")
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            ReactionToAudio.objects.create(
+                audio=audio_obj,
+                failed=True,
+                failed_reason=str(e)
+            )
             return
-        text = audio_data.text
+        try:
+            # next step is to trigger the llm model
+            adaptor = LLMAdaptor("llama2-7b-chat")
+            emotion_signal = "积极的" if emotion_output.get("M", 0) > 0 else "消极的"
+            prompt = (f"你是个情感陪伴机器人，你发现你的主人的情绪是：{emotion_signal}。他说了句话：{text}。你会怎么回答？ "
+                      f"你的回答是：")
+            llm_response = adaptor.create_chat_completion(prompt)
+            logger.info(f"LLM response: {llm_response}")
+            ReactionToAudio.objects.create(
+                audio=audio_obj,
+                react_already=True,
+                emotion_result=emotion_output,
+                llm_response=llm_response
+            )
+            llm_res_text = llm_response[0]["text"]
+            Text2Speech.objects.create(
+                hardware_device_mac_address=audio_obj.hardware_device_mac_address,
+                llm_res_text=llm_res_text
+            )
 
-        audio_file = (settings.CLIENT_DATA_FOLDER / "Listener" / "data" / "audio" / audio_data.uid
-                      / "audio" / audio_data.audio_file).as_posix()
-
-        # get the image data based on the audio data time range
-        # TODO: this will be changed rapidly
-        start_time = audio_data.start_time
-        end_time = audio_data.end_time
-        # round the start to the minute level down
-        start_time = start_time.replace(second=0, microsecond=0)
-        # round the end to the minute level up
-        end_time = end_time.replace(second=0, microsecond=0) + timedelta(minutes=1)
-        logger.info(f"Start time: {start_time}, End time: {end_time}")
-        logger.info(audio_data)
-        # we will assume it comes from the same device
-        # list all videos has overlap with [start_time, end_time]
-        videos_data = VideoData.objects.filter(
-            video_record_minute__range=[start_time, end_time]
-        )
-
-        images_path = []
-        for video_data in videos_data:
-            image_folder_name = video_data.video_file.split(".")[0].rsplit("-", 1)[0]
-            images_path.append(f"{video_data.uid}/frames/{image_folder_name}")
-
-        # I need to read image files into List[np.ndarray]
-        image_np_list = []
-        for image_path in images_path:
-            # loop the path, get all images
-            folder = settings.CLIENT_DATA_FOLDER / "Listener" / "data" / "videos" / image_path
-
-            if not folder.exists():
-                continue
-            for image_file in os.listdir(folder):
-                image = cv2.imread((folder / image_file).as_posix())
-                image_np_list.append(image)
-
-        # trigger the model
-        logger.info(f"Text: {text}, Audio: {audio_file}, Images: {len(image_np_list)}")
-        trigger_model(text, [audio_file], image_np_list)
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            ReactionToAudio.objects.create(
+                audio=audio_obj,
+                failed=True,
+                failed_reason=str(e)
+            )
+            return

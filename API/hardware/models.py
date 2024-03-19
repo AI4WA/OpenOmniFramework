@@ -75,6 +75,22 @@ class VideoData(models.Model):
         return f"{self.uid} {self.video_file}"
 
 
+class ReactionToAudio(models.Model):
+    audio = models.OneToOneField(AudioData,
+                                 on_delete=models.SET_NULL,
+                                 related_name='reaction',
+                                 null=True,
+                                 blank=True,
+                                 help_text="The audio data")
+    react_already = models.BooleanField(help_text="The audio data has been reacted or not", default=False)
+    emotion_result = models.JSONField(help_text="The emotion result of the audio", null=True, blank=True)
+    failed = models.BooleanField(help_text="The reaction failed or not", default=False)
+    failed_reason = models.TextField(help_text="The reason of the reaction failed", null=True, blank=True)
+    llm_response = models.JSONField(help_text="The llm response of the audio", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, help_text="The created time of the reaction")
+    updated_at = models.DateTimeField(auto_now=True, help_text="The updated time of the reaction")
+
+
 class Text2Speech(models.Model):
     hardware_device_mac_address = models.CharField(max_length=100, help_text="The mac address of the hardware device",
                                                    null=True, blank=True)

@@ -11,8 +11,9 @@ def get_logger(name):
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.DEBUG)
 
-    # Create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # Create formatter, start with file name and line of code (line number) that issued the log statement
+    formatter = logging.Formatter(
+        '%(asctime)s|%(filename)s|Line: %(lineno)d -- %(name)s - %(levelname)s - %(message)s')
 
     # Add formatter to console handler
     console_handler.setFormatter(formatter)

@@ -1,3 +1,4 @@
 gTTS
 pydub
 simpleaudio
+getmac

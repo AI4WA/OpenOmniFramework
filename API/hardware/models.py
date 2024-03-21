@@ -1,5 +1,6 @@
-from django.db import models
 from datetime import datetime
+
+from django.db import models
 
 
 class HardWareDevice(models.Model):
@@ -36,6 +37,7 @@ class AudioData(models.Model):
     @classmethod
     def create_obj(cls,
                    uid: str,
+                   hardware_device_mac_address: str,
                    sequence_index: int,
                    text: str,
                    audio_file: str,
@@ -49,6 +51,7 @@ class AudioData(models.Model):
         """
         return cls.objects.create(
             uid=uid,
+            hardware_device_mac_address=hardware_device_mac_address,
             sequence_index=sequence_index,
             text=text,
             audio_file=audio_file,
@@ -63,6 +66,7 @@ class VideoData(models.Model):
     hardware_device_mac_address = models.CharField(max_length=100, help_text="The mac address of the hardware device",
                                                    null=True, blank=True)
     video_file = models.CharField(max_length=100, help_text="The video file")
+    video_record_minute = models.DateTimeField(help_text="The minute of the video", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, help_text="The created time of the video")
     updated_at = models.DateTimeField(auto_now=True, help_text="The updated time of the video")
 
@@ -71,3 +75,35 @@ class VideoData(models.Model):
 
     def __str__(self):
         return f"{self.uid} {self.video_file}"
+
+
+class ReactionToAudio(models.Model):
+    audio = models.OneToOneField(AudioData,
+                                 on_delete=models.SET_NULL,
+                                 related_name='reaction',
+                                 null=True,
+                                 blank=True,
+                                 help_text="The audio data")
+    react_already = models.BooleanField(help_text="The audio data has been reacted or not", default=False)
+    emotion_result = models.JSONField(help_text="The emotion result of the audio", null=True, blank=True)
+    failed = models.BooleanField(help_text="The reaction failed or not", default=False)
+    failed_reason = models.TextField(help_text="The reason of the reaction failed", null=True, blank=True)
+    llm_response = models.JSONField(help_text="The llm response of the audio", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, help_text="The created time of the reaction")
+    updated_at = models.DateTimeField(auto_now=True, help_text="The updated time of the reaction")
+
+
+class Text2Speech(models.Model):
+    hardware_device_mac_address = models.CharField(max_length=100, help_text="The mac address of the hardware device",
+                                                   null=True, blank=True)
+    text = models.TextField(help_text="The text of the audio", null=True, blank=True)
+    audio_file = models.CharField(max_length=100, help_text="The audio file", null=True, blank=True)
+    spoken = models.BooleanField(help_text="The audio file is spoken or not", default=False)
+    created_at = models.DateTimeField(auto_now_add=True, help_text="The created time of the audio")
+    updated_at = models.DateTimeField(auto_now=True, help_text="The updated time of the audio")
+
+    class Meta:
+        db_table = 'text2speech'
+
+    def __str__(self):
+        return f"{self.text} {self.hardware_device_mac_address}"

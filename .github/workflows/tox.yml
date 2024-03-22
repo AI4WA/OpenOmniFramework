@@ -1,0 +1,36 @@
+name: Python Tox Testing
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ 3.11 ]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install tox
+        run: pip install tox tox-gh-actions
+      - name: Run tox for Django
+        run: |
+          cd ./API
+          tox -e isort
+          tox -e black
+      - name: Run tox for Client Listener
+        run: |
+          cd ./Client/Listener
+          tox -e isort
+          tox -e black
+      - name: Run tox for Client Responder
+        run: |
+          cd ./Client/Responder
+          tox -e isort
+          tox -e black

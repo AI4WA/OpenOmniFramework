@@ -17,9 +17,15 @@ class LLMRequestRecord(models.Model):
     model_name = models.CharField(max_length=100)
     prompt = models.TextField()
     response = models.JSONField(default=dict, blank=True, null=True)
-    task = models.CharField(max_length=100,
-                            choices=[("chat-completion", "Chat Completion"), ("completion", "Completion"),
-                                     ("create-embedding", "Create Embedding")], default="completion")
+    task = models.CharField(
+        max_length=100,
+        choices=[
+            ("chat-completion", "Chat Completion"),
+            ("completion", "Completion"),
+            ("create-embedding", "Create Embedding"),
+        ],
+        default="completion",
+    )
     completed_in_seconds = models.FloatField()
     success = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -33,10 +39,16 @@ class LLMConfigRecords(models.Model):
     model_name = models.CharField(max_length=100)
     model_size = models.CharField(max_length=100)
     model_family = models.CharField(max_length=100)
-    model_type = models.CharField(max_length=100,
-                                  choices=[("hf", "HuggingFace"), ("api", 'API'), ("llama.cpp", "llama.cpp"),
-                                           ("chatglm.cpp", "chatglm.cpp")],
-                                  default="hf")
+    model_type = models.CharField(
+        max_length=100,
+        choices=[
+            ("hf", "HuggingFace"),
+            ("api", "API"),
+            ("llama.cpp", "llama.cpp"),
+            ("chatglm.cpp", "chatglm.cpp"),
+        ],
+        default="hf",
+    )
     repo = models.CharField(max_length=100, blank=True, null=True)
     filename = models.CharField(max_length=100, blank=True, null=True)
     file_size = models.FloatField(blank=True, null=True)
@@ -55,7 +67,9 @@ class LLMConfigRecords(models.Model):
         download_url = hf_hub_url(repo_id=self.repo, filename=self.filename)
         logger.critical(f"Downloading model from {download_url}")
 
-        model_general_folder = Path(settings.BASE_DIR / "llm" / "llm_call" / "models" / self.model_family)
+        model_general_folder = Path(
+            settings.BASE_DIR / "llm" / "llm_call" / "models" / self.model_family
+        )
         logger.critical(f"Model folder {model_general_folder}")
         model_general_folder.mkdir(parents=True, exist_ok=True)
         filename = model_general_folder / self.filename
@@ -63,12 +77,12 @@ class LLMConfigRecords(models.Model):
         response = requests.get(download_url, stream=True)
 
         # Total size in bytes.
-        total_size = int(response.headers.get('content-length', 0))
+        total_size = int(response.headers.get("content-length", 0))
         block_size = 1024  # 1 Kilobyte
         logger.critical(f"Downloading {self.filename} to {model_general_folder}")
         logger.critical(f"Total size: {total_size}")
-        progress_bar = tqdm(total=total_size, unit='iB', unit_scale=True)
-        with open(filename, 'wb') as file:
+        progress_bar = tqdm(total=total_size, unit="iB", unit_scale=True)
+        with open(filename, "wb") as file:
             for data in response.iter_content(block_size):
                 progress_bar.update(len(data))
                 file.write(data)

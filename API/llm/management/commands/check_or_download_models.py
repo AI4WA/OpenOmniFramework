@@ -1,8 +1,7 @@
-import logging
 from pathlib import Path
 
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from authenticate.utils.get_logger import get_logger
 from llm.llm_call.config import MODELS
@@ -12,7 +11,18 @@ logger = get_logger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Check or download models'
+    help = "Check or download models"
+
+    def add_arguments(self, parser):
+        """
+        Add arguments to the command
+        """
+        parser.add_argument(
+            "--llm_model_name",
+            type=str,
+            help="The name of the model to check or download, if it is all, then download all",
+            default="llama2-7b-chat",
+        )
 
     def handle(self, *args, **options):
         """
@@ -22,11 +32,15 @@ class Command(BaseCommand):
         :return:
         """
 
+        model_name = options["model_name"]
+
         for model_families in MODELS:
             model_family = model_families["name"]
             model_type = model_families["model_type"]
             for model_info in model_families["models"]:
-                if not LLMConfigRecords.objects.filter(model_name=model_info["name"]).exists():
+                if not LLMConfigRecords.objects.filter(
+                    model_name=model_info["name"]
+                ).exists():
                     record = LLMConfigRecords(
                         model_name=model_info["name"],
                         model_size=model_info["size"],
@@ -34,7 +48,7 @@ class Command(BaseCommand):
                         model_type=model_type,
                         repo=model_info["repo"],
                         filename=model_info["filename"],
-                        available=False
+                        available=False,
                     )
                     record.save()
                     logger.critical(f"Added {model_info['name']} to the database")
@@ -43,10 +57,24 @@ class Command(BaseCommand):
 
         for llm_model in LLMConfigRecords.objects.all():
             # get the filename, and check if it exists in the models directory
-            model_folder = Path(settings.BASE_DIR / "llm" / "llm_call" / "models" / llm_model.model_family)
+            model_folder = Path(
+                settings.BASE_DIR
+                / "llm"
+                / "llm_call"
+                / "models"
+                / llm_model.model_family
+            )
             model_path = model_folder / llm_model.filename
             if not model_path.exists():
-                llm_model.download_model()
+                if model_name == "all" or model_name == llm_model.model_name:
+                    logger.critical(
+                        f"{llm_model.model_name} is not available, downloading..."
+                    )
+                    llm_model.download_model()
+                else:
+                    logger.critical(
+                        f"{llm_model.model_name} is not available, but setting do not ask us to download, skipping"
+                    )
 
             if model_path.exists():
                 llm_model.available = True

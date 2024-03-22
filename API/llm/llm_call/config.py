@@ -36,8 +36,8 @@ MODELS = [
                 "size": "13b",
                 "repo": "TheBloke/Llama-2-13B-Chat-GGUF",
                 "filename": "llama-2-13b-chat.Q8_0.gguf",
-            }
-        ]
+            },
+        ],
     },
     {
         "name": MN_GEMMA,
@@ -47,27 +47,27 @@ MODELS = [
                 "name": "gemma-2b",
                 "size": "2b",
                 "repo": "brittlewis12/gemma-2b-GGUF",
-                "filename": "gemma-2b.Q4_K_M.gguf"
+                "filename": "gemma-2b.Q4_K_M.gguf",
             },
             {
                 "name": "gemma-2b-instruct",
                 "size": "2b",
                 "repo": "brittlewis12/gemma-2b-it-GGUF",
-                "filename": "gemma-2b-it.Q4_K_M.gguf"
+                "filename": "gemma-2b-it.Q4_K_M.gguf",
             },
             {
                 "name": "gemma-7b",
                 "repo": "brittlewis12/gemma-7b-GGUF",
                 "size": "7b",
-                "filename": "gemma-7b.Q4_K_M.gguf"
+                "filename": "gemma-7b.Q4_K_M.gguf",
             },
             {
                 "name": "gemma-7b-instruct",
                 "repo": "brittlewis12/gemma-7b-it-GGUF",
                 "size": "7b",
-                "filename": "gemma-7b-it.Q4_K_M.gguf"
-            }
-        ]
+                "filename": "gemma-7b-it.Q4_K_M.gguf",
+            },
+        ],
     },
     {
         "name": "internlm",
@@ -77,10 +77,9 @@ MODELS = [
                 "name": "internlm-20b",
                 "size": "20b",
                 "repo": "intervitens/internlm-chat-20b-GGUF",
-                "filename": "internlm-chat-20b.Q4_K_M.gguf"
+                "filename": "internlm-chat-20b.Q4_K_M.gguf",
             },
-
-        ]
+        ],
     },
     {
         "name": "chatglm",
@@ -90,9 +89,9 @@ MODELS = [
                 "name": "chatglm3-6b",
                 "size": "6b",
                 "repo": "npc0/chatglm3-6b-int4",
-                "filename": "chatglm3-ggml-q4_1.bin"
+                "filename": "chatglm3-ggml-q4_1.bin",
             }
-        ]
+        ],
     },
     {
         "name": "dolphin-2.5-mixtral",
@@ -102,9 +101,9 @@ MODELS = [
                 "name": "dolphin-2.5-mixtral-7x7b",
                 "size": "8x7b",
                 "repo": "TheBloke/dolphin-2.5-mixtral-8x7b-GGUF",
-                "filename": "dolphin-2.5-mixtral-8x7b.Q2_K.gguf"
+                "filename": "dolphin-2.5-mixtral-8x7b.Q2_K.gguf",
             }
-        ]
+        ],
     },
     {
         "name": "medicine-llm",
@@ -114,9 +113,9 @@ MODELS = [
                 "name": "medicine-llm-13b",
                 "size": "13b",
                 "repo": "TheBloke/medicine-LLM-13B-GGUF",
-                "filename": "medicine-llm-13b.Q8_0.gguf"
+                "filename": "medicine-llm-13b.Q8_0.gguf",
             }
-        ]
+        ],
     },
     {
         "name": "medicine-chat",
@@ -126,9 +125,9 @@ MODELS = [
                 "name": "medicine-chat",
                 "size": "13b",
                 "repo": "TheBloke/medicine-chat-GGUF",
-                "filename": "medicine-chat.Q8_0.gguf"
+                "filename": "medicine-chat.Q8_0.gguf",
             }
-        ]
+        ],
     },
     {
         "name": "SOLAR-10",
@@ -138,8 +137,8 @@ MODELS = [
                 "name": "SOLAR-10",
                 "size": "7b",
                 "repo": "TheBloke/SOLAR-10.7B-Instruct-v1.0-GGUF",
-                "filename": "solar-10.7b-instruct-v1.0.Q8_0.gguf"
+                "filename": "solar-10.7b-instruct-v1.0.Q8_0.gguf",
             }
-        ]
-    }
+        ],
+    },
 ]

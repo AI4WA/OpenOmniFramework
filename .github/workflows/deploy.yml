@@ -9,22 +9,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-#      - name: Checkout the code
-#        uses: actions/checkout@v1
-#      - name: Zip the whole codebase
-#        run: |
-#          ls -la
-#          tar -cvf assistant.tar .
-#      - name: copy file via ssh password
-#        uses: appleboy/scp-action@master
-#        with:
-#          host: "146.118.70.154"
-#          username: pascal
-#          password: ${{ secrets.PASWEY_PASSWORD }}
-#          port: 22
-#          source: "assistant.tar"
-#          target: "/home/pascal/"
-
       - name: Restart server
         uses: appleboy/ssh-action@master
         with:

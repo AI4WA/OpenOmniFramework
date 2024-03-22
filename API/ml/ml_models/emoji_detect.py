@@ -1,16 +1,16 @@
+import os
+from datetime import timedelta
 from pathlib import Path
+from typing import Optional
 
+import cv2
 import torch
 from django.conf import settings
-from typing import Optional
+
 from authenticate.utils.get_logger import get_logger
+from hardware.models import AudioData, VideoData
 from ml.ml_models.get_features import GetFeatures
 from ml.ml_models.sentiment import SentimentAnalysis
-
-from hardware.models import AudioData, VideoData
-from datetime import timedelta
-import os
-import cv2
 
 models_dir = Path(settings.BASE_DIR) / "ml" / "ml_models" / "model_data"
 
@@ -19,16 +19,23 @@ logger = get_logger(__name__)
 
 def gather_data():
     # get the audio data, which have not been process and have the text information
-    audio_data = AudioData.objects.filter(
-        reaction__isnull=True
-    ).order_by("-created_at").first()
+    audio_data = (
+        AudioData.objects.filter(reaction__isnull=True).order_by("-created_at").first()
+    )
     if audio_data is None:
         logger.info("No audio data found")
         return None, None, None, None
     text = audio_data.text
 
-    audio_file = (settings.CLIENT_DATA_FOLDER / "Listener" / "data" / "audio" / audio_data.uid
-                  / "audio" / audio_data.audio_file).as_posix()
+    audio_file = (
+        settings.CLIENT_DATA_FOLDER
+        / "Listener"
+        / "data"
+        / "audio"
+        / audio_data.uid
+        / "audio"
+        / audio_data.audio_file
+    ).as_posix()
 
     # get the image data based on the audio data time range
     # TODO: this will be changed rapidly
@@ -55,7 +62,9 @@ def gather_data():
     image_np_list = []
     for image_path in images_path:
         # loop the path, get all images
-        folder = settings.CLIENT_DATA_FOLDER / "Listener" / "data" / "videos" / image_path
+        folder = (
+            settings.CLIENT_DATA_FOLDER / "Listener" / "data" / "videos" / image_path
+        )
 
         if not folder.exists():
             continue
@@ -74,22 +83,29 @@ def trigger_model(text, audio, images) -> Optional[str]:
     get_features_obj = GetFeatures((models_dir / "bert_cn").as_posix())
     if not text or not audio or not images:
         logger.error("No text, audio or images provided")
-        logger.error(f"text: {text is None}, audio: {audio is None}, images: {images is None}")
+        logger.error(
+            f"text: {text is None}, audio: {audio is None}, images: {images is None}"
+        )
         return
 
     feature_video = get_features_obj.get_images_tensor(images)  # (n/5,709)
     feature_audio = get_features_obj.get_audio_embedding(audio)  # (94,33)
     feature_text = get_features_obj.get_text_embeddings(text)  # (n+2,768)
     logger.info(
-        f"feature_video: {feature_video.shape}, feature_audio: {feature_audio.shape}, feature_text: {feature_text[1].shape}")
+        f"feature_video: {feature_video.shape}, feature_audio: {feature_audio.shape}, feature_text: {feature_text[1].shape}"
+    )
 
     # data is ready
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = SentimentAnalysis().to(device)
     # load the model
     model.load_state_dict(
-        {k.replace('Model.', ''): v for k, v in torch.load(models_dir / "sa_sims.pth").items()},
-        strict=False)
+        {
+            k.replace("Model.", ""): v
+            for k, v in torch.load(models_dir / "sa_sims.pth").items()
+        },
+        strict=False,
+    )
 
     feature_text_in = feature_text[1].unsqueeze(dim=0)
     feature_video_in = feature_video.unsqueeze(dim=0)

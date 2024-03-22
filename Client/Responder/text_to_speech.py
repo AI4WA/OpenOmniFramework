@@ -3,11 +3,12 @@ import io
 import os
 import time
 
-from api import API
-from constants import DATA_DIR
 from gtts import gTTS
 from pydub import AudioSegment
 from pydub.playback import play
+
+from api import API
+from constants import DATA_DIR
 from utils import get_logger, get_mac_address, timer
 
 logger = get_logger("Responder")
@@ -22,7 +23,7 @@ class Text2Speech:
     def text_to_speech_and_play(content: str):
         # Convert text to speech
         with timer(logger, "Text to speech"):
-            tts = gTTS(text=content, lang='en')
+            tts = gTTS(text=content, lang="en")
         mp3_fp = io.BytesIO()
         tts.write_to_fp(mp3_fp)
         mp3_fp.seek(0)
@@ -92,14 +93,24 @@ class Text2Speech:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--api_domain", default="http://localhost:8000", help="API domain", type=str)
+    parser.add_argument(
+        "--api_domain", default="http://localhost:8000", help="API domain", type=str
+    )
     parser.add_argument("--token", default="", help="API token", type=str)
-    parser.add_argument("--listen_mac_address", help="Listen for which device output", type=str,
-                        default=get_mac_address())
+    parser.add_argument(
+        "--listen_mac_address",
+        help="Listen for which device output",
+        type=str,
+        default=get_mac_address(),
+    )
     args = parser.parse_args()
 
     # Initialize the API
-    api = API(domain=args.api_domain, token=args.token, listen_mac_address=args.listen_mac_address)
+    api = API(
+        domain=args.api_domain,
+        token=args.token,
+        listen_mac_address=args.listen_mac_address,
+    )
     while True:
         # Convert text to speech and play
         speech_content = api.get_spoken_speech()

@@ -13,7 +13,8 @@ def get_logger(name):
 
     # Create formatter, start with file name and line of code (line number) that issued the log statement
     formatter = logging.Formatter(
-        '%(asctime)s|%(filename)s|Line: %(lineno)d -- %(name)s - %(levelname)s - %(message)s')
+        "%(asctime)s|%(filename)s|Line: %(lineno)d -- %(name)s - %(levelname)s - %(message)s"
+    )
 
     # Add formatter to console handler
     console_handler.setFormatter(formatter)

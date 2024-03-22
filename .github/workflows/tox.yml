@@ -22,18 +22,15 @@ jobs:
       - name: Run tox for Django
         run: |
           cd ./API
-          ls
           tox -e isort
           tox -e black
       - name: Run tox for Client Listener
         run: |
           cd ./Client/Listener
-          ls
           tox -e isort
           tox -e black
       - name: Run tox for Client Responder
         run: |
           cd ./Client/Responder
-          ls
           tox -e isort
           tox -e black

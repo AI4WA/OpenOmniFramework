@@ -5,3 +5,5 @@ data
 .DS_Store
 static
 API/ml/ml_models/model_data
+.tox
+.coverage

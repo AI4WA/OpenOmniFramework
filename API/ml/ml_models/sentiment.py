@@ -8,18 +8,19 @@ from transformers import BertConfig, BertModel
 
 
 class SentimentAnalysis(nn.Module):
-    def __init__(self,
-                 act: str = 'relu',
-                 hidden_size: int = 256,
-                 mid_size: int = 768,
-                 head_sa: int = 4,
-                 head_ga: int = 8,
-                 outdim: int = 256,
-                 output_size: int = 1,
-                 dropout: float = 0.5,
-                 feature_dims=None,
-                 num_loop: int = 1
-                 ):
+    def __init__(
+        self,
+        act: str = "relu",
+        hidden_size: int = 256,
+        mid_size: int = 768,
+        head_sa: int = 4,
+        head_ga: int = 8,
+        outdim: int = 256,
+        output_size: int = 1,
+        dropout: float = 0.5,
+        feature_dims=None,
+        num_loop: int = 1,
+    ):
         super(SentimentAnalysis, self).__init__()
 
         if feature_dims is None:
@@ -35,10 +36,12 @@ class SentimentAnalysis(nn.Module):
         self.a_encoder = Encoder(hidden_size, head_sa, hidden_size, dropout, act, 1)
         self.v_encoder = Encoder(hidden_size, head_sa, hidden_size, dropout, act, 1)
         # guided attention
-        self.v_interact = InteractLayer(hidden_size, hidden_size, head_ga, mid_size, dropout,
-                                        act)
-        self.a_interact = InteractLayer(hidden_size, hidden_size, head_ga, mid_size, dropout,
-                                        act)
+        self.v_interact = InteractLayer(
+            hidden_size, hidden_size, head_ga, mid_size, dropout, act
+        )
+        self.a_interact = InteractLayer(
+            hidden_size, hidden_size, head_ga, mid_size, dropout, act
+        )
         # trimodal interaction as multimodal output
         # self.tri_inter = TriInter(args.hidden_size, args.outdim, args.dropout, activation=args.act)
         # as the one of the multimodal representation
@@ -90,10 +93,10 @@ class SentimentAnalysis(nn.Module):
         a_res = self.a_regression(a_utter)
         tri_res = self.tri_regression(tri_mode)
         output = {
-            'M': tri_res,
-            'T': t_res,
-            'A': a_res,
-            'V': v_res,
+            "M": tri_res,
+            "T": t_res,
+            "A": a_res,
+            "V": v_res,
         }
 
         return output
@@ -102,8 +105,8 @@ class SentimentAnalysis(nn.Module):
 class TextEncoder(nn.Module):
     def __init__(self, d_model, dim_feedforward):
         super(TextEncoder, self).__init__()
-        self.config = BertConfig.from_pretrained('bert-base-chinese')
-        self.model = BertModel.from_pretrained('bert-base-chinese', config=self.config)
+        self.config = BertConfig.from_pretrained("bert-base-chinese")
+        self.model = BertModel.from_pretrained("bert-base-chinese", config=self.config)
         self.linear = nn.Linear(d_model, dim_feedforward)
 
     def forward(self, input_ids):
@@ -114,11 +117,15 @@ class TextEncoder(nn.Module):
 
 
 class Encoder(nn.Module):
-    def __init__(self, d_model, n_head, dim_feedforward, dropout, activation, num_layers):
+    def __init__(
+        self, d_model, n_head, dim_feedforward, dropout, activation, num_layers
+    ):
         super().__init__()
         self.num_heads = n_head
         self.pe = PositionalEncoding(d_model, dropout)
-        self.layer = TransformerEncoderLayer(d_model, n_head, dim_feedforward, dropout, activation)
+        self.layer = TransformerEncoderLayer(
+            d_model, n_head, dim_feedforward, dropout, activation
+        )
         self.encoder = TransformerEncoder(self.layer, num_layers)
         self.add_norm = AddNorm(d_model, dropout)
         self.linear = nn.Linear(d_model, dim_feedforward)
@@ -133,16 +140,22 @@ class Encoder(nn.Module):
 
 
 class InteractLayer(nn.Module):
-    def __init__(self, d_model, dim_1, n_head, dim_feedforward, dropout=0.1, activation="relu"):
+    def __init__(
+        self, d_model, dim_1, n_head, dim_feedforward, dropout=0.1, activation="relu"
+    ):
         super().__init__()
         self.num_heads = n_head
-        self.multi_head_attn_1 = nn.MultiheadAttention(d_model, n_head, dropout=dropout, kdim=dim_1, vdim=dim_1)
+        self.multi_head_attn_1 = nn.MultiheadAttention(
+            d_model, n_head, dropout=dropout, kdim=dim_1, vdim=dim_1
+        )
         self.add_norm_1 = AddNorm(d_model, dropout)
         self.add_norm_2 = AddNorm(d_model, dropout)
         self.ff = FeedForward(d_model, dim_feedforward, dropout, activation)
 
     def forward(self, encoded, memory1):
-        inter1 = self.multi_head_attn_1(encoded, memory1, memory1)[0]  # , attn_mask=attn_mask_1)[0]
+        inter1 = self.multi_head_attn_1(encoded, memory1, memory1)[
+            0
+        ]  # , attn_mask=attn_mask_1)[0]
         attn1 = self.add_norm_1(encoded, inter1)
         ff = self.ff(attn1)
         output = self.add_norm_2(attn1, ff)
@@ -163,7 +176,11 @@ class TriInter(nn.Module):
 
     def forward(self, a, v):
         batch_size = a.shape[0]
-        add_one = torch.ones(size=[batch_size, 1], requires_grad=False).type_as(a).to(a.device)
+        add_one = (
+            torch.ones(size=[batch_size, 1], requires_grad=False)
+            .type_as(a)
+            .to(a.device)
+        )
         # _text_h = torch.cat((add_one, t), dim=1)
         _audio_h = torch.cat((add_one, a), dim=1)
         _video_h = torch.cat((add_one, v), dim=1)
@@ -194,19 +211,21 @@ class PositionalEncoding(nn.Module):
         self.dropout = nn.Dropout(p=dropout)
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
+        )
         pe[:, 0::2] = torch.sin(position * div_term)
         if d_model % 2 == 0:
             pe[:, 1::2] = torch.cos(position * div_term)
         else:
             pe[:, 1::2] = torch.cos(position * div_term[:-1])
         pe = pe.unsqueeze(0).transpose(0, 1)
-        self.register_buffer('pe', pe)
+        self.register_buffer("pe", pe)
 
     def forward(self, x):
         # print(x.shape, self.pe[:x.size(0), :].shape)
         # print(x.shape, self.pe[:x.size(0), :].shape)
-        x = x + self.pe[:x.size(0), :]
+        x = x + self.pe[: x.size(0), :]
         return self.dropout(x)
 
 

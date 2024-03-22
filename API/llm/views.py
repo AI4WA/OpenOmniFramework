@@ -10,8 +10,11 @@ from rest_framework.response import Response
 
 from llm.llm_call.llm_adaptor import LLMAdaptor
 from llm.models import LLMConfigRecords, LLMRequestRecord
-from llm.serializers import (LLMConfigRecordsSerializer, LLMRequestSerializer,
-                             LLMResponseSerializer)
+from llm.serializers import (
+    LLMConfigRecordsSerializer,
+    LLMRequestSerializer,
+    LLMResponseSerializer,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -24,11 +27,12 @@ class CallLLMView(viewsets.ViewSet):
         request_body=LLMRequestSerializer,
         responses={200: LLMResponseSerializer},
     )
-    @action(detail=False,
-            methods=['post'],
-            url_path='chat-completion',
-            url_name='chat-completion',
-            )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="chat-completion",
+        url_name="chat-completion",
+    )
     @csrf_exempt
     def chat_completion(self, request):
         """
@@ -51,7 +55,7 @@ class CallLLMView(viewsets.ViewSet):
                 prompt=prompt,
                 response=response,
                 task="chat-completion",
-                completed_in_seconds=end_time - start_time
+                completed_in_seconds=end_time - start_time,
             )
             record.save()
             logger.info(response)
@@ -66,24 +70,28 @@ class CallLLMView(viewsets.ViewSet):
                 response=str(e),
                 success=False,
                 task="chat-completion",
-                completed_in_seconds=end_time - start_time
+                completed_in_seconds=end_time - start_time,
             )
             record.save()
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     # add another url: post to create embedding
 
-    @swagger_auto_schema(request_body=LLMRequestSerializer,
-                         operation_description="Call the LLM model to create embeddings,"
-                                               "not all models support this feature, "
-                                               "for models without embedding features, it will throw an error",
-                         responses={200: LLMResponseSerializer},
-                         )
-    @action(detail=False,
-            methods=['post'],
-            url_path='create-embedding',
-            url_name='create-embedding',
-            )
+    @swagger_auto_schema(
+        request_body=LLMRequestSerializer,
+        operation_description="Call the LLM model to create embeddings,"
+        "not all models support this feature, "
+        "for models without embedding features, it will throw an error",
+        responses={200: LLMResponseSerializer},
+    )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="create-embedding",
+        url_name="create-embedding",
+    )
     @csrf_exempt
     def create_embedding(self, request):
         """
@@ -105,7 +113,7 @@ class CallLLMView(viewsets.ViewSet):
                 prompt=prompt,
                 response=response,
                 task="create-embedding",
-                completed_in_seconds=end_time - start_time
+                completed_in_seconds=end_time - start_time,
             )
             record.save()
             return Response(response, status=status.HTTP_200_OK)
@@ -119,19 +127,24 @@ class CallLLMView(viewsets.ViewSet):
                 response=str(e),
                 success=False,
                 task="create-embedding",
-                completed_in_seconds=end_time - start_time
+                completed_in_seconds=end_time - start_time,
             )
             record.save()
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @swagger_auto_schema(request_body=LLMRequestSerializer,
-                         responses={200: LLMResponseSerializer},
-                         operation_description="Call the LLM model to complete the prompt")
-    @action(detail=False,
-            methods=['post'],
-            url_path='completion',
-            url_name='completion',
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    @swagger_auto_schema(
+        request_body=LLMRequestSerializer,
+        responses={200: LLMResponseSerializer},
+        operation_description="Call the LLM model to complete the prompt",
+    )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="completion",
+        url_name="completion",
+    )
     @csrf_exempt
     def completion(self, request):
         """
@@ -153,7 +166,7 @@ class CallLLMView(viewsets.ViewSet):
                 prompt=prompt,
                 response=response,
                 task="completion",
-                completed_in_seconds=end_time - start_time
+                completed_in_seconds=end_time - start_time,
             )
             record.save()
             return Response(response, status=status.HTTP_200_OK)
@@ -168,10 +181,12 @@ class CallLLMView(viewsets.ViewSet):
                 response=str(e),
                 success=False,
                 task="completion",
-                completed_in_seconds=end_time - start_time
+                completed_in_seconds=end_time - start_time,
             )
             record.save()
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class LLMConfigViewSet(viewsets.ModelViewSet):

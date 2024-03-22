@@ -21,8 +21,8 @@ logger = get_logger(__name__)
 class GetFeatures:
 
     def __init__(self, pretrained_bert_dir: str) -> None:
-        self.padding_mode = 'zeros'
-        self.padding_location = 'back'
+        self.padding_mode = "zeros"
+        self.padding_location = "back"
         self.pretrained_bert_dir = pretrained_bert_dir
 
     def get_text_embeddings(self, text: str) -> Tuple[str, torch.Tensor]:
@@ -54,18 +54,21 @@ class GetFeatures:
     def get_images_tensor(self, images: List[np.ndarray]) -> torch.Tensor:
         """Extracts features from a list of images using a specified model."""
         model_name = "OpenFace"
-        image_features = [self.represent(image, model_name=model_name)[0]['embedding'] for image in images]
+        image_features = [
+            self.represent(image, model_name=model_name)[0]["embedding"]
+            for image in images
+        ]
         return torch.tensor(image_features)
 
     def represent(
-            self,
-            img,
-            model_name: str = "VGG-Face",
-            enforce_detection: bool = False,
-            detector_backend: str = "opencv",
-            align: bool = True,
-            expand_percentage: int = 0,
-            normalization: str = "base",
+        self,
+        img,
+        model_name: str = "VGG-Face",
+        enforce_detection: bool = False,
+        detector_backend: str = "opencv",
+        align: bool = True,
+        expand_percentage: int = 0,
+        normalization: str = "base",
     ) -> List[Dict[str, Any]]:
         resp_objs = []
 
@@ -99,7 +102,12 @@ class GetFeatures:
             img_objs = [
                 {
                     "face": img,
-                    "facial_area": {"x": 0, "y": 0, "w": img.shape[1], "h": img.shape[2]},
+                    "facial_area": {
+                        "x": 0,
+                        "y": 0,
+                        "w": img.shape[1],
+                        "h": img.shape[2],
+                    },
                     "confidence": 0,
                 }
             ]
@@ -114,7 +122,11 @@ class GetFeatures:
 
             embedding = model.find_embeddings(img)
 
-            resp_obj = {"embedding": embedding, "facial_area": region, "face_confidence": confidence}
+            resp_obj = {
+                "embedding": embedding,
+                "facial_area": region,
+                "face_confidence": confidence,
+            }
             resp_objs.append(resp_obj)
 
         return resp_objs
@@ -123,17 +135,19 @@ class GetFeatures:
 
     @staticmethod
     def extract_faces(
-            img,
-            target_size: Optional[Tuple[int, int]] = (224, 224),
-            detector_backend: str = "opencv",
-            enforce_detection: bool = True,
-            align: bool = False,
-            expand_percentage: int = 0.2,
-            grayscale: bool = False,
-            human_readable=False,
+        img,
+        target_size: Optional[Tuple[int, int]] = (224, 224),
+        detector_backend: str = "opencv",
+        enforce_detection: bool = True,
+        align: bool = False,
+        expand_percentage: int = 0.2,
+        grayscale: bool = False,
+        human_readable=False,
     ) -> List[Dict[str, Any]]:
         resp_objs = []
-        base_region = FacialAreaRegion(x=0, y=0, w=img.shape[1], h=img.shape[0], confidence=0)
+        base_region = FacialAreaRegion(
+            x=0, y=0, w=img.shape[1], h=img.shape[0], confidence=0
+        )
 
         if detector_backend == "skip":
             face_objs = [DetectedFace(img=img, facial_area=base_region, confidence=0)]
@@ -215,7 +229,9 @@ class GetFeatures:
 
             resp_objs.append(
                 {
-                    "face": img_pixels[:, :, ::-1] if human_readable is True else img_pixels,
+                    "face": (
+                        img_pixels[:, :, ::-1] if human_readable is True else img_pixels
+                    ),
                     "facial_area": {
                         "x": int(current_region.x),
                         "y": int(current_region.y),
@@ -238,9 +254,9 @@ class GetFeatures:
 
     @staticmethod
     def align_face(
-            img: np.ndarray,
-            left_eye: Union[list, tuple],
-            right_eye: Union[list, tuple],
+        img: np.ndarray,
+        left_eye: Union[list, tuple],
+        right_eye: Union[list, tuple],
     ) -> Tuple[np.ndarray, float]:
         # if eye could not be detected for the given image, return the image itself
         if left_eye is None or right_eye is None:
@@ -250,6 +266,10 @@ class GetFeatures:
         if img.shape[0] == 0 or img.shape[1] == 0:
             return img, 0
 
-        angle = float(np.degrees(np.arctan2(right_eye[1] - left_eye[1], right_eye[0] - left_eye[0])))
+        angle = float(
+            np.degrees(
+                np.arctan2(right_eye[1] - left_eye[1], right_eye[0] - left_eye[0])
+            )
+        )
         img = np.array(Image.fromarray(img).rotate(angle))
         return img, angle

@@ -46,8 +46,11 @@ class ChatParameters(BaseModel):
             tokenizer: Optional tokenizer to override the default tokenizer from llama.cpp.
             verbose: Print verbose output to stderr.
     """
+
     model_path: str  # path to the model
     n_ctx: int  # context window size
-    n_gpu_layers: int  # number of layers on the GPU, this will be based on the llama.cpp setup
+    n_gpu_layers: (
+        int  # number of layers on the GPU, this will be based on the llama.cpp setup
+    )
     n_threads: int
     last_n_tokens_size: int

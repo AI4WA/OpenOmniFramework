@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    'rest_framework.authtoken',
+    "rest_framework.authtoken",
     "drf_yasg",
     "import_export",
     "hardware",
@@ -60,13 +60,13 @@ MIDDLEWARE = [
 ROOT_URLCONF = "api.urls"
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
     ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
     ],
 }
 
@@ -92,13 +92,15 @@ WSGI_APPLICATION = "api.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'yourdbname'),
-        'USER': os.environ.get('DB_USER', 'youruser'),
-        'PASSWORD': os.environ.get('DB_PASS', 'yourpassword'),
-        'HOST': os.environ.get('DB_SERVICE', 'db'),  # Matches the service name in docker-compose
-        'PORT': os.environ.get('DB_PORT', 5432),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME", "yourdbname"),
+        "USER": os.environ.get("DB_USER", "youruser"),
+        "PASSWORD": os.environ.get("DB_PASS", "yourpassword"),
+        "HOST": os.environ.get(
+            "DB_SERVICE", "db"
+        ),  # Matches the service name in docker-compose
+        "PORT": os.environ.get("DB_PORT", 5432),
     }
 }
 # Password validation
@@ -139,8 +141,8 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-LOGIN_URL = '/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+LOGIN_URL = "/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 CLIENT_DATA_FOLDER = Path(BASE_DIR).parent / "Client"
 
@@ -172,7 +174,6 @@ LOGGING = {
         "mail_admins": {
             "level": "ERROR",
             "class": "django.utils.log.AdminEmailHandler",
-
         },
     },
     "loggers": {

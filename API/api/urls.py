@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.urls import include, path
@@ -24,9 +25,8 @@ from rest_framework import permissions
 schema_view = get_schema_view(
     openapi.Info(
         title="API Documentation",
-        default_version='v1',
+        default_version="v1",
         description="API description",
-
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
@@ -37,7 +37,11 @@ urlpatterns = [
     path("authenticate/", include("authenticate.urls")),
     path("queue_task/", include("worker.urls")),
     path("llm/", include("llm.urls")),
-    path('swagger/', login_required(schema_view.with_ui('swagger', cache_timeout=0)), name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='redoc'),
+    path(
+        "swagger/",
+        login_required(schema_view.with_ui("swagger", cache_timeout=0)),
+        name="schema-swagger-ui",
+    ),
+    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="redoc"),
     path("", admin.site.urls),
 ]

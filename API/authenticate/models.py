@@ -6,8 +6,11 @@ class Organization(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 
-    org_type = models.CharField(max_length=100, choices=[('research', 'Research'), ('industry', 'Industry')],
-                                default='research')
+    org_type = models.CharField(
+        max_length=100,
+        choices=[("research", "Research"), ("industry", "Industry")],
+        default="research",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -16,7 +19,9 @@ class Organization(models.Model):
 
 
 class User(AbstractUser):
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, null=True, blank=True
+    )
     email = models.EmailField(unique=True)
 
     def __str__(self):

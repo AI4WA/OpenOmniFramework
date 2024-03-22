@@ -9,6 +9,7 @@ import numpy as np
 import speech_recognition as sr
 import torch
 import whisper
+
 from api import API
 from constants import DATA_DIR
 from utils import get_logger, timer
@@ -27,28 +28,57 @@ def main():
     :return:
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="medium", help="Model to use",
-                        choices=["tiny", "base", "small", "medium", "large"])
-    parser.add_argument("--non_english", action='store_false',
-                        help="Don't use the english model.")
-    parser.add_argument("--energy_threshold", default=5000,
-                        help="Energy level for mic to detect.", type=int)
-    parser.add_argument("--record_timeout", default=30000,
-                        help="How real time the recording is in seconds.", type=float)
-    parser.add_argument("--text_num", default=1,
-                        help="How real time the recording is in seconds.", type=int)
+    parser.add_argument(
+        "--model",
+        default="medium",
+        help="Model to use",
+        choices=["tiny", "base", "small", "medium", "large"],
+    )
+    parser.add_argument(
+        "--non_english", action="store_false", help="Don't use the english model."
+    )
+    parser.add_argument(
+        "--energy_threshold",
+        default=5000,
+        help="Energy level for mic to detect.",
+        type=int,
+    )
+    parser.add_argument(
+        "--record_timeout",
+        default=30000,
+        help="How real time the recording is in seconds.",
+        type=float,
+    )
+    parser.add_argument(
+        "--text_num",
+        default=1,
+        help="How real time the recording is in seconds.",
+        type=int,
+    )
 
-    parser.add_argument("--phrase_timeout", default=300000,
-                        help="How much empty space between recordings before we "
-                             "consider it a new line in the transcription.", type=float)
-    parser.add_argument("--api_domain", default="http://localhost:8000", help="API domain", type=str)
+    parser.add_argument(
+        "--phrase_timeout",
+        default=300000,
+        help="How much empty space between recordings before we "
+        "consider it a new line in the transcription.",
+        type=float,
+    )
+    parser.add_argument(
+        "--api_domain", default="http://localhost:8000", help="API domain", type=str
+    )
     parser.add_argument("--token", default="", help="API token", type=str)
-    parser.add_argument("--translate", action='store_true', help="Run translation locally.")
+    parser.add_argument(
+        "--translate", action="store_true", help="Run translation locally."
+    )
 
-    if 'linux' in platform:
-        parser.add_argument("--default_microphone", default='pulse',
-                            help="Default microphone name for SpeechRecognition. "
-                                 "Run this with 'list' to view available Microphones.", type=str)
+    if "linux" in platform:
+        parser.add_argument(
+            "--default_microphone",
+            default="pulse",
+            help="Default microphone name for SpeechRecognition. "
+            "Run this with 'list' to view available Microphones.",
+            type=str,
+        )
     args = parser.parse_args()
 
     # uid = str(uuid.uuid4())
@@ -74,12 +104,12 @@ def main():
     # Important for linux users.
     source = None
     # Prevents permanent application the app froze and crash by using the wrong Microphone
-    if 'linux' in platform:
+    if "linux" in platform:
         mic_name = args.default_microphone
-        if not mic_name or mic_name == 'list':
+        if not mic_name or mic_name == "list":
             logger.info("Available microphone devices are: ")
             for index, name in enumerate(sr.Microphone.list_microphone_names()):
-                logger.critical(f"Microphone with name \"{name}\" found")
+                logger.critical(f'Microphone with name "{name}" found')
             return
         else:
             for index, name in enumerate(sr.Microphone.list_microphone_names()):
@@ -110,7 +140,7 @@ def main():
     record_timeout = args.record_timeout
     phrase_timeout = args.phrase_timeout
 
-    transcription = ['']
+    transcription = [""]
 
     args.audio_index = 0
 
@@ -138,13 +168,18 @@ def main():
             curr_audio_dir = DATA_DIR / "audio" / uid / "audio"
             curr_audio_dir.mkdir(parents=True, exist_ok=True)
             # 将录音数据写入.wav格式文件
-            with open(curr_audio_dir / f"{args.audio_index}-{sample_time.strftime('%Y%m%d%H%M%S')}.wav",
-                      "wb") as file:
+            with open(
+                curr_audio_dir
+                / f"{args.audio_index}-{sample_time.strftime('%Y%m%d%H%M%S')}.wav",
+                "wb",
+            ) as file:
                 file.write(wav_data)
 
     # Create a background thread that will pass us raw audio bytes.
     # We could do this manually, but SpeechRecognizer provides a nice helper.
-    recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout)  # phrase_time_limit持续监测时间
+    recorder.listen_in_background(
+        source, record_callback, phrase_time_limit=record_timeout
+    )  # phrase_time_limit持续监测时间
 
     last_sample_start_time = datetime.now()
     # Cue the user that we're ready to go
@@ -155,17 +190,19 @@ def main():
             now = datetime.utcnow()
             # Pull raw recorded audio from the queue.
             if not data_queue.empty():  # 当听不到声音后，开始transform
-                logger.info('no more sound, start transform...')
+                logger.info("no more sound, start transform...")
                 phrase_complete = False
                 # If enough time has passed between recordings, consider the phrase complete.
                 # Clear the current working audio buffer to start over with the new data.
-                if phrase_time and now - phrase_time > timedelta(seconds=phrase_timeout):
+                if phrase_time and now - phrase_time > timedelta(
+                    seconds=phrase_timeout
+                ):
                     phrase_complete = True
                 # This is the last time we received new audio data from the queue.
                 phrase_time = now
 
                 # the data in the queue should be a tuple of (data, time)
-                audio_data = b''.join(data_queue.queue)
+                audio_data = b"".join(data_queue.queue)
                 data_queue.queue.clear()
                 last_sample_time = sample_time_queue.queue[-1]
                 sample_time_queue.queue.clear()
@@ -173,14 +210,19 @@ def main():
                 # Convert in-ram buffer to something the model can use directly without needing a temp file.
                 # Convert data from 16-bit wide integers to floating point with a width of 32 bits.
                 # Clamp the audio stream frequency to a PCM wavelength compatible default of 32768 hz max.
-                audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
+                audio_np = (
+                    np.frombuffer(audio_data, dtype=np.int16).astype(np.float32)
+                    / 32768.0
+                )
                 # rather than translate, we should call the API to make it running on cloud
 
                 if not args.translate:
-                    api.queue_speech_to_text(uid,
-                                             audio_index=str(args.audio_index),
-                                             start_time=last_sample_start_time,
-                                             end_time=last_sample_time)
+                    api.queue_speech_to_text(
+                        uid,
+                        audio_index=str(args.audio_index),
+                        start_time=last_sample_start_time,
+                        end_time=last_sample_time,
+                    )
                     last_sample_start_time = last_sample_time
                 """
                 The following sections are trying to transcribe the audio data within the edge device
@@ -190,10 +232,12 @@ def main():
                 if args.translate:
                     # Read the transcription.
                     with timer(logger, f"Transcribing {args.audio_index}"):
-                        result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
+                        result = audio_model.transcribe(
+                            audio_np, fp16=torch.cuda.is_available()
+                        )
                     logger.info(f"Model output: {result}")
                     # get current time, this is the delay time for the audio to text data
-                    text = result['text'].strip()
+                    text = result["text"].strip()
                     logger.info(f"delay time: {datetime.now() - last_sample_time}")
 
                     # If we detected a pause between recordings, add a new item to our transcription.
@@ -205,18 +249,24 @@ def main():
                     logger.critical(f"Transcription: {text}")
                     # TODO: call API to push 1. text 2. text time range 3. related audio file
 
-                    api.post_audio(uid,
-                                   args.audio_index,
-                                   text,
-                                   f"{args.audio_index}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.wav",
-                                   last_sample_start_time,
-                                   last_sample_time)
+                    api.post_audio(
+                        uid,
+                        args.audio_index,
+                        text,
+                        f"{args.audio_index}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.wav",
+                        last_sample_start_time,
+                        last_sample_time,
+                    )
                     last_sample_start_time = last_sample_time
                     text_dir = DATA_DIR / "audio" / uid / "text"
                     text_dir.mkdir(parents=True, exist_ok=True)
 
-                    with open(text_dir / f"{args.text_num}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.txt", 'w',
-                              encoding='utf-8') as f:
+                    with open(
+                        text_dir
+                        / f"{args.text_num}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.txt",
+                        "w",
+                        encoding="utf-8",
+                    ) as f:
                         f.write(transcription[-1])  # 写入文本
                         args.text_num = args.text_num + 1
                 # Infinite loops are bad for processors, must-sleep.

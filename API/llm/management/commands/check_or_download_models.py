@@ -1,8 +1,7 @@
-import logging
 from pathlib import Path
 
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from authenticate.utils.get_logger import get_logger
 from llm.llm_call.config import MODELS
@@ -14,6 +13,14 @@ logger = get_logger(__name__)
 class Command(BaseCommand):
     help = 'Check or download models'
 
+    def add_arguments(self, parser):
+        """
+        Add arguments to the command
+        """
+        parser.add_argument('--llm_model_name', type=str,
+                            help='The name of the model to check or download, if it is all, then download all',
+                            default="llama2-7b-chat")
+
     def handle(self, *args, **options):
         """
         Loop through the MODELS dictionary and check if the model is in the database. If it is not, add it.
@@ -21,6 +28,8 @@ class Command(BaseCommand):
         :param options:
         :return:
         """
+
+        model_name = options['model_name']
 
         for model_families in MODELS:
             model_family = model_families["name"]
@@ -46,7 +55,12 @@ class Command(BaseCommand):
             model_folder = Path(settings.BASE_DIR / "llm" / "llm_call" / "models" / llm_model.model_family)
             model_path = model_folder / llm_model.filename
             if not model_path.exists():
-                llm_model.download_model()
+                if model_name == "all" or model_name == llm_model.model_name:
+                    logger.critical(f"{llm_model.model_name} is not available, downloading...")
+                    llm_model.download_model()
+                else:
+                    logger.critical(
+                        f"{llm_model.model_name} is not available, but setting do not ask us to download, skipping")
 
             if model_path.exists():
                 llm_model.available = True

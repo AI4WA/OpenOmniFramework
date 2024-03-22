@@ -1,16 +1,16 @@
+import os
+from datetime import timedelta
 from pathlib import Path
+from typing import Optional
 
+import cv2
 import torch
 from django.conf import settings
-from typing import Optional
+
 from authenticate.utils.get_logger import get_logger
+from hardware.models import AudioData, VideoData
 from ml.ml_models.get_features import GetFeatures
 from ml.ml_models.sentiment import SentimentAnalysis
-
-from hardware.models import AudioData, VideoData
-from datetime import timedelta
-import os
-import cv2
 
 models_dir = Path(settings.BASE_DIR) / "ml" / "ml_models" / "model_data"
 

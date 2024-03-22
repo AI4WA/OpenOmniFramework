@@ -1,7 +1,8 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
-from hardware.models import AudioData, HardWareDevice, Text2Speech, VideoData, ReactionToAudio
+from hardware.models import (AudioData, HardWareDevice, ReactionToAudio,
+                             Text2Speech, VideoData)
 
 
 @admin.register(HardWareDevice)

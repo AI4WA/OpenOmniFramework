@@ -22,7 +22,7 @@ jobs:
       - name: Install tox
         run: pip install tox tox-gh-actions
       - name: Run tox for Django
-        run:
+        run: |
           cd ./API
           ls
           tox

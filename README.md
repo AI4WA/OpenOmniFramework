@@ -7,7 +7,7 @@ Three components:
         - Audio
         - Video
     - Output:
-        - Text to Audio
+        - Text to Speech
 - API:
     - Knowledge base
     - Model Orchestration

@@ -1,5 +1,18 @@
 # Jarv5
 
+**J**: Junction
+
+**A**: Artificial
+
+**R**: Responsibility
+
+**V**: Versatile
+
+**5**: To be Better than J.A.R.V.I.S
+
+---
+
+
 This is an end to end conversational AI system framework.
 
 Video and Audio input are collected from hardware devices, then send to the API for the downstream processing.
@@ -7,6 +20,8 @@ Video and Audio input are collected from hardware devices, then send to the API 
 The output in the end will be text and then transformed to speech.
 
 Client side then will be notified to play the speech.
+
+---
 
 ## Main Components
 
@@ -26,9 +41,14 @@ Three components:
     - Chat interface
     - Data management
 
+---
+
 ## Architecture
 
 ![Architecture](./docs/imgs/jarv5.png)
+
+
+---
 
 ## Applications
 
@@ -41,6 +61,8 @@ Two main features:
 
 - Monitoring and Nursing: Make sure they take their medication, eat well, and exercise regularly.
 - Emotional Support: Provide companionship and emotional support.
+
+----
 
 ## Development Environment Setup
 
@@ -57,6 +79,8 @@ To get this project end to end running, you need to set up the following:
     - Emotion Recognition
 
 Before you start, you will need to clone this repo to your local machine.
+
+---
 
 ### Client
 
@@ -121,9 +145,11 @@ pip install -r requirements.txt
 python3 text_to_speech.py --api_domain http://localhost:8000 --token xxx_create_a_token_from_api_xxx
 ```
 
+-----
+
 ### API
 
-#### API
+#### API Server
 
 ```bash
 cd ./API
@@ -171,5 +197,18 @@ source venv/bin/activate
 # pip install -r requirements.dev.txt
 export DB_SERVICE=localhost
 python3 manage.py emoji
+```
+
+---
+
+### Web
+
+This is not a standalone application, but it can run against different API servers, which will be quite handy for
+debugging.
+It is an application written in React and Next.js.
+
+```bash
+cd ./Web
+docker compose up
 ```
 

@@ -207,6 +207,8 @@ This is not a standalone application, but it can run against different API serve
 debugging.
 It is an application written in React and Next.js.
 
+You can then open the browser and go to http://localhost:3000
+
 ```bash
 cd ./Web
 docker compose up

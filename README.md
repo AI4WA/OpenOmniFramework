@@ -10,9 +10,6 @@
 
 **5**: To be Better than J.A.R.V.I.S
 
----
-
-
 This is an end to end conversational AI system framework.
 
 Video and Audio input are collected from hardware devices, then send to the API for the downstream processing.
@@ -20,8 +17,6 @@ Video and Audio input are collected from hardware devices, then send to the API 
 The output in the end will be text and then transformed to speech.
 
 Client side then will be notified to play the speech.
-
----
 
 ## Main Components
 
@@ -41,14 +36,9 @@ Three components:
     - Chat interface
     - Data management
 
----
-
 ## Architecture
 
 ![Architecture](./docs/imgs/jarv5.png)
-
-
----
 
 ## Applications
 
@@ -61,8 +51,6 @@ Two main features:
 
 - Monitoring and Nursing: Make sure they take their medication, eat well, and exercise regularly.
 - Emotional Support: Provide companionship and emotional support.
-
-----
 
 ## Development Environment Setup
 

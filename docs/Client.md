@@ -45,9 +45,9 @@ So our current solution is in the order of:
 
 #### Challenges
 
-1. Balancing between latency and accuracy.
-2. If multiple users in the scene, how to distinguish the audio from different users.
-3. How to detect the user stops speaking, or we should try other ways to control this?
+- Balancing between latency and accuracy.
+- If multiple users in the scene, how to distinguish the audio from different users.
+- How to detect the user stops speaking, or we should try other ways to control this?
 
 ### Video Acquisition
 
@@ -59,9 +59,9 @@ When emotion detection is triggered, the relevant images will be retrieved based
 
 #### Challenges
 
-1. The challenges will from the model side, if we decide that we will also use the image information to determine who is
-   speaking. Then we need to redesign the whole workflow.
-2. The Main thing to consider is when we retrieve the images, how to retrieve the images that are relevant to the audio.
+- The challenges will from the model side, if we decide that we will also use the image information to determine who is
+  speaking. Then we need to redesign the whole workflow.
+- The Main thing to consider is when we retrieve the images, how to retrieve the images that are relevant to the audio.
 
 ### File Sync
 
@@ -74,7 +74,7 @@ To ensure the latency of the model, we will sync the files to the server through
 
 #### Challenges
 
-1. We Need to do the evaluation on the latency of the file sync process.
+- We Need to do the evaluation on the latency of the file sync process.
 
 ## Output Functionalities
 

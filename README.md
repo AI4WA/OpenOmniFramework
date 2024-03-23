@@ -18,11 +18,11 @@ Three components:
         - Video
     - Output:
         - Text to Speech
-- API:
+- [API](./docs/API.md):
     - Knowledge base (Relational Database + Graph Database)
     - Model Orchestration (LLM, GPT-4 API, self-developed models)
     - Data processing
-- Web
+- [Web](./docs/Web.md)
     - Chat interface
     - Data management
 

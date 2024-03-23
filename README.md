@@ -12,7 +12,7 @@ Client side then will be notified to play the speech.
 
 Three components:
 
-- Client
+- [Client](./docs/Client.md)
     - Input:
         - Audio
         - Video

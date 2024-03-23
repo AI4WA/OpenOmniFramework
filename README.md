@@ -110,7 +110,7 @@ python3 sync_files.py # with proper configurations
 
 #### Text to Speech
 
-This is looping to check from API side whether there is any new text to be spoken.
+This is looping to check from the API side whether there is any new text to be spoken.
 
 ```bash
 cd ./Client/Responder

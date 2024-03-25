@@ -1,5 +1,15 @@
 # Jarv5
 
+**J**: Junction
+
+**A**: Artificial
+
+**R**: Responsibility
+
+**V**: Versatile
+
+**5**: To be Better than J.A.R.V.I.S
+
 This is an end to end conversational AI system framework.
 
 Video and Audio input are collected from hardware devices, then send to the API for the downstream processing.
@@ -12,17 +22,17 @@ Client side then will be notified to play the speech.
 
 Three components:
 
-- Client
+- [Client](./docs/Client.md)
     - Input:
         - Audio
         - Video
     - Output:
         - Text to Speech
-- API:
+- [API](./docs/API.md):
     - Knowledge base (Relational Database + Graph Database)
     - Model Orchestration (LLM, GPT-4 API, self-developed models)
     - Data processing
-- Web
+- [Web](./docs/Web.md)
     - Chat interface
     - Data management
 
@@ -57,6 +67,8 @@ To get this project end to end running, you need to set up the following:
     - Emotion Recognition
 
 Before you start, you will need to clone this repo to your local machine.
+
+---
 
 ### Client
 
@@ -110,7 +122,7 @@ python3 sync_files.py # with proper configurations
 
 #### Text to Speech
 
-This is looping to check from API side whether there is any new text to be spoken.
+This is looping to check from the API side whether there is any new text to be spoken.
 
 ```bash
 cd ./Client/Responder
@@ -121,9 +133,11 @@ pip install -r requirements.txt
 python3 text_to_speech.py --api_domain http://localhost:8000 --token xxx_create_a_token_from_api_xxx
 ```
 
+-----
+
 ### API
 
-#### API
+#### API Server
 
 ```bash
 cd ./API
@@ -171,5 +185,20 @@ source venv/bin/activate
 # pip install -r requirements.dev.txt
 export DB_SERVICE=localhost
 python3 manage.py emoji
+```
+
+---
+
+### Web
+
+This is not a standalone application, but it can run against different API servers, which will be quite handy for
+debugging.
+It is an application written in React and Next.js.
+
+You can then open the browser and go to http://localhost:3000
+
+```bash
+cd ./Web
+docker compose up
 ```
 

@@ -32,7 +32,7 @@ class Command(BaseCommand):
         :return:
         """
 
-        model_name = options["model_name"]
+        model_name = options["llm_model_name"]
 
         for model_families in MODELS:
             model_family = model_families["name"]

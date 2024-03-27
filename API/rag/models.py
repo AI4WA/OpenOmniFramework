@@ -45,8 +45,3 @@ class Patient(models.Model):
         null=True,
         blank=True,
     )
-
-
-
-
-

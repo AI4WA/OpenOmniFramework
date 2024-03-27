@@ -176,6 +176,25 @@ python3 manage.py start_worker --task_type stt
 
 For the same reason as above (for now they both only running on CPU), we prefer to run it on the host machine.
 
+Before we start, we will need to first download relevant models to you local machine.
+
+The download link is
+here: [link](http://pascalsun.quickconnect.to/d/s/xnxJWIgf1NjhCHpwLSC3OzgicsZkFwo5/_-Y0ZG2FnJUp5meY0lK4bmlmEKdoPpS--GbSgTARDPAs)
+
+Download the zip file, unzip it, and put it to folder `API/ml/ml_models/model_data`.
+
+The structure of the folder should be like this:
+
+```bash
+model_data/
+  -- bert_cn/
+  -- deepface/
+  -- sa_sims.pth
+```
+
+If you encounter an issue about the `deepface` weights downloading folder, set the environment variable
+to you `model_data/deepface` folder.
+
 ```bash
 cd ./API
 # create a virtual environment if you haven't done it

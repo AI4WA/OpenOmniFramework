@@ -2,7 +2,9 @@ name: Deployment
 on:
   push:
     branches:
-      - main
+      - develop
+      - staging
+      - production
 jobs:
   deploy_cmwhver:
     name: Deploy to Paswey

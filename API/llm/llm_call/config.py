@@ -152,5 +152,5 @@ MODELS = [
                 "filename": "mixtral-8x7b-v0.1.Q5_K_M.gguf",
             }
         ],
-    }
+    },
 ]

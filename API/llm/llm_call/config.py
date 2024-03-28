@@ -141,4 +141,16 @@ MODELS = [
             }
         ],
     },
+    {
+        "name": "Mixtral-8x7b",
+        "model_type": MT_LLAMA,
+        "models": [
+            {
+                "name": "Mixtral-8x7b",
+                "size": "8x7b",
+                "repo": "TheBloke/Mixtral-8x7B-v0.1-GGUF",
+                "filename": "mixtral-8x7b-v0.1.Q5_K_M.gguf",
+            }
+        ],
+    }
 ]

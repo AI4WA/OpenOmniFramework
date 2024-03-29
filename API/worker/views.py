@@ -65,7 +65,13 @@ class QueueTaskViewSet(viewsets.ViewSet):
             self.__queue_task(
                 user=request.user,
                 task_type="llm",
-                data={"model_name": request.data["model_name"], "prompt": prompt},
+                data={
+                    "model_name": request.data["model_name"],
+                    "prompt": prompt,
+                    "llm_task_type": request.data.get(
+                        "llm_task_type", "chat_completion"
+                    ),
+                },
             )
             for prompt in data["prompts"]
         ]

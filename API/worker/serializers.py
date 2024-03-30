@@ -1,7 +1,16 @@
 from rest_framework import serializers
+from worker.models import Task
 
 
 class TaskLLMRequestSerializer(serializers.Serializer):
+    task_worker = serializers.ChoiceField(
+        help_text="The worker to assign the task to",
+        choices=[
+            ("cpu", "cpu"),
+            ("gpu", "GPU"),
+        ],
+        default="cpu",
+    )
     model_name = serializers.CharField(
         required=True,
         help_text="The model name to use for chat completion, "
@@ -22,6 +31,14 @@ class TaskLLMRequestSerializer(serializers.Serializer):
 
 
 class TaskLLMRequestsSerializer(serializers.Serializer):
+    task_worker = serializers.ChoiceField(
+        help_text="The worker to assign the task to",
+        choices=[
+            ("cpu", "cpu"),
+            ("gpu", "GPU"),
+        ],
+        default="cpu",
+    )
     model_name = serializers.CharField(
         required=True,
         help_text="The model name to use for chat completion, "
@@ -59,4 +76,31 @@ class TaskSTTRequestSerializer(serializers.Serializer):
     hardware_device_mac_address = serializers.CharField(
         required=False,
         help_text="The mac address of the hardware device",
+    )
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = "__all__"
+
+
+class TaskReportSerializer(serializers.Serializer):
+    result_status = serializers.ChoiceField(
+        help_text="The status of the result",
+        choices=[
+            ("completed", "completed"),
+            ("failed", "Failed"),
+        ],
+        default="completed",
+    )
+    description = serializers.CharField(
+        required=False, help_text="The description of the result"
+    )
+    result = serializers.JSONField(required=False, help_text="The result of the task")
+    completed_in_seconds = serializers.FloatField(
+        required=False, help_text="The time taken to complete the task"
+    )
+    success = serializers.BooleanField(
+        required=False, help_text="The success status of the task"
     )

@@ -6,12 +6,14 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from llm.models import LLMRequestRecord
 from worker.models import Task
 from worker.serializers import (
     TaskLLMRequestSerializer,
     TaskLLMRequestsSerializer,
     TaskSTTRequestSerializer,
+    TaskSerializer,
+    TaskReportSerializer,
 )
 
 logger = logging.getLogger(__name__)
@@ -39,8 +41,10 @@ class QueueTaskViewSet(viewsets.ViewSet):
         serializer = TaskLLMRequestSerializer(data=data)
         serializer.is_valid(raise_exception=True)
 
+        task_worker = serializer.validated_data["task_worker"]
+        task_type = "llm" if task_worker == "cpu" else "gpu"
         task_id = self.__queue_task(
-            user=request.user, task_type="llm", data=serializer.data
+            user=request.user, task_type=task_type, data=serializer.data
         )
         return Response(
             {"message": "LLM task queued successfully", "task_id": task_id},
@@ -60,14 +64,17 @@ class QueueTaskViewSet(viewsets.ViewSet):
         # Example task queuing logic
         serializer = TaskLLMRequestsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        task_worker = serializer.validated_data["task_worker"]
+        task_type = "llm" if task_worker == "cpu" else "gpu"
         data = serializer.validated_data
         task_ids = [
             self.__queue_task(
                 user=request.user,
-                task_type="llm",
+                task_type=task_type,
                 data={
                     "model_name": request.data["model_name"],
                     "prompt": prompt,
+                    ""
                     "llm_task_type": request.data.get(
                         "llm_task_type", "chat_completion"
                     ),
@@ -153,3 +160,86 @@ class QueueTaskViewSet(viewsets.ViewSet):
                 {"error": f"Task with ID {pk} does not exist"},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+    # add an endpoint to get the task for GPU
+    @swagger_auto_schema(
+        operation_description="Get the task for GPU",
+        responses={200: "Task retrieved successfully"},
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        permission_classes=[IsAuthenticated],
+        url_path="gpu_task",
+        url_name="gpu_task",
+    )
+    def gpu_task(self, request):
+        """
+        Endpoint to get the task for GPU.
+        """
+        logger.info(f"Getting task for GPU")
+        try:
+            task = Task.objects.filter(work_type="gpu", result_status="pending").first()
+            if task is None:
+                return Response(
+                    {"error": f"No pending GPU tasks found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+            # task.result_status = "started"
+            task.save()
+            task_serializer = TaskSerializer(task)
+            logger.critical(f"Task {task.id} retrieved successfully")
+            return Response(data=task_serializer.data, status=status.HTTP_200_OK)
+        except Task.DoesNotExist:
+            return Response(
+                {"error": f"No pending GPU tasks found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+    # add an endpoint to update the task result
+    @swagger_auto_schema(
+        operation_description="Update the task result",
+        request_body=TaskReportSerializer,
+        responses={200: "Task result updated successfully"},
+    )
+    @action(
+        detail=True,
+        methods=["post"],
+        permission_classes=[IsAuthenticated],
+        url_path="update_result",
+        url_name="update_result",
+    )
+    def update_result(self, request, pk=None):
+        """
+        Endpoint to update the result of a task.
+        """
+        data = request.data
+
+        serializer = TaskReportSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        task = Task.objects.filter(id=pk, user=request.user).first()
+        if task is None:
+            return Response(
+                {"error": f"Task with ID {pk} does not exist"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        task.result_status = data.get("result_status", task.result_status)
+        task.description = data.get("description", task.description)
+        task.save()
+        # at the same time, create a LLMRequestRecord
+        llm_record = LLMRequestRecord(
+            user=task.user,
+            model_name=task.parameters.get("model_name"),
+            prompt=task.parameters.get("prompt"),
+            task=task.parameters.get("llm_task_type"),
+            completed_in_seconds=data.get("completed_in_seconds", 0),
+            success=data.get("success", True),
+            response=data.get("result", {}),
+        )
+        llm_record.save()
+        return Response(
+            {"message": f"Task {task.id} updated successfully"},
+            status=status.HTTP_200_OK,
+        )

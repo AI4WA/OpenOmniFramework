@@ -20,9 +20,9 @@ class LLMRequestRecord(models.Model):
     task = models.CharField(
         max_length=100,
         choices=[
-            ("chat-completion", "Chat Completion"),
+            ("chat_completion", "Chat Completion"),
             ("completion", "Completion"),
-            ("create-embedding", "Create Embedding"),
+            ("create_embedding", "Create Embedding"),
         ],
         default="completion",
     )
@@ -58,6 +58,17 @@ class LLMConfigRecords(models.Model):
 
     def __str__(self):
         return f"{self.model_name} - {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
+
+    @property
+    def model_path(self):
+        return Path(
+            settings.BASE_DIR
+            / "llm"
+            / "llm_call"
+            / "models"
+            / self.model_family
+            / self.filename
+        )
 
     def download_model(self):
         """

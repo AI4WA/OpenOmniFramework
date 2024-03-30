@@ -1,4 +1,7 @@
 from llm_adaptor_worker import LLMAdaptor
+from utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class LLMTask:
@@ -9,6 +12,8 @@ class LLMTask:
         self.llm_model_name = parameters.get("model_name")
         self.llm_task_type = parameters.get("llm_task_type")
         self.llm_prompt = parameters.get("prompt")
+        logger.debug(args)
+        logger.debug(kwargs)
 
     def run(self, model_config):
         llm_adaptor = LLMAdaptor(model_config)

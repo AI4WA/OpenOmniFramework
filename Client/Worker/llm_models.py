@@ -2,6 +2,7 @@ from utils import get_logger
 from huggingface_hub import hf_hub_url
 from tqdm import tqdm
 import requests
+from llama_cpp import Llama
 from constants import LLM_MODEL_DIR
 
 logger = get_logger("GPU-Worker-LLM-MODEL-CONFIG")
@@ -29,8 +30,9 @@ class LLMModelConfig:
         self.filename = filename
         self.file_size = file_size
         self.available = available
-        logger.info(args)
-        logger.info(kwargs)
+        self.llm = None
+        logger.debug(args)
+        logger.debug(kwargs)
 
     def model_path(self):
         model_file = LLM_MODEL_DIR / self.model_family / self.filename
@@ -69,3 +71,8 @@ class LLMModelConfig:
             logger.error("ERROR, something went wrong")
             return False
         return True
+
+    def init_llm(self):
+        self.llm = Llama(
+            model_path=self.model_path().as_posix(), n_gpu_layers=-1, embedding=True
+        )

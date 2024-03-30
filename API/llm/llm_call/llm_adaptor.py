@@ -6,15 +6,34 @@ from django.conf import settings
 from llama_cpp import Llama
 
 from llm.llm_call.config import MN_GEMMA, MN_LLAMA2, MODELS, MT_CHATGLM, MT_LLAMA
+from llm.llm_call.llm_model import LLMModelMemory
 from llm.models import LLMConfigRecords
 
 logger = logging.getLogger(__name__)
+
+AVAILABLE_MODELS_IN_MEMORY = {
+    llm_model_obj.model_name: LLMModelMemory(
+        model_name=llm_model_obj.model_name,
+        model_size=llm_model_obj.model_size,
+        model_family=llm_model_obj.model_family,
+        model_path=llm_model_obj.model_path,
+        model_type=llm_model_obj.model_type,
+        repo=llm_model_obj.repo,
+        filename=llm_model_obj.filename,
+        file_size=llm_model_obj.file_size,
+        available=llm_model_obj.available,
+    )
+    for llm_model_obj in LLMConfigRecords.objects.filter(available=True)
+}
 
 
 class LLMAdaptor:
     def __init__(self, model_name: str):
         logger.info(f"Creating LLMAdaptor for model {model_name}")
         self.model_name = model_name
+        self.llm_model_mem = AVAILABLE_MODELS_IN_MEMORY.get(model_name, None)
+        if self.llm_model_mem.llm is None:
+            self.llm_model_mem.init_llm()
 
     def get_llm_model_config(self):
         """
@@ -50,17 +69,7 @@ class LLMAdaptor:
         """
         model_config = self.get_llm_model_config()
         if model_config.model_type == MT_LLAMA:
-            model_path = Path(
-                settings.BASE_DIR
-                / "llm"
-                / "llm_call"
-                / "models"
-                / model_config.model_family
-                / model_config.filename
-            )
-            llm = Llama(model_path=model_path.as_posix(), embedding=False)
-
-            output = llm(
+            output = self.llm_model_mem.llm(
                 f"Q: {prompt} A: ",
                 max_tokens=500,  # Generate up to 32 tokens, set to None to generate up to the end of the context window
                 stop=[
@@ -89,17 +98,7 @@ class LLMAdaptor:
     def create_chat_completion(self, prompt: str):
         model_config = self.get_llm_model_config()
         if model_config.model_type == MT_LLAMA:
-            model_path = Path(
-                settings.BASE_DIR
-                / "llm"
-                / "llm_call"
-                / "models"
-                / model_config.model_family
-                / model_config.filename
-            )
-            llm = Llama(model_path=model_path.as_posix(), embedding=False)
-
-            return llm.create_chat_completion(
+            return self.llm_model_mem.llm.create_chat_completion(
                 messages=[
                     {
                         "role": "system",
@@ -128,16 +127,7 @@ class LLMAdaptor:
     def create_embedding(self, text: str):
         model_config = self.get_llm_model_config()
         if model_config.model_type == MT_LLAMA:
-            model_path = Path(
-                settings.BASE_DIR
-                / "llm"
-                / "llm_call"
-                / "models"
-                / model_config.model_family
-                / model_config.filename
-            )
-            llm = Llama(model_path=model_path.as_posix(), embedding=True)
-            return llm.create_embedding(text)
+            return self.llm_model_mem.llm.create_embedding(text)
         raise ValueError(
             f"Model {model_config.model_type} is not supported for embedding"
         )

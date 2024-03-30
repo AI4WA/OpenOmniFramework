@@ -24,31 +24,54 @@ if __name__ == "__main__":
     logger.info("Init process complete. Waiting for tasks...")
 
     while True:
-        with timer(logger=logger, message="get_task"):
-            task = api.get_task()
-        if task is None:
-            time.sleep(0.25)
-            continue
+        try:
+            with timer(logger=logger, message="get_task"):
+                task = api.get_task()
+            if task is None:
+                # No task available
+                time.sleep(0.25)
+                continue
 
-        llm_task = LLMTask(**task)
-        llm_model = avail_model_objs[llm_task.llm_model_name]
-        logger.info(f"Running task {llm_task.task_id}")
-        logger.info(f"LLM Model: {llm_task.llm_model_name}")
-        logger.info(f"LLM Model Path: {llm_model.model_path()}")
+            llm_task = LLMTask(**task)
+            llm_model = avail_model_objs.get(llm_task.llm_model_name, None)
+            if llm_model is None:
+                logger.error(f"LLM Model {llm_task.llm_model_name} not exist")
+                api.post_task_result(
+                    task_id=llm_task.task_id,
+                    result_status="failed",
+                    description="LLM Model not exist",
+                    completed_in_seconds=0,
+                )
+                continue
 
-        with timer(logger=logger, message="run_task"):
-            start_time = time.time()
-            result = llm_task.run(llm_model)
-            logger.info(type(result))
-            end_time = time.time()
-            logger.info(f"Task {llm_task.task_id} completed")
-            api.post_task_result(
-                task_id=llm_task.task_id,
-                result_status="completed",
-                description=str(result) if result else "Error",
-                completed_in_seconds=end_time - start_time,
-                result=result,
-            )
+            if llm_model.llm is None:
+                # we will hold the model in memory, this potentially can cause error
+                llm_model.init_llm()
+            logger.info(f"Running task {llm_task.task_id}")
+            logger.info(f"LLM Model: {llm_task.llm_model_name}")
+            logger.info(f"LLM Model Path: {llm_model.model_path()}")
 
+            with timer(logger=logger, message="run_task"):
+                start_time = time.time()
+                try:
+                    result = llm_task.run(llm_model)
+                    result_status = "completed"
+                except Exception as e:
+                    logger.exception(e)
+                    result = str(e)
+                    result_status = "failed"
+                end_time = time.time()
+                logger.info(f"Task {llm_task.task_id} completed")
+                try:
+                    api.post_task_result(
+                        task_id=llm_task.task_id,
+                        result_status=result_status,
+                        description=str(result) if result else "Error",
+                        completed_in_seconds=end_time - start_time,
+                        result=result,
+                    )
+                except Exception as e:
+                    logger.exception(e)
+        except Exception as e:
+            logger.exception(e)
         time.sleep(0.25)
-        break

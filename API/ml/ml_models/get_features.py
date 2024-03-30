@@ -19,7 +19,6 @@ logger = get_logger(__name__)
 
 
 class GetFeatures:
-
     def __init__(self, pretrained_bert_dir: str) -> None:
         self.padding_mode = "zeros"
         self.padding_location = "back"

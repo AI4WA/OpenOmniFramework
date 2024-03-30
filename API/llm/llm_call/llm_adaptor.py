@@ -3,7 +3,6 @@ from pathlib import Path
 
 import chatglm_cpp
 from django.conf import settings
-from huggingface_hub import hf_hub_url
 from llama_cpp import Llama
 
 from llm.llm_call.config import MN_GEMMA, MN_LLAMA2, MODELS, MT_CHATGLM, MT_LLAMA

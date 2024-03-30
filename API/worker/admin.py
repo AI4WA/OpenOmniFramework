@@ -23,6 +23,8 @@ class TaskAdmin(ImportExportModelAdmin):
         """
         The delay time of the task in seconds
         """
+        if obj.updated_at is None:
+            return 0
         return (obj.updated_at - obj.created_at).total_seconds()
 
     readonly_fields = ("created_at", "updated_at", "process_delay_seconds")

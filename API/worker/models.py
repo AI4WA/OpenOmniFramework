@@ -16,7 +16,7 @@ class Task(models.Model):
     name = models.CharField(max_length=100)
     work_type = models.CharField(
         max_length=100,
-        choices=[("llm", "LLM"), ("stt", "Speech2Text")],
+        choices=[("llm", "LLM"), ("stt", "Speech2Text"), ("gpu", "GPU")],
         help_text="Select the type of work",
     )
     parameters = models.JSONField(

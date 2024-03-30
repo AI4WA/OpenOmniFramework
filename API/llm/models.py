@@ -14,6 +14,12 @@ logger = logging.getLogger(__name__)
 
 class LLMRequestRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    name = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="The name of the task for tracking",
+    )
     model_name = models.CharField(max_length=100)
     prompt = models.TextField()
     response = models.JSONField(default=dict, blank=True, null=True)

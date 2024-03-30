@@ -8,8 +8,21 @@ from llm.models import LLMConfigRecords, LLMRequestRecord
 
 @admin.register(LLMRequestRecord)
 class LLMRequestRecordAdmin(ImportExportModelAdmin):
-    list_display = ("user", "model_name", "task", "success", "created_at", "updated_at")
-    search_fields = ("user__username", "model_name", "task")
+    list_display = (
+        "user",
+        "model_name",
+        "name",
+        "task",
+        "success",
+        "completed_in_seconds",
+        "updated_at",
+    )
+    search_fields = (
+        "user__username",
+        "model_name",
+        "task",
+        "name",
+    )
     list_filter = (
         "user",
         "model_name",

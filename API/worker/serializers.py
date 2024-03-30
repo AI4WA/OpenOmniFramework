@@ -12,6 +12,11 @@ class TaskLLMRequestSerializer(serializers.Serializer):
         ],
         default="cpu",
     )
+    name = serializers.CharField(
+        required=False,
+        help_text="The name of the task to run, which can help you track a list of tasks",
+        default="default_name",
+    )
     model_name = serializers.CharField(
         required=True,
         help_text="The model name to use for chat completion, "
@@ -39,6 +44,11 @@ class TaskLLMRequestsSerializer(serializers.Serializer):
             ("gpu", "GPU"),
         ],
         default="cpu",
+    )
+    name = serializers.CharField(
+        required=False,
+        help_text="The name of the task to run, which can help you track a list of tasks",
+        default="default_name",
     )
     model_name = serializers.CharField(
         required=True,

@@ -82,6 +82,7 @@ class Command(BaseCommand):
             end_time = time.time()
             record = LLMRequestRecord(
                 user=task.user,
+                name=task.name,
                 model_name=model_name,
                 prompt=prompt,
                 response=response,

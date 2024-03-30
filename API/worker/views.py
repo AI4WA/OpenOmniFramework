@@ -45,7 +45,10 @@ class QueueTaskViewSet(viewsets.ViewSet):
         task_worker = serializer.validated_data["task_worker"]
         task_type = "llm" if task_worker == "cpu" else "gpu"
         task_id = self.__queue_task(
-            user=request.user, task_type=task_type, data=serializer.data
+            user=request.user,
+            task_type=task_type,
+            name=serializer.data["name"],
+            data=serializer.data,
         )
         return Response(
             {"message": "LLM task queued successfully", "task_id": task_id},
@@ -72,6 +75,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
             self.__queue_task(
                 user=request.user,
                 task_type=task_type,
+                name=serializer.data["name"],
                 data={
                     "model_name": request.data["model_name"],
                     "prompt": prompt,
@@ -103,7 +107,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
 
         task_id = self.__queue_task(
-            user=request.user, task_type="stt", data=serializer.data
+            user=request.user, task_type="stt", name="stt", data=serializer.data
         )
         return Response(
             {"message": "STT task queued successfully", "task_id": task_id},
@@ -111,7 +115,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
         )
 
     @staticmethod
-    def __queue_task(user, task_type, data):
+    def __queue_task(user, task_type: str, name: str, data: dict):
         """
         Simulates task queuing logic. Replace with actual implementation.
         """
@@ -120,7 +124,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
 
         task = Task.create_task(
             user=user,
-            name=f"{task_type}_{time.time()}",
+            name=name,
             work_type=task_type,
             parameters=data,
         )
@@ -232,6 +236,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
         # at the same time, create a LLMRequestRecord
         llm_record = LLMRequestRecord(
             user=task.user,
+            name=task.name,
             model_name=task.parameters.get("model_name"),
             prompt=task.parameters.get("prompt"),
             task=task.parameters.get("llm_task_type"),

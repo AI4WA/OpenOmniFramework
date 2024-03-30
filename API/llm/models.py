@@ -20,9 +20,9 @@ class LLMRequestRecord(models.Model):
     task = models.CharField(
         max_length=100,
         choices=[
-            ("chat-completion", "Chat Completion"),
+            ("chat_completion", "Chat Completion"),
             ("completion", "Completion"),
-            ("create-embedding", "Create Embedding"),
+            ("create_embedding", "Create Embedding"),
         ],
         default="completion",
     )

@@ -12,6 +12,7 @@ class LLMAdaptor:
     def __init__(self, model_config: LLMModelConfig):
         self.model_config = model_config
         self.model_path = model_config.model_path()
+        self.llm = self.model_config.llm
 
     def create_completion(self, prompt: str):
         """
@@ -21,11 +22,8 @@ class LLMAdaptor:
         """
 
         if self.model_config.model_type == MT_LLAMA:
-            llm = Llama(
-                model_path=self.model_path.as_posix(), n_gpu_layers=-1, embedding=False
-            )
 
-            output = llm(
+            output = self.llm(
                 f"Q: {prompt} A: ",
                 max_tokens=500,  # Generate up to 32 tokens, set to None to generate up to the end of the context window
                 stop=[
@@ -47,11 +45,7 @@ class LLMAdaptor:
 
     def create_chat_completion(self, prompt: str):
         if self.model_config.model_type == MT_LLAMA:
-            llm = Llama(
-                model_path=self.model_path.as_posix(), n_gpu_layers=-1, embedding=False
-            )
-
-            return llm.create_chat_completion(
+            return self.llm.create_chat_completion(
                 messages=[
                     {
                         "role": "system",
@@ -73,10 +67,7 @@ class LLMAdaptor:
 
     def create_embedding(self, text: str):
         if self.model_config.model_type == MT_LLAMA:
-            llm = Llama(
-                model_path=self.model_path.as_posix(), n_gpu_layers=-1, embedding=True
-            )
-            return llm.create_embedding(text)
+            return self.llm.create_embedding(text)
         raise ValueError(
             f"Model {self.model_config.model_type} is not supported for embedding"
         )

@@ -31,7 +31,18 @@ if __name__ == "__main__":
             continue
 
         llm_task = LLMTask(**task)
-        llm_model = avail_model_objs[llm_task.llm_model_name]
+        llm_model = avail_model_objs.get(llm_task.llm_model_name, None)
+        if llm_model is None:
+            api.post_task_result(
+                task_id=llm_task.task_id,
+                result_status="failed",
+                description="LLM Model not exist",
+                completed_in_seconds=0
+            )
+            continue
+
+        if llm_model.llm is None:
+            llm_model.init_llm()
         logger.info(f"Running task {llm_task.task_id}")
         logger.info(f"LLM Model: {llm_task.llm_model_name}")
         logger.info(f"LLM Model Path: {llm_model.model_path()}")
@@ -51,4 +62,4 @@ if __name__ == "__main__":
             )
 
         time.sleep(0.25)
-        break
+

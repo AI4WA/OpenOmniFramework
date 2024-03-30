@@ -112,7 +112,7 @@ class CallLLMView(viewsets.ViewSet):
                 model_name=model_name,
                 prompt=prompt,
                 response=response,
-                task="create-embedding",
+                task="create_embedding",
                 completed_in_seconds=end_time - start_time,
             )
             record.save()
@@ -126,7 +126,7 @@ class CallLLMView(viewsets.ViewSet):
                 prompt=prompt,
                 response=str(e),
                 success=False,
-                task="create-embedding",
+                task="create_embedding",
                 completed_in_seconds=end_time - start_time,
             )
             record.save()

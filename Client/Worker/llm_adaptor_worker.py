@@ -1,9 +1,7 @@
 from utils import get_logger
 from constants import MT_LLAMA, MT_CHATGLM
 import chatglm_cpp
-from llama_cpp import Llama
 from llm_models import LLMModelConfig
-from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -22,7 +20,6 @@ class LLMAdaptor:
         """
 
         if self.model_config.model_type == MT_LLAMA:
-
             output = self.llm(
                 f"Q: {prompt} A: ",
                 max_tokens=500,  # Generate up to 32 tokens, set to None to generate up to the end of the context window

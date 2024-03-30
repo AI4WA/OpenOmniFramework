@@ -59,6 +59,17 @@ class LLMConfigRecords(models.Model):
     def __str__(self):
         return f"{self.model_name} - {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
 
+    @property
+    def model_path(self):
+        return Path(
+            settings.BASE_DIR
+            / "llm"
+            / "llm_call"
+            / "models"
+            / self.model_family
+            / self.filename
+        )
+
     def download_model(self):
         """
         Download the model from the model_details

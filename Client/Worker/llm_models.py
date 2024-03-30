@@ -31,8 +31,8 @@ class LLMModelConfig:
         self.file_size = file_size
         self.available = available
         self.llm = None
-        logger.info(args)
-        logger.info(kwargs)
+        logger.debug(args)
+        logger.debug(kwargs)
 
     def model_path(self):
         model_file = LLM_MODEL_DIR / self.model_family / self.filename
@@ -72,8 +72,7 @@ class LLMModelConfig:
             return False
         return True
 
-
     def init_llm(self):
         self.llm = Llama(
-                model_path=self.model_path().as_posix(), n_gpu_layers=-1, embedding=True
-            )
+            model_path=self.model_path().as_posix(), n_gpu_layers=-1, embedding=True
+        )

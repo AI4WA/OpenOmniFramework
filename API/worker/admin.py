@@ -16,7 +16,7 @@ class TaskAdmin(ImportExportModelAdmin):
         "updated_at",
     )
     search_fields = ("user__email", "name", "work_type", "result_status")
-    list_filter = ("work_type", "result_status")
+    list_filter = ("work_type", "result_status", "user")
 
     @admin.display(description="process_delay")
     def process_delay_seconds(self, obj):

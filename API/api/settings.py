@@ -146,6 +146,8 @@ LOGIN_URL = "/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 CLIENT_DATA_FOLDER = Path(BASE_DIR).parent / "Client"
+TMP_FOLDER = Path(BASE_DIR) / "tmp"
+TMP_FOLDER.mkdir(parents=True, exist_ok=True)
 
 LOGGING = {
     "version": 1,

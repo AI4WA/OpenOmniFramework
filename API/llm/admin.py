@@ -5,11 +5,11 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.helpers import ActionForm
 from import_export import resources
-from authenticate.utils.fire_and_forget import fire_and_forget
 
 # Register your models here.
 from import_export.admin import ImportExportModelAdmin
 
+from authenticate.utils.fire_and_forget import fire_and_forget
 from llm.models import LLMConfigRecords, LLMRequestRecord
 
 
@@ -24,6 +24,7 @@ class TaskNameActionForm(ActionForm):
 
 # add a function to export the data to a csv file
 
+
 @admin.action(description="Export to CSV file")
 @fire_and_forget
 def export_to_csv(modeladmin, request, queryset):
@@ -37,7 +38,7 @@ def export_to_csv(modeladmin, request, queryset):
     )
     current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
     with open(
-            f"{settings.TMP_FOLDER}/{task_name}_{current_datetime}.csv", "wb"
+        f"{settings.TMP_FOLDER}/{task_name}_{current_datetime}.csv", "wb"
     ) as file:
         file.write(dataset.csv.encode())
 

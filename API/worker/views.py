@@ -223,7 +223,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
         serializer = TaskReportSerializer(data=data)
         serializer.is_valid(raise_exception=True)
 
-        task = Task.objects.filter(id=pk, user=request.user).first()
+        task = Task.objects.filter(id=pk).first()
         if task is None:
             return Response(
                 {"error": f"Task with ID {pk} does not exist"},

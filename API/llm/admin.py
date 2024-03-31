@@ -30,7 +30,7 @@ def export_to_csv(modeladmin, request, queryset):
         return
     resource = LLMRequestRecordResource()
     dataset = resource.export(
-        queryset=LLMRequestRecord.objects.filter(task=task_name, success=True)
+        queryset=LLMRequestRecord.objects.filter(name=task_name, success=True)
     )
     current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
     with open(

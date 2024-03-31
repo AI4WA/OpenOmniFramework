@@ -9,6 +9,7 @@ from import_export import resources
 # Register your models here.
 from import_export.admin import ImportExportModelAdmin
 
+from authenticate.utils.fire_and_forget import fire_and_forget
 from llm.models import LLMConfigRecords, LLMRequestRecord
 
 
@@ -22,7 +23,10 @@ class TaskNameActionForm(ActionForm):
 
 
 # add a function to export the data to a csv file
+
+
 @admin.action(description="Export to CSV file")
+@fire_and_forget
 def export_to_csv(modeladmin, request, queryset):
     task_name = request.POST.get("task_name", None)
     if task_name is None:

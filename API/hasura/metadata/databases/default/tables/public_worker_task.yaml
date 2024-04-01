@@ -34,3 +34,31 @@ select_permissions:
           - user_id:
               _eq: X-Hasura-User-Id
     comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""

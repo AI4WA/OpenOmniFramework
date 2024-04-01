@@ -1,0 +1,52 @@
+table:
+  name: llm_llmconfigrecords
+  schema: public
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - id
+        - available
+        - filename
+        - model_family
+        - model_name
+        - model_size
+        - model_type
+        - repo
+        - file_size
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - available
+        - filename
+        - model_family
+        - model_name
+        - model_size
+        - model_type
+        - repo
+        - file_size
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - available
+        - filename
+        - model_family
+        - model_name
+        - model_size
+        - model_type
+        - repo
+        - file_size
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""

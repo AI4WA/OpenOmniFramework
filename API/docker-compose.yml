@@ -53,6 +53,25 @@ services:
     depends_on:
       - db
 
+  hasura:
+    image: hasura/graphql-engine:v2.38.0.cli-migrations-v3
+    container_name: hasura
+    ports:
+      - "8080:8080"
+    restart: always
+    volumes:
+      - ./hasura/:/Javr5/
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://youruser:yourpassword@pgdb:5432/yourdbname
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ADMIN_SECRET: yn
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "public"
+      HASURA_GRAPHQL_JWT_SECRET: '{"type": "HS256", "key": "django-insecure-yk8_z-l5)!2p2ii*^)i&4z)#j94d#f3by&j1*g*ru=)q7m#jw6"}' # Replace with environment variable JWT secret
+    depends_on:
+      - db
+
+
 volumes:
   postgres_data:
   whisper_cache:

@@ -4,20 +4,30 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 class APITokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
 
-        # Add custom claims
-        data["username"] = self.user.username
-        data["email"] = self.user.email
-        data["org"] = self.user.organization.name if self.user.organization else None
-        data["org_id"] = self.user.organization.id if self.user.organization else None
-        data["org_type"] = (
-            self.user.organization.org_type if self.user.organization else None
-        )
-        # You can add more custom payload data here
-
-        return data
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["email"] = user.email
+        token["username"] = user.username
+        token["id"] = user.id
+        token["first_name"] = user.first_name
+        token["last_name"] = user.last_name
+        token["org_name"] = user.organization.name if user.organization else None
+        token["org_id"] = user.organization.id if user.organization else None
+        token["org_type"] = user.organization.org_type if user.organization else None
+        # add hasura claims to the token
+        token["https://hasura.io/jwt/claims"] = {
+            "x-hasura-allowed-roles": ["org_admin", "org_editor", "org_viewer"],
+            "x-hasura-default-role": user.role or "org_viewer",
+            "x-hasura-role": user.role,
+            "x-hasura-user-id": str(user.id),
+            "x-hasura-org-id": str(user.organization.id) if user.organization else "",
+            "x-hasura-org-type": (
+                user.organization.org_type if user.organization else ""
+            ),
+        }
+        return token
 
 
 class APIReturnTokenSerializer(serializers.Serializer):

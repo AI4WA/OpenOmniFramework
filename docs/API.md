@@ -34,3 +34,21 @@ Currently, it will provide the following functionalities:
 - API docs: http://localhost:8000/redoc
 - Swagger: http://localhost:8000/swagger
 - API request with token to evaluate the LLM models
+
+## Hasura
+
+Within the API codebase, we also have a standalone Hasura instance running, which is used to
+provide a GraphQL API to the PostgresSQL database.
+
+## Authentication and Authorization
+
+Within the whole APP, everyone should belong to one of the organizations, organization can be from industry
+or research.
+
+Each organization can have multiple users.
+Among the users, there are different roles, such as:
+
+- org_admin
+- org_editor
+- org_viewer
+

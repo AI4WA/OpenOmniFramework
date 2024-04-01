@@ -23,6 +23,15 @@ class User(AbstractUser):
         Organization, on_delete=models.CASCADE, null=True, blank=True
     )
     email = models.EmailField(unique=True)
+    role = models.CharField(
+        max_length=100,
+        choices=[
+            ("org_admin", "ORG Admin"),
+            ("org_editor", "Org Editor"),
+            ("org_viewer", "Org Viewer"),
+        ],
+        default="org_admin",
+    )
 
     def __str__(self):
         return self.email

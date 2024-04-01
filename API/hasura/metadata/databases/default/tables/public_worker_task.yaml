@@ -1,0 +1,64 @@
+table:
+  name: worker_task
+  schema: public
+insert_permissions:
+  - role: org_admin
+    permission:
+      check: {}
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+    comment: ""
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+      filter:
+        _and:
+          - user_id:
+              _eq: X-Hasura-User-Id
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""

@@ -23,7 +23,9 @@ class APITokenObtainPairSerializer(TokenObtainPairSerializer):
             "x-hasura-role": user.role,
             "x-hasura-user-id": str(user.id),
             "x-hasura-org-id": str(user.organization.id) if user.organization else "",
-            "x-hasura-org-type": user.organization.org_type if user.organization else "",
+            "x-hasura-org-type": (
+                user.organization.org_type if user.organization else ""
+            ),
         }
         return token
 

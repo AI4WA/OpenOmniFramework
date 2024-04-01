@@ -25,7 +25,11 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     role = models.CharField(
         max_length=100,
-        choices=[("org_admin", "ORG Admin"), ("org_editor", "Org Editor"), ("org_viewer", "Org Viewer")],
+        choices=[
+            ("org_admin", "ORG Admin"),
+            ("org_editor", "Org Editor"),
+            ("org_viewer", "Org Viewer"),
+        ],
         default="org_admin",
     )
 

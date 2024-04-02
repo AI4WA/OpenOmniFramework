@@ -1,6 +1,7 @@
+'use client';
 import axios from 'axios';
 
-const BASEURL = 'http://localhost:8000'
+const BASEURL = process.env.NEXT_PUBLIC_API_DOMIAN;
 
 const apiClient = axios.create({
     baseURL: BASEURL

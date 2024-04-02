@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY . .
 
 # Install any needed packages specified in package.json
-RUN npm install
+RUN npm install --force --legacy-peer-deps
 RUN npm install next -g
 # Build the Next.js application
 RUN npm run build

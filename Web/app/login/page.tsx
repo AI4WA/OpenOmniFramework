@@ -28,7 +28,7 @@ const LoginPage = () => {
 
     useEffect(() => {
         if (isLogin) {
-            router.push("/chat")
+            router.push("/dashboard")
         }
     }, [isLogin, router]);
 

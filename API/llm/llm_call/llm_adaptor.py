@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import Dict, Union
 
 import chatglm_cpp
 from django.conf import settings
@@ -8,7 +9,6 @@ from llama_cpp import Llama
 from llm.llm_call.config import MN_GEMMA, MN_LLAMA2, MODELS, MT_CHATGLM, MT_LLAMA
 from llm.llm_call.llm_model import LLMModelMemory
 from llm.models import LLMConfigRecords
-from typing import Dict, Union
 
 logger = logging.getLogger(__name__)
 

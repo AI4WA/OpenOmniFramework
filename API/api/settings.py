@@ -196,7 +196,6 @@ LOGGING = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Replace with your Next.js app origin
-    "*",
     "https://jarv5.vercel.app",
     "https://llm.nlp-tlp.org",
 ]

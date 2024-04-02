@@ -52,12 +52,12 @@ export default function Home() {
                     <a
                         className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 transition-colors hover:border-gray-300 hover:bg-gray-100 dark:hover:border-neutral-700 dark:hover:bg-neutral-800"
                     >
-                        <Image src="/icons/support.svg" alt="Support" width={64} height={64}/>
+                        <Image src="/icons/wa.png" alt="Western Australia" width={64} height={64}/>
                         <h3 className="mt-5 mb-2 text-xl font-semibold text-gray-800 dark:text-white">
-                            Support
+                            Together
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
-                            Need help? Reach out to our support team.
+                            Build WA's future.
                         </p>
                     </a>
                 </div>

@@ -1,7 +1,7 @@
 'use client'
 // pages/login.js
 import React, {useState, useEffect} from 'react';
-import apiClient from '@/api/apiClient';
+import apiClient from '@/cloud/apiClient';
 import {useAppSelector} from "@/store";
 import {setAuthState, LLMJwtPayload} from "@/store/authSlices";
 import {jwtDecode} from 'jwt-decode';

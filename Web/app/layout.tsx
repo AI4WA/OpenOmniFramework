@@ -3,11 +3,11 @@ import React, {useEffect} from "react";
 import {useRouter, usePathname} from "next/navigation"; // Import useRouter
 import {Inter} from "next/font/google";
 import "./globals.css";
-import {refreshAccessToken} from "@/api/apiClient"
+import {refreshAccessToken} from "@/cloud/apiClient"
 import dynamic from "next/dynamic";
 import {setAuthState, logout, LLMJwtPayload} from "@/store/authSlices";
 import {store} from "@/store";
-import apolloClient from "@/api/graphqlClient"
+import apolloClient from "@/cloud/graphqlClient"
 import {jwtDecode} from 'jwt-decode';
 import {ApolloProvider} from '@apollo/client';
 import {MantineProvider} from '@mantine/core';

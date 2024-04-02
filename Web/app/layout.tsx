@@ -83,8 +83,8 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
     return (
         <html lang="en">
         <head>
-            <title>NLP TLP LLM</title>
-            <meta name="description" content="WA NLP TLP"/>
+            <title>WA LLM Platform</title>
+            <meta name="description" content="WA LLM Platform"/>
             {/* Standard favicon */}
             <link rel="icon" href="/assets/favicon.ico"/>
 

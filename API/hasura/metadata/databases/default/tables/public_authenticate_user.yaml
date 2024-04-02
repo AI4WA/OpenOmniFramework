@@ -1,0 +1,58 @@
+table:
+  name: authenticate_user
+  schema: public
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - id
+        - organization_id
+        - is_active
+        - is_staff
+        - is_superuser
+        - email
+        - first_name
+        - last_name
+        - password
+        - role
+        - username
+        - date_joined
+        - last_login
+      filter: {}
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - organization_id
+        - is_active
+        - is_staff
+        - is_superuser
+        - email
+        - first_name
+        - last_name
+        - password
+        - role
+        - username
+        - date_joined
+        - last_login
+      filter: {}
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - organization_id
+        - is_active
+        - is_staff
+        - is_superuser
+        - email
+        - first_name
+        - last_name
+        - password
+        - role
+        - username
+        - date_joined
+        - last_login
+      filter: {}
+    comment: ""

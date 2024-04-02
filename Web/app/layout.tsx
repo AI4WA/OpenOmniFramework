@@ -10,6 +10,7 @@ import {store} from "@/store";
 import apolloClient from "@/api/graphqlClient"
 import {jwtDecode} from 'jwt-decode';
 import {ApolloProvider} from '@apollo/client';
+import {MantineProvider} from '@mantine/core';
 
 const ReduxProvider = dynamic(() => import("@/store/redux-provider"), {
     ssr: false
@@ -31,6 +32,7 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
             store.dispatch(
                 logout()
             )
+            // TODO: control the not isAuth page should stay there
             if (pathname !== '/login') {
                 router.push('/login')
             }
@@ -53,15 +55,14 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
                 )
             )
             if (pathname === '/login') {
-                // TODO: need to decide if login already, where to push
-                router.push('/')
+                router.push('/dashboard')
             }
         }
     }, [router, pathname]);
 
     // do auth stuff here, refresh token
     useEffect(() => {
-        // if this page is login page, then do not do this
+        // if this page is a login page, then do not do this
         // if it has the access token, then we should do this unless it is in /login page
         const access = localStorage.getItem("access")
 
@@ -83,7 +84,7 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
         <html lang="en">
         <head>
             <title>NLP TLP LLM</title>
-            <meta name="description" content="Description of your site or page"/>
+            <meta name="description" content="WA NLP TLP"/>
             {/* Standard favicon */}
             <link rel="icon" href="/assets/favicon.ico"/>
 
@@ -95,9 +96,11 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
 
         </head>
         <body className={inter.className}>
-        <ApolloProvider client={apolloClient}>
-            <ReduxProvider> {children}</ReduxProvider>
-        </ApolloProvider>
+        <MantineProvider>
+            <ApolloProvider client={apolloClient}>
+                <ReduxProvider> {children}</ReduxProvider>
+            </ApolloProvider>
+        </MantineProvider>
         </body>
         </html>
     );

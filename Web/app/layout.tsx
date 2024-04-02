@@ -11,6 +11,7 @@ import apolloClient from "@/api/graphqlClient"
 import {jwtDecode} from 'jwt-decode';
 import {ApolloProvider} from '@apollo/client';
 import {MantineProvider} from '@mantine/core';
+import {PUBLIC_URLS} from "@/utils/constants";
 
 const ReduxProvider = dynamic(() => import("@/store/redux-provider"), {
     ssr: false
@@ -33,7 +34,7 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
                 logout()
             )
             // TODO: control the not isAuth page should stay there
-            if (pathname !== '/login') {
+            if (!PUBLIC_URLS.includes(pathname)) {
                 router.push('/login')
             }
             localStorage.removeItem("access")

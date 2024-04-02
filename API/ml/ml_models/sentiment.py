@@ -1,268 +1,234 @@
-import math
+from pathlib import Path
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn import TransformerEncoder, TransformerEncoderLayer
-from transformers import BertConfig, BertModel
+from transformers import BertTokenizer, BertModel
+from torch.nn.parameter import Parameter
+from typing import Tuple
+from sklearn.decomposition import PCA
+from django.conf import settings
+
+models_dir = Path(settings.BASE_DIR) / "ml" / "ml_models" / "model_data"
 
 
 class SentimentAnalysis(nn.Module):
-    def __init__(
-        self,
-        act: str = "relu",
-        hidden_size: int = 256,
-        mid_size: int = 768,
-        head_sa: int = 4,
-        head_ga: int = 8,
-        outdim: int = 256,
-        output_size: int = 1,
-        dropout: float = 0.5,
-        feature_dims=None,
-        num_loop: int = 1,
-    ):
+    def __init__(self,
+                 feature_dims: Tuple[int, int, int] = (768, 25, 177),  # (text, audio33, video128)
+                 language: str = 'cn',
+                 hidden_dims: Tuple[int, int, int] = (64, 64, 64),
+                 post_text_dim: int = 32,
+                 post_audio_dim: int = 32,
+                 post_video_dim: int = 32,
+                 post_fusion_out: int = 16,
+                 dropouts: tuple[float, float, float] = (0.1, 0.1, 0.1),
+                 post_dropouts: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 0.3)):
         super(SentimentAnalysis, self).__init__()
 
-        if feature_dims is None:
-            feature_dims = [768, 33, 128]
-        self.act = nn.Softmax(dim=-1)
-        self.activation = _get_activation_fn(act)
+        # dimensions are specified in the order of audio, video and text
+        self.text_in, self.audio_in, self.video_in = feature_dims
+        self.text_hidden, self.audio_hidden, self.video_hidden = hidden_dims
+        self.text_model = BertTextEncoder(language=language)
+        self.audio_prob, self.video_prob, self.text_prob = dropouts
+        self.post_text_prob, self.post_audio_prob, self.post_video_prob, self.post_fusion_prob = post_dropouts
 
-        self.t_linear = nn.Linear(768, hidden_size)
-        self.a_embedding = Encoder(feature_dims[1], 1, hidden_size, dropout, act, 1)
-        self.v_embedding = Encoder(feature_dims[2], 1, hidden_size, dropout, act, 1)
-        # self-attention
-        self.t_encoder = Encoder(hidden_size, head_sa, hidden_size, dropout, act, 1)
-        self.a_encoder = Encoder(hidden_size, head_sa, hidden_size, dropout, act, 1)
-        self.v_encoder = Encoder(hidden_size, head_sa, hidden_size, dropout, act, 1)
-        # guided attention
-        self.v_interact = InteractLayer(
-            hidden_size, hidden_size, head_ga, mid_size, dropout, act
-        )
-        self.a_interact = InteractLayer(
-            hidden_size, hidden_size, head_ga, mid_size, dropout, act
-        )
-        # trimodal interaction as multimodal output
-        # self.tri_inter = TriInter(args.hidden_size, args.outdim, args.dropout, activation=args.act)
-        # as the one of the multimodal representation
-        self.tri_inter = TriInter(hidden_size, outdim, dropout, activation=act)
+        self.post_text_dim = post_text_dim
+        self.post_audio_dim = post_audio_dim
+        self.post_video_dim = post_video_dim
+        self.post_fusion_out = post_fusion_out
 
-        # #memory gate
-        self.memo_t = nn.Linear(hidden_size, hidden_size)
-        self.memo_a = nn.Linear(hidden_size, hidden_size)
-        self.memo_v = nn.Linear(hidden_size, hidden_size)
-        # self.memo_tri = nn.Linear(hidden_size, hidden_size)
-        # last output layer
-        self.t_regression = nn.Linear(hidden_size, output_size)
-        self.v_regression = nn.Linear(hidden_size, output_size)
-        self.a_regression = nn.Linear(hidden_size, output_size)
-        self.tri_regression = nn.Linear(hidden_size, 1)
-        # # self.cat_regression1 = nn.Linear(outdim, outdim)
-        # self.cat_regression = nn.Linear(hidden_size*4, outdim)
-        self.cat_regression = nn.Linear(outdim, output_size)
-        self.num_loop = num_loop
+        # define the pre-fusion subnetworks
+        self.tliner = nn.Linear(self.text_in, self.text_hidden)
+        self.audio_model = SubNet(self.audio_in, self.audio_hidden, self.audio_prob)
+        self.video_model = SubNet(self.video_in, self.video_hidden, self.video_prob)
 
-    def forward(self, text, a, v):
-        t_encoded = self.t_linear(text).transpose(0, 1)
-        v_encoded = self.v_embedding(v).transpose(0, 1)
-        a_encoded = self.a_embedding(a).transpose(0, 1)
+        # define the classify layer for text
+        self.post_text_dropout = nn.Dropout(p=self.post_text_prob)
+        self.post_text_layer_1 = nn.Linear(self.text_hidden, self.post_text_dim)
+        self.post_text_layer_2 = nn.Linear(self.post_text_dim, self.post_text_dim)
+        self.post_text_layer_3 = nn.Linear(self.post_text_dim, 1)
 
-        for i in range(self.num_loop):
-            # auxiliary
-            v_encoded = self.v_interact(v_encoded, t_encoded)
-            a_encoded = self.a_interact(a_encoded, t_encoded)
+        # define the classify layer for audio
+        self.post_audio_dropout = nn.Dropout(p=self.post_audio_prob)
+        self.post_audio_layer_1 = nn.Linear(self.audio_hidden, self.post_audio_dim)
+        self.post_audio_layer_2 = nn.Linear(self.post_audio_dim, self.post_audio_dim)
+        self.post_audio_layer_3 = nn.Linear(self.post_audio_dim, 1)
 
-            # m_t = self.act(self.memo_t(t_encoded)) * t_encoded
-            # m_a = self.act(self.memo_a(a_encoded)) * a_encoded
-            # m_v = self.act(self.memo_v(v_encoded)) * v_encoded
+        # define the classify layer for video
+        self.post_video_dropout = nn.Dropout(p=self.post_video_prob)
+        self.post_video_layer_1 = nn.Linear(self.video_hidden, self.post_video_dim)
+        self.post_video_layer_2 = nn.Linear(self.post_video_dim, self.post_video_dim)
+        self.post_video_layer_3 = nn.Linear(self.post_video_dim, 1)
 
-            t_encoded = self.t_encoder(t_encoded)
-            v_encoded = self.v_encoder(v_encoded)
-            a_encoded = self.a_encoder(a_encoded)
+        # define the classify layer for fusion
+        self.post_fusion_dropout = nn.Dropout(p=self.post_fusion_prob)
+        self.post_fusion_layer_1 = nn.Linear(self.post_text_dim + self.post_audio_dim + self.post_video_dim,
+                                             self.post_fusion_out)
+        # self.post_fusion_layer_1 = nn.Linear(self.post_text_dim, self.post_fusion_out)
+        self.post_fusion_layer_2 = nn.Linear(self.post_fusion_out, self.post_fusion_out)
+        self.post_fusion_layer_3 = nn.Linear(self.post_fusion_out, 1)
 
-        t_utter = torch.mean(t_encoded, 0)
-        v_utter = torch.mean(v_encoded, 0)
-        a_utter = torch.mean(a_encoded, 0)
+        # Output shift
+        self.output_range = Parameter(torch.FloatTensor([2]), requires_grad=False)
+        self.output_shift = Parameter(torch.FloatTensor([-1]), requires_grad=False)
 
-        tri_mode = self.tri_inter(a_utter, v_utter)
-
-        cat_utter = self.tri_inter(a_utter, v_utter)
-
-        t_res = self.t_regression(t_utter)
-        v_res = self.v_regression(v_utter)
-        a_res = self.a_regression(a_utter)
-        tri_res = self.tri_regression(tri_mode)
-        output = {
-            "M": tri_res,
-            "T": t_res,
-            "A": a_res,
-            "V": v_res,
-        }
-
-        return output
-
-
-class TextEncoder(nn.Module):
-    def __init__(self, d_model, dim_feedforward):
-        super(TextEncoder, self).__init__()
-        self.config = BertConfig.from_pretrained("bert-base-chinese")
-        self.model = BertModel.from_pretrained("bert-base-chinese", config=self.config)
-        self.linear = nn.Linear(d_model, dim_feedforward)
-
-    def forward(self, input_ids):
-        outputs = self.model(input_ids)
-        encoded = outputs[0]
-        encoded = self.linear(encoded)
-        return encoded.transpose(0, 1)
-
-
-class Encoder(nn.Module):
-    def __init__(
-        self, d_model, n_head, dim_feedforward, dropout, activation, num_layers
-    ):
-        super().__init__()
-        self.num_heads = n_head
-        self.pe = PositionalEncoding(d_model, dropout)
-        self.layer = TransformerEncoderLayer(
-            d_model, n_head, dim_feedforward, dropout, activation
-        )
-        self.encoder = TransformerEncoder(self.layer, num_layers)
-        self.add_norm = AddNorm(d_model, dropout)
-        self.linear = nn.Linear(d_model, dim_feedforward)
-
-    def forward(self, inputs):
-        inputs = self.pe(inputs)
-        encoded = self.encoder(inputs)
-        encoded = self.add_norm(inputs, encoded)
-        output = self.linear(encoded)
-
-        return output
-
-
-class InteractLayer(nn.Module):
-    def __init__(
-        self, d_model, dim_1, n_head, dim_feedforward, dropout=0.1, activation="relu"
-    ):
-        super().__init__()
-        self.num_heads = n_head
-        self.multi_head_attn_1 = nn.MultiheadAttention(
-            d_model, n_head, dropout=dropout, kdim=dim_1, vdim=dim_1
-        )
-        self.add_norm_1 = AddNorm(d_model, dropout)
-        self.add_norm_2 = AddNorm(d_model, dropout)
-        self.ff = FeedForward(d_model, dim_feedforward, dropout, activation)
-
-    def forward(self, encoded, memory1):
-        inter1 = self.multi_head_attn_1(encoded, memory1, memory1)[
-            0
-        ]  # , attn_mask=attn_mask_1)[0]
-        attn1 = self.add_norm_1(encoded, inter1)
-        ff = self.ff(attn1)
-        output = self.add_norm_2(attn1, ff)
-        return output
-
-
-class TriInter(nn.Module):
-    def __init__(self, dim_feedforward, outdim, dropout, activation="relu"):
-        super().__init__()
-        self.hidden = dim_feedforward
-        # self.linear1 = nn.Linear((dim_feedforward+1)*(dim_feedforward+1), dim_feedforward)
-
-        self.linear2 = nn.Linear((dim_feedforward + 1) * (dim_feedforward + 1), outdim)
-        self.norm = nn.LayerNorm((dim_feedforward + 1) * (dim_feedforward + 1))
-
-        self.dropout = nn.Dropout(dropout)
-        self.activation = _get_activation_fn(activation)
-
-    def forward(self, a, v):
-        batch_size = a.shape[0]
-        add_one = (
-            torch.ones(size=[batch_size, 1], requires_grad=False)
-            .type_as(a)
-            .to(a.device)
-        )
-        # _text_h = torch.cat((add_one, t), dim=1)
-        _audio_h = torch.cat((add_one, a), dim=1)
-        _video_h = torch.cat((add_one, v), dim=1)
-
-        fusion_tensor = torch.bmm(_audio_h.unsqueeze(2), _video_h.unsqueeze(1))
-
-        fusion_tensor = fusion_tensor.view(-1, (self.hidden + 1) * (self.hidden + 1))
-
-        # layer normalization
-        fusion_tensor = self.norm(fusion_tensor)
-        fusion_tensor = self.dropout(fusion_tensor)
-        ##########
-
-        out = self.activation(self.linear2(fusion_tensor))
-
-        # fusion_tensor = fusion_tensor.unsqueeze(-1)
-        # fusion_tensor = torch.bmm(fusion_tensor, _text_h.unsqueeze(1)).view(batch_size, -1)
-        # fusion_tensor = fusion_tensor.transpose(1, 2)
-        # out = self.dropout(fusion_tensor)
-        # out = self.activation(self.linear2(fusion_tensor))
-
-        return out
-
-
-class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, dropout, max_len=500):
-        super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(p=dropout)
-        pe = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(
-            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
-        )
-        pe[:, 0::2] = torch.sin(position * div_term)
-        if d_model % 2 == 0:
-            pe[:, 1::2] = torch.cos(position * div_term)
+    def forward(self, text_x, audio_x, video_x):
+        flag = [0, 0, 0]
+        res={}
+        if text_x is not None:
+            text_x = self.text_model(text_x)[:, 0, :]
+            text_x = torch.mean(text_x, dim=0, keepdim=True)
+            text_h = self.tliner(text_x)
+            # text
+            x_t1 = self.post_text_dropout(text_h)
+            x_t2 = F.relu(self.post_text_layer_1(x_t1), inplace=True)
+            x_t3 = F.relu(self.post_text_layer_2(x_t2), inplace=True)
+            output_text = self.post_text_layer_3(x_t3)
+            flag[0] = 1
+            res['T']=output_text
         else:
-            pe[:, 1::2] = torch.cos(position * div_term[:-1])
-        pe = pe.unsqueeze(0).transpose(0, 1)
-        self.register_buffer("pe", pe)
+            output_text = None
+        if audio_x is not None:
+            audio_x = pca(audio_x, 25)  # from 33 to 25
+            audio_x = torch.mean(audio_x, dim=0, keepdim=True)
+            audio_h = self.audio_model(audio_x)
+            # audio
+            x_a1 = self.post_audio_dropout(audio_h)
+            x_a2 = F.relu(self.post_audio_layer_1(x_a1), inplace=True)
+            x_a3 = F.relu(self.post_audio_layer_2(x_a2), inplace=True)
+            output_audio = self.post_audio_layer_3(x_a3)
+            flag[1] = 1
+            res['A'] = output_audio
+        else:
+            output_audio = None
+        if video_x is not None:
+            video_copy = video_x[:, :49]
+            video_x = torch.cat((video_x, video_copy), dim=1)  # from 128 to 177
+            video_x = torch.mean(video_x, dim=0, keepdim=True)
+            video_h = self.video_model(video_x)
+            # video
+            x_v1 = self.post_video_dropout(video_h)
+            x_v2 = F.relu(self.post_video_layer_1(x_v1), inplace=True)
+            x_v3 = F.relu(self.post_video_layer_2(x_v2), inplace=True)
+            output_video = self.post_video_layer_3(x_v3)
+            flag[2] = 1
+            res['V'] = output_video
+        else:
+            output_video = None
+
+        # Transformer fusion
+        if sum(flag)==3:
+            fusion_cat = torch.cat([x_t3, x_a3, x_v3], dim=-1)
+        elif sum(flag)==2:
+            if flag[0] and flag[1]:
+                fusion_cat = torch.cat([x_t3, x_a3, x_a3], dim=-1)
+            elif flag[0] and flag[2]:
+                fusion_cat = torch.cat([x_t3, x_v3, x_v3], dim=-1)
+            elif flag[1] and flag[2]:
+                fusion_cat = torch.cat([x_a3, x_v3, x_v3], dim=-1)
+        elif sum(flag)==1:
+            if flag[0]:
+                fusion_cat = torch.cat([x_t3, x_t3, x_t3], dim=-1)
+            elif flag[1]:
+                fusion_cat = torch.cat([x_a3, x_a3, x_a3], dim=-1)
+            elif flag[2]:
+                fusion_cat = torch.cat([x_v3, x_v3, x_v3], dim=-1)
+        # fusion_cat = x_t3
+        fusion_data = self.post_fusion_dropout(fusion_cat)
+        fusion_data = self.post_fusion_layer_1(fusion_data)
+        fusion_data = self.post_fusion_layer_2(fusion_data)
+        fusion_output = self.post_fusion_layer_3(fusion_data)
+
+        output_fusion = torch.sigmoid(fusion_output)
+        output_fusion = output_fusion * self.output_range + self.output_shift
+
+        res['M'] = output_fusion
+        print(res)
+        return res
+
+
+
+class SubNet(nn.Module):
+    def __init__(self, in_size, hidden_size, dropout):
+        super(SubNet, self).__init__()
+        self.norm = nn.BatchNorm1d(in_size)  # only used in training
+        self.drop = nn.Dropout(p=dropout)
+        self.linear_1 = nn.Linear(in_size, hidden_size)
+        self.linear_2 = nn.Linear(hidden_size, hidden_size)
+        self.linear_3 = nn.Linear(hidden_size, hidden_size)
 
     def forward(self, x):
-        # print(x.shape, self.pe[:x.size(0), :].shape)
-        # print(x.shape, self.pe[:x.size(0), :].shape)
-        x = x + self.pe[: x.size(0), :]
-        return self.dropout(x)
+        normed = self.norm(x)
+        dropped = self.drop(normed)
+        y_1 = F.relu(self.linear_1(dropped))
+        y_2 = F.relu(self.linear_2(y_1))
+        y_3 = F.relu(self.linear_3(y_2))
+        return y_3
 
 
-class AddNorm(nn.Module):
-    def __init__(self, d_model, dropout):
-        super().__init__()
-        self.norm = nn.LayerNorm(d_model)
-        self.dropout = nn.Dropout(dropout)
+class BertTextEncoder(nn.Module):
+    def __init__(self, language='en', use_finetune=False):
+        """
+        language: en / cn
+        """
+        super(BertTextEncoder, self).__init__()
 
-    def forward(self, prior, after):
-        return self.norm(prior + self.dropout(after))
+        assert language in ['en', 'cn']
+
+        tokenizer_class = BertTokenizer
+        model_class = BertModel
+        # directory is fine
+        # pretrained_weights = '/home/sharing/disk3/pretrained_embedding/Chinese/bert/pytorch'
+        if language == 'en':
+            self.tokenizer = tokenizer_class.from_pretrained(f'{models_dir}/bert_en', do_lower_case=True)
+            self.model = model_class.from_pretrained(f'{models_dir}/bert_en')
+        elif language == 'cn':
+            self.tokenizer = tokenizer_class.from_pretrained(f'{models_dir}/bert_cn')
+            self.model = model_class.from_pretrained(f'{models_dir}/bert_cn')
+
+        self.use_finetune = use_finetune
+
+    def get_tokenizer(self):
+        return self.tokenizer
+
+    def from_text(self, text):
+        """
+        text: raw data
+        """
+        input_ids = self.get_id(text)
+        with torch.no_grad():
+            last_hidden_states = self.model(input_ids)[0]  # Models outputs are now tuples
+        return last_hidden_states.squeeze()
+
+    def forward(self, text):
+        """
+        text: (batch_size, 3, seq_len)
+        3: input_ids, input_mask, segment_ids
+        input_ids: input_ids,
+        input_mask: attention_mask,
+        segment_ids: token_type_ids
+        """
+        input_ids, input_mask, segment_ids = text[:, 0, :].long(), text[:, 1, :].float(), text[:, 2, :].long()
+        if self.use_finetune:
+            last_hidden_states = self.model(input_ids=input_ids,
+                                            attention_mask=input_mask,
+                                            token_type_ids=segment_ids)[0]  # Models outputs are now tuples
+        else:
+            with torch.no_grad():
+
+                last_hidden_states = self.model(input_ids=input_ids,
+                                                attention_mask=input_mask,
+                                                token_type_ids=segment_ids)[0]  # Models outputs are now tuples
+        return last_hidden_states
 
 
-class FeedForward(nn.Module):
-    def __init__(self, d_model, dim_feedforward, dropout, activation="relu"):
-        super().__init__()
-        self.linear1 = nn.Linear(d_model, dim_feedforward)
-        self.dropout = nn.Dropout(dropout)
-        self.linear2 = nn.Linear(dim_feedforward, d_model)
-        self.activation = _get_activation_fn(activation)
+def pca(input_tensor, out_dim=25):
+    input_np = input_tensor.detach().numpy()
 
-    def forward(self, inputs):
-        return self.linear2(self.dropout(self.activation(self.linear1(inputs))))
+    # use PCA to reduce the dimension to 25
+    p = PCA(n_components=out_dim)
+    transformed_np = p.fit_transform(input_np)
 
-
-def compute_mask(mask_1, mask_2, num_heads):
-    mask_1 = torch.unsqueeze(mask_1, 2)
-    mask_2 = torch.unsqueeze(mask_2, 1)
-    attn_mask = torch.bmm(mask_1, mask_2)
-    attn_mask = attn_mask.repeat(num_heads, 1, 1)
-    return attn_mask
-
-
-def _get_activation_fn(activation):
-    if activation == "relu":
-        return F.relu
-    elif activation == "gelu":
-        return F.gelu
-
-    raise RuntimeError("activation should be relu/gelu, not {}".format(activation))
+    # transfer numpy to tensor
+    output_tensor = torch.from_numpy(transformed_np)
+    return output_tensor

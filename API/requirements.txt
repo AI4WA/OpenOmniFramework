@@ -17,3 +17,4 @@ deepface==0.0.86
 transformers==4.38.2
 librosa==0.10
 tensorflow
+django-cors-headers==4.3.1

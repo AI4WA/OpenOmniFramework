@@ -1,97 +1,81 @@
 import Image from "next/image";
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    return (
+        <div className="flex min-h-screen flex-col">
+            <main className="flex flex-col items-center justify-center p-24 bg-gray-50 dark:bg-gray-900 flex-grow">
+                <div className="mb-10 text-center">
+                    <h1 className="text-5xl font-bold text-gray-800 dark:text-white">
+                        WA LLM Platform
+                    </h1>
+                    <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                        Evaluate and interact with state-of-the-art Large Language Models (LLM) freely and easily.
+                    </p>
+                </div>
+                <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+                    <a
+                        className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 transition-colors hover:border-gray-300 hover:bg-gray-100 dark:hover:border-neutral-700 dark:hover:bg-neutral-800"
+                    >
+                        <Image src="/icons/upload.svg" alt="Upload CSV" width={64} height={64}/>
+                        <h3 className="mt-5 mb-2 text-xl font-semibold text-gray-800 dark:text-white">
+                            Upload Data
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                            Easily upload your CSV files for analysis and evaluation.
+                        </p>
+                    </a>
+
+                    <a
+                        className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 transition-colors hover:border-gray-300 hover:bg-gray-100 dark:hover:border-neutral-700 dark:hover:bg-neutral-800"
+
+                    >
+                        <Image src="/icons/evaluate.svg" alt="Evaluate" width={64} height={64}/>
+                        <h3 className="mt-5 mb-2 text-xl font-semibold text-gray-800 dark:text-white">
+                            Evaluate
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                            Perform evaluations and get insights directly on the platform.
+                        </p>
+                    </a>
+                    <a href="/login" className="flex items-center">
+                        <div
+                            className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-blue-600 hover:bg-blue-700 transition-colors">
+                            <Image src="/icons/login.svg" alt="Evaluate" width={64} height={64}/>
+                            <button className="text-white text-xl font-semibold">
+                                Login / Register
+                            </button>
+                            <p className="mt-2 text-sm text-blue-200">
+                                Access your personalized dashboard for more features.
+                            </p>
+                        </div>
+                    </a>
+                    <a
+                        className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 transition-colors hover:border-gray-300 hover:bg-gray-100 dark:hover:border-neutral-700 dark:hover:bg-neutral-800"
+                    >
+                        <Image src="/icons/support.svg" alt="Support" width={64} height={64}/>
+                        <h3 className="mt-5 mb-2 text-xl font-semibold text-gray-800 dark:text-white">
+                            Support
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                            Need help? Reach out to our support team.
+                        </p>
+                    </a>
+                </div>
+            </main>
+
+            <footer className="bg-gray-800 text-white text-center p-4">
+                <p>Developed by
+                    <a href="https://www.linkedin.com/in/pascalsun23/" target="_blank" rel="noopener noreferrer"
+                       className="text-blue-400 hover:text-blue-300 mx-1">
+                        Pascal Sun
+                    </a>
+                    supported by
+                    <a href="https://nlp-tlp.org/" target="_blank" rel="noopener noreferrer"
+                       className="text-blue-400 hover:text-blue-300 mx-1">
+                        UWA NLP-TLP GROUP
+                    </a>
+                </p>
+            </footer>
         </div>
-      </div>
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+    );
 }

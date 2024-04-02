@@ -13,6 +13,7 @@ from llm.models import LLMConfigRecords, LLMRequestRecord
 from llm.serializers import (
     LLMConfigRecordsSerializer,
     LLMRequestSerializer,
+    LLMCustomRequestSerializer,
     LLMResponseSerializer,
 )
 
@@ -43,7 +44,6 @@ class CallLLMView(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         model_name = serializer.validated_data["model_name"]
         prompt = serializer.validated_data["prompt"]
-
         start_time = time.time()
         try:
             adaptor = LLMAdaptor(model_name)
@@ -67,6 +67,60 @@ class CallLLMView(viewsets.ViewSet):
                 user=request.user,
                 model_name=model_name,
                 prompt=prompt,
+                response=str(e),
+                success=False,
+                task="chat-completion",
+                completed_in_seconds=end_time - start_time,
+            )
+            record.save()
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @swagger_auto_schema(
+        operation_description="Call the LLM model to do the chat completion, not all models support this feature",
+        request_body=LLMCustomRequestSerializer,
+        responses={200: LLMResponseSerializer},
+    )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="custom-chat-completion",
+        url_name="custom-chat-completion",
+    )
+    @csrf_exempt
+    def custom_chat_completion(self, request):
+        """
+        Call the LLM model to do the custom chat completion
+        """
+
+        serializer = LLMCustomRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        model_name = serializer.validated_data["model_name"]
+        prompt = serializer.validated_data["prompt"]
+        start_time = time.time()
+        try:
+            adaptor = LLMAdaptor(model_name)
+            response = adaptor.create_chat_completion(prompt)
+            end_time = time.time()
+            record = LLMRequestRecord(
+                user=request.user,
+                model_name=model_name,
+                prompt=str(prompt),
+                response=response,
+                task="chat-completion",
+                completed_in_seconds=end_time - start_time,
+            )
+            record.save()
+            logger.info(response)
+            return Response(response, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            end_time = time.time()
+            record = LLMRequestRecord(
+                user=request.user,
+                model_name=model_name,
+                prompt=str(prompt),
                 response=str(e),
                 success=False,
                 task="chat-completion",

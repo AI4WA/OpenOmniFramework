@@ -14,6 +14,17 @@ class LLMRequestSerializer(serializers.Serializer):
     )
 
 
+class LLMCustomRequestSerializer(LLMRequestSerializer):
+    model_name = serializers.CharField(
+        required=True,
+        help_text="The model name to use for chat completion, "
+        "it can be found in the llm_config_list endpoint",
+    )
+    prompt = serializers.JSONField(
+        required=False, help_text="The custom prompt to use for chat completion"
+    )
+
+
 class LLMResponseSerializer(serializers.Serializer):
     response = serializers.JSONField(
         help_text="The response from the model, normally a JSON object. "

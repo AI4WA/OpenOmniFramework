@@ -14,6 +14,7 @@ from worker.serializers import (
     TaskLLMRequestsSerializer,
     TaskReportSerializer,
     TaskSerializer,
+    TaskCustomLLMRequestSerializer,
     TaskSTTRequestSerializer,
 )
 
@@ -89,6 +90,32 @@ class QueueTaskViewSet(viewsets.ViewSet):
         ]
         return Response(
             {"message": "LLM tasks queued successfully", "task_ids": task_ids},
+            status=status.HTTP_200_OK,
+        )
+
+    @swagger_auto_schema(
+        operation_description="Custom Queue Large Language Model (LLM) tasks",
+        request_body=TaskCustomLLMRequestSerializer,
+        responses={200: "Task queued successfully"},
+    )
+    @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
+    def custom_llm(self, request):
+        """
+        Endpoint to queue Large Language Model (LLM) tasks.
+        """
+        data = request.data
+        serializer = TaskCustomLLMRequestSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        task_worker = serializer.validated_data["task_worker"]
+        task_type = "llm" if task_worker == "cpu" else "gpu"
+        task_id = self.__queue_task(
+            user=request.user,
+            task_type=task_type,
+            name=serializer.data["name"],
+            data=serializer.data,
+        )
+        return Response(
+            {"message": "LLM task queued successfully", "task_id": task_id},
             status=status.HTTP_200_OK,
         )
 

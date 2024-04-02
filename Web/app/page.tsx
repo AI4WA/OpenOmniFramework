@@ -57,7 +57,7 @@ export default function Home() {
                             Together
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
-                            Build WA's future.
+                            Build the future of WA.
                         </p>
                     </a>
                 </div>

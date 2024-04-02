@@ -29,13 +29,13 @@ def gather_data():
     text = audio_data.text
 
     audio_file = (
-            settings.CLIENT_DATA_FOLDER
-            / "Listener"
-            / "data"
-            / "audio"
-            / audio_data.uid
-            / "audio"
-            / audio_data.audio_file
+        settings.CLIENT_DATA_FOLDER
+        / "Listener"
+        / "data"
+        / "audio"
+        / audio_data.uid
+        / "audio"
+        / audio_data.audio_file
     ).as_posix()
 
     # get the image data based on the audio data time range
@@ -64,7 +64,7 @@ def gather_data():
     for image_path in images_path:
         # loop the path, get all images
         folder = (
-                settings.CLIENT_DATA_FOLDER / "Listener" / "data" / "videos" / image_path
+            settings.CLIENT_DATA_FOLDER / "Listener" / "data" / "videos" / image_path
         )
 
         if not folder.exists():
@@ -95,9 +95,15 @@ def trigger_model(text, audio, images) -> Optional[str]:
     if not images:
         logger.info("No image")
 
-    feature_video = get_features_obj.get_images_tensor(images) if images is not None else None  # (n/5,709)
-    feature_audio = get_features_obj.get_audio_embedding(audio) if audio is not None else None  # (94,33)
-    feature_text = get_features_obj.get_text_embeddings(text) if text is not None else None  # (n+2,768)
+    feature_video = (
+        get_features_obj.get_images_tensor(images) if images is not None else None
+    )  # (n/5,709)
+    feature_audio = (
+        get_features_obj.get_audio_embedding(audio) if audio is not None else None
+    )  # (94,33)
+    feature_text = (
+        get_features_obj.get_text_embeddings(text) if text is not None else None
+    )  # (n+2,768)
     # logger.info( f"feature_video: {feature_video.shape}, feature_audio: {feature_audio.shape}, feature_text: {
     # feature_text[1].shape}" )
 

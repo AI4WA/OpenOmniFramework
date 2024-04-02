@@ -63,7 +63,7 @@ const LoginPage = () => {
                         }
                     )
                 )
-                router.push('/chat');
+                router.push('/dashboard');
             } else {
                 // Show an error message
                 alert('Invalid credentials');

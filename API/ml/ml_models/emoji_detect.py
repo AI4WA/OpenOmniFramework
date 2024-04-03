@@ -7,10 +7,10 @@ import cv2
 import torch
 from django.conf import settings
 
-from authenticate.utils.get_logger import get_logger
-from hardware.models import AudioData, VideoData
-from ml.ml_models.get_features import GetFeatures
-from ml.ml_models.sentiment import SentimentAnalysis
+from ...authenticate.utils.get_logger import get_logger
+from ...hardware.models import AudioData, VideoData
+from ...ml.ml_models.get_features import GetFeatures
+from ...ml.ml_models.sentiment import SentimentAnalysis
 
 models_dir = Path(settings.BASE_DIR) / "ml" / "ml_models" / "model_data"
 
@@ -81,7 +81,7 @@ def gather_data():
 def trigger_model(text, audio, images) -> Optional[str]:
     # 1. get the features with bert cn model
     get_features_obj = GetFeatures((models_dir / "bert_cn").as_posix())
-    if not text and not audio and not images:
+    if (not text) and (not audio) and (not images):
         logger.error("No text, audio and images provided")
         logger.error(
             f"text: {text is None}, audio: {audio is None}, images: {images is None}"
@@ -121,11 +121,10 @@ def trigger_model(text, audio, images) -> Optional[str]:
 
     # run model
     output = model(feature_text, feature_audio, feature_video)
-
     logger.critical(f"output: {output}")
     # loop the output dict, get all of them into float
     for k, v in output.items():
-         output[k] = float(v)
+        output[k] = float(v)
     multi_modal_output = output.get("M", 0)
     logger.critical(f"multi_modal_output: {multi_modal_output}")
     return output

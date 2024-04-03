@@ -16,8 +16,9 @@ class LLMRequestSerializer(serializers.Serializer):
 
 class LLMCustomRequestSerializer(LLMRequestSerializer):
     prompt = serializers.JSONField(
-        required=True, help_text="The custom prompt needs to specify the roles for both the system and the user, "
-                                 "along with their respective prompts, in JSON format for chat completion."
+        required=True,
+        help_text="The custom prompt needs to specify the roles for both the system and the user, "
+        "along with their respective prompts, in JSON format for chat completion.",
     )
 
 

@@ -119,9 +119,7 @@ class LLMAdaptor:
                 / model_config.model_family
                 / model_config.filename
             )
-            chatglm_pipeline = chatglm_cpp.Pipeline(
-                model_path=model_path.as_posix()
-            )
+            chatglm_pipeline = chatglm_cpp.Pipeline(model_path=model_path.as_posix())
             output = chatglm_pipeline.chat(
                 [chatglm_cpp.ChatMessage(role="user", content=prompt)]
             )

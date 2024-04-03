@@ -2,6 +2,7 @@ from utils import get_logger
 from constants import MT_LLAMA, MT_CHATGLM
 import chatglm_cpp
 from llm_models import LLMModelConfig
+from typing import Union, Dict
 
 logger = get_logger(__name__)
 
@@ -40,7 +41,9 @@ class LLMAdaptor:
             return {"content": output}
         raise ValueError(f"Model {self.model_config.model_type} is not supported")
 
-    def create_chat_completion(self, prompt: str):
+    def create_chat_completion(self, prompt: Union[str, list[Dict]]):
+        if not isinstance(prompt, str) and self.model_config.model_type == MT_LLAMA:
+            return self.llm.create_chat_completion(messages=prompt)
         if self.model_config.model_type == MT_LLAMA:
             return self.llm.create_chat_completion(
                 messages=[

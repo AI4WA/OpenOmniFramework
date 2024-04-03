@@ -49,14 +49,16 @@ class Command(BaseCommand):
             return
 
         # limit the queryset to the number of rows per csv file
-        queryset = LLMRequestRecord.objects.filter(name=task_name, success=True)
+        queryset = LLMRequestRecord.objects.filter(name=task_name, success=True).order_by("id")
         if not queryset.exists():
             logger.error(f"No records found for task_name: {task_name}")
             return
 
         paginator = Paginator(queryset, rows_per_csv)
+        logger.info(f"Total number of pages: {paginator.num_pages}")
 
         for page_num in range(1, paginator.num_pages + 1):
+            logger.info(f"Exporting {task_name} part {page_num}")
             page = paginator.page(page_num)
             resource = LLMRequestRecordResource()
             dataset = resource.export(page.object_list)

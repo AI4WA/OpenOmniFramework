@@ -62,6 +62,7 @@ class LLMRequestRecordAdmin(ImportExportModelAdmin):
     )
     list_filter = (
         "user",
+        "name",
         "model_name",
         "task",
         "success",

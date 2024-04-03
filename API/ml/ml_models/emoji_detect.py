@@ -7,10 +7,10 @@ import cv2
 import torch
 from django.conf import settings
 
-from ...authenticate.utils.get_logger import get_logger
-from ...hardware.models import AudioData, VideoData
-from ...ml.ml_models.get_features import GetFeatures
-from ...ml.ml_models.sentiment import SentimentAnalysis
+from authenticate.utils.get_logger import get_logger
+from hardware.models import AudioData, VideoData
+from ml.ml_models.get_features import GetFeatures
+from ml.ml_models.sentiment import SentimentAnalysis
 
 models_dir = Path(settings.BASE_DIR) / "ml" / "ml_models" / "model_data"
 
@@ -124,6 +124,7 @@ def trigger_model(text, audio, images) -> Optional[str]:
 
     logger.critical(f"output: {output}")
     # loop the output dict, get all of them into float
-    multi_modal_output = output.get("M", 0)
+    for multi_output in output.items():
+        multi_modal_output = multi_output.get("M", 0)
     logger.critical(f"multi_modal_output: {multi_modal_output}")
     return output

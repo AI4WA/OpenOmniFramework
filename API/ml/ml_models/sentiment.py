@@ -13,16 +13,22 @@ models_dir = Path(settings.BASE_DIR) / "ml" / "ml_models" / "model_data"
 
 
 class SentimentAnalysis(nn.Module):
-    def __init__(self,
-                 feature_dims: Tuple[int, int, int] = (768, 25, 177),  # (text, audio33, video128)
-                 language: str = 'cn',
-                 hidden_dims: Tuple[int, int, int] = (64, 64, 64),
-                 post_text_dim: int = 32,
-                 post_audio_dim: int = 32,
-                 post_video_dim: int = 32,
-                 post_fusion_out: int = 16,
-                 dropouts: tuple[float, float, float] = (0.1, 0.1, 0.1),
-                 post_dropouts: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 0.3)):
+    def __init__(
+        self,
+        feature_dims: Tuple[int, int, int] = (
+            768,
+            25,
+            177,
+        ),  # (text, audio33, video128)
+        language: str = "cn",
+        hidden_dims: Tuple[int, int, int] = (64, 64, 64),
+        post_text_dim: int = 32,
+        post_audio_dim: int = 32,
+        post_video_dim: int = 32,
+        post_fusion_out: int = 16,
+        dropouts: tuple[float, float, float] = (0.1, 0.1, 0.1),
+        post_dropouts: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 0.3),
+    ):
         super(SentimentAnalysis, self).__init__()
 
         # dimensions are specified in the order of audio, video and text
@@ -30,7 +36,12 @@ class SentimentAnalysis(nn.Module):
         self.text_hidden, self.audio_hidden, self.video_hidden = hidden_dims
         self.text_model = BertTextEncoder(language=language)
         self.audio_prob, self.video_prob, self.text_prob = dropouts
-        self.post_text_prob, self.post_audio_prob, self.post_video_prob, self.post_fusion_prob = post_dropouts
+        (
+            self.post_text_prob,
+            self.post_audio_prob,
+            self.post_video_prob,
+            self.post_fusion_prob,
+        ) = post_dropouts
 
         self.post_text_dim = post_text_dim
         self.post_audio_dim = post_audio_dim
@@ -62,8 +73,10 @@ class SentimentAnalysis(nn.Module):
 
         # define the classify layer for fusion
         self.post_fusion_dropout = nn.Dropout(p=self.post_fusion_prob)
-        self.post_fusion_layer_1 = nn.Linear(self.post_text_dim + self.post_audio_dim + self.post_video_dim,
-                                             self.post_fusion_out)
+        self.post_fusion_layer_1 = nn.Linear(
+            self.post_text_dim + self.post_audio_dim + self.post_video_dim,
+            self.post_fusion_out,
+        )
         # self.post_fusion_layer_1 = nn.Linear(self.post_text_dim, self.post_fusion_out)
         self.post_fusion_layer_2 = nn.Linear(self.post_fusion_out, self.post_fusion_out)
         self.post_fusion_layer_3 = nn.Linear(self.post_fusion_out, 1)
@@ -85,7 +98,7 @@ class SentimentAnalysis(nn.Module):
             x_t3 = F.relu(self.post_text_layer_2(x_t2), inplace=True)
             output_text = self.post_text_layer_3(x_t3)
             flag[0] = 1
-            res['T'] = output_text
+            res["T"] = output_text
 
         if audio_x is not None:
             audio_x = pca(audio_x, 25)  # from 33 to 25
@@ -97,7 +110,7 @@ class SentimentAnalysis(nn.Module):
             x_a3 = F.relu(self.post_audio_layer_2(x_a2), inplace=True)
             output_audio = self.post_audio_layer_3(x_a3)
             flag[1] = 1
-            res['A'] = output_audio
+            res["A"] = output_audio
 
         if video_x is not None:
             video_copy = video_x[:, :49]
@@ -110,7 +123,7 @@ class SentimentAnalysis(nn.Module):
             x_v3 = F.relu(self.post_video_layer_2(x_v2), inplace=True)
             output_video = self.post_video_layer_3(x_v3)
             flag[2] = 1
-            res['V'] = output_video
+            res["V"] = output_video
 
         # Transformer fusion
         if sum(flag) == 3:
@@ -138,7 +151,7 @@ class SentimentAnalysis(nn.Module):
         output_fusion = torch.sigmoid(fusion_output)
         output_fusion = output_fusion * self.output_range + self.output_shift
 
-        res['M'] = output_fusion
+        res["M"] = output_fusion
         print(res)
         return res
 
@@ -162,24 +175,26 @@ class SubNet(nn.Module):
 
 
 class BertTextEncoder(nn.Module):
-    def __init__(self, language='en', use_finetune=False):
+    def __init__(self, language="en", use_finetune=False):
         """
         language: en / cn
         """
         super(BertTextEncoder, self).__init__()
 
-        assert language in ['en', 'cn']
+        assert language in ["en", "cn"]
 
         tokenizer_class = BertTokenizer
         model_class = BertModel
         # directory is fine
         # pretrained_weights = '/home/sharing/disk3/pretrained_embedding/Chinese/bert/pytorch'
-        if language == 'en':
-            self.tokenizer = tokenizer_class.from_pretrained(f'{models_dir}/bert_en', do_lower_case=True)
-            self.model = model_class.from_pretrained(f'{models_dir}/bert_en')
-        elif language == 'cn':
-            self.tokenizer = tokenizer_class.from_pretrained(f'{models_dir}/bert_cn')
-            self.model = model_class.from_pretrained(f'{models_dir}/bert_cn')
+        if language == "en":
+            self.tokenizer = tokenizer_class.from_pretrained(
+                f"{models_dir}/bert_en", do_lower_case=True
+            )
+            self.model = model_class.from_pretrained(f"{models_dir}/bert_en")
+        elif language == "cn":
+            self.tokenizer = tokenizer_class.from_pretrained(f"{models_dir}/bert_cn")
+            self.model = model_class.from_pretrained(f"{models_dir}/bert_cn")
 
         self.use_finetune = use_finetune
 
@@ -192,7 +207,9 @@ class BertTextEncoder(nn.Module):
         """
         input_ids = self.get_id(text)
         with torch.no_grad():
-            last_hidden_states = self.model(input_ids)[0]  # Models outputs are now tuples
+            last_hidden_states = self.model(input_ids)[
+                0
+            ]  # Models outputs are now tuples
         return last_hidden_states.squeeze()
 
     def forward(self, text):
@@ -203,17 +220,29 @@ class BertTextEncoder(nn.Module):
         input_mask: attention_mask,
         segment_ids: token_type_ids
         """
-        input_ids, input_mask, segment_ids = text[:, 0, :].long(), text[:, 1, :].float(), text[:, 2, :].long()
+        input_ids, input_mask, segment_ids = (
+            text[:, 0, :].long(),
+            text[:, 1, :].float(),
+            text[:, 2, :].long(),
+        )
         if self.use_finetune:
-            last_hidden_states = self.model(input_ids=input_ids,
-                                            attention_mask=input_mask,
-                                            token_type_ids=segment_ids)[0]  # Models outputs are now tuples
+            last_hidden_states = self.model(
+                input_ids=input_ids,
+                attention_mask=input_mask,
+                token_type_ids=segment_ids,
+            )[
+                0
+            ]  # Models outputs are now tuples
         else:
             with torch.no_grad():
 
-                last_hidden_states = self.model(input_ids=input_ids,
-                                                attention_mask=input_mask,
-                                                token_type_ids=segment_ids)[0]  # Models outputs are now tuples
+                last_hidden_states = self.model(
+                    input_ids=input_ids,
+                    attention_mask=input_mask,
+                    token_type_ids=segment_ids,
+                )[
+                    0
+                ]  # Models outputs are now tuples
         return last_hidden_states
 
 

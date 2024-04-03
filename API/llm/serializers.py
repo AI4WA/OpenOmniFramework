@@ -15,13 +15,9 @@ class LLMRequestSerializer(serializers.Serializer):
 
 
 class LLMCustomRequestSerializer(LLMRequestSerializer):
-    model_name = serializers.CharField(
-        required=True,
-        help_text="The model name to use for chat completion, "
-        "it can be found in the llm_config_list endpoint",
-    )
     prompt = serializers.JSONField(
-        required=False, help_text="The custom prompt to use for chat completion"
+        required=True, help_text="The custom prompt needs to specify the roles for both the system and the user, "
+                                 "along with their respective prompts, in JSON format for chat completion."
     )
 
 

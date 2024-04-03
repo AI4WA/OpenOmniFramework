@@ -1,9 +1,14 @@
+'use client';
 import {ApolloClient, InMemoryCache, HttpLink, split} from '@apollo/client';
 import {WebSocketLink} from '@apollo/client/link/ws';
 import {getMainDefinition} from '@apollo/client/utilities';
 
-const HASURA_URL = "http://localhost:8080/v1/graphql";
-const WS_HASURA_URL = "ws://localhost:8080/v1/graphql";
+
+const HASURA_URL = process.env.NEXT_PUBLIC_GQL_DOMAIN
+const WS_HASURA_URL = process.env.NEXT_PUBLIC_GQL_WS_DOMAIN
+
+console.log(HASURA_URL)
+console.log(WS_HASURA_URL)
 
 // Enhanced HttpLink to include headers for HTTP connections
 const httpLink = new HttpLink({

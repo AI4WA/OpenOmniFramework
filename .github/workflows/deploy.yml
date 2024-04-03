@@ -18,4 +18,4 @@ jobs:
           username: pascal
           password: ${{ secrets.PASWEY_PASSWORD }}
           port: 22
-          script: cd /home/pascal/Assistant && git pull && cd ./API && docker-compose down && docker-compose up -d
+          script: cd /home/pascal/Assistant && git pull && cd ./API && docker-compose down && docker-compose up --build -d

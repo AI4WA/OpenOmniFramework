@@ -1,7 +1,7 @@
 'use client'
 // pages/login.js
 import React, {useState, useEffect} from 'react';
-import apiClient from '@/api/apiClient';
+import apiClient from '@/cloud/apiClient';
 import {useAppSelector} from "@/store";
 import {setAuthState, LLMJwtPayload} from "@/store/authSlices";
 import {jwtDecode} from 'jwt-decode';
@@ -28,7 +28,7 @@ const LoginPage = () => {
 
     useEffect(() => {
         if (isLogin) {
-            router.push("/chat")
+            router.push("/dashboard")
         }
     }, [isLogin, router]);
 
@@ -63,7 +63,7 @@ const LoginPage = () => {
                         }
                     )
                 )
-                router.push('/chat');
+                router.push('/dashboard');
             } else {
                 // Show an error message
                 alert('Invalid credentials');

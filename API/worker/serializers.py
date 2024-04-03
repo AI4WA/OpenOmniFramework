@@ -36,6 +36,12 @@ class TaskLLMRequestSerializer(serializers.Serializer):
     )
 
 
+class TaskCustomLLMRequestSerializer(TaskLLMRequestSerializer):
+    prompt = serializers.JSONField(
+        required=True, help_text="The custom prompt to use for chat completion"
+    )
+
+
 class TaskLLMRequestsSerializer(serializers.Serializer):
     task_worker = serializers.ChoiceField(
         help_text="The worker to assign the task to",

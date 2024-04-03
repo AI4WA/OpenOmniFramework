@@ -11,7 +11,15 @@ class UserAdmin(ImportExportModelAdmin, UserAdmin):
     search_fields = ("username", "email", "organization__name")
     list_filter = ("is_staff", "is_active", "organization")
     fieldsets = UserAdmin.fieldsets + (
-        ("Other Information", {"fields": ("organization",)}),
+        (
+            "Other Information",
+            {
+                "fields": (
+                    "organization",
+                    "role",
+                )
+            },
+        ),
     )
 
 

@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import Dict, Union
 
 import chatglm_cpp
 from django.conf import settings
@@ -95,8 +96,10 @@ class LLMAdaptor:
             return {"content": output}
         raise ValueError(f"Model {model_config.model_type} is not supported")
 
-    def create_chat_completion(self, prompt: str):
+    def create_chat_completion(self, prompt: Union[str, list[Dict]]):
         model_config = self.get_llm_model_config()
+        if not isinstance(prompt, str) and model_config.model_type == MT_LLAMA:
+            return self.llm_model_mem.llm.create_chat_completion(messages=prompt)
         if model_config.model_type == MT_LLAMA:
             return self.llm_model_mem.llm.create_chat_completion(
                 messages=[

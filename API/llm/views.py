@@ -78,7 +78,9 @@ class CallLLMView(viewsets.ViewSet):
             )
 
     @swagger_auto_schema(
-        operation_description="Call the LLM model to do the chat completion, not all models support this feature",
+        operation_description="Call the LLM model to do the custom chat completion in a json format, "
+                              "not all models support this feature for models without embedding features, it will "
+                              "throw an error",
         request_body=LLMCustomRequestSerializer,
         responses={200: LLMResponseSerializer},
     )

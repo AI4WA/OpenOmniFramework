@@ -74,7 +74,7 @@ class SentimentAnalysis(nn.Module):
 
     def forward(self, text_x, audio_x, video_x):
         flag = [0, 0, 0]
-        res={}
+        res = {}
         if text_x is not None:
             text_x = self.text_model(text_x)[:, 0, :]
             text_x = torch.mean(text_x, dim=0, keepdim=True)
@@ -85,9 +85,8 @@ class SentimentAnalysis(nn.Module):
             x_t3 = F.relu(self.post_text_layer_2(x_t2), inplace=True)
             output_text = self.post_text_layer_3(x_t3)
             flag[0] = 1
-            res['T']=output_text
-        else:
-            output_text = None
+            res['T'] = output_text
+            
         if audio_x is not None:
             audio_x = pca(audio_x, 25)  # from 33 to 25
             audio_x = torch.mean(audio_x, dim=0, keepdim=True)
@@ -99,8 +98,7 @@ class SentimentAnalysis(nn.Module):
             output_audio = self.post_audio_layer_3(x_a3)
             flag[1] = 1
             res['A'] = output_audio
-        else:
-            output_audio = None
+            
         if video_x is not None:
             video_copy = video_x[:, :49]
             video_x = torch.cat((video_x, video_copy), dim=1)  # from 128 to 177
@@ -113,20 +111,18 @@ class SentimentAnalysis(nn.Module):
             output_video = self.post_video_layer_3(x_v3)
             flag[2] = 1
             res['V'] = output_video
-        else:
-            output_video = None
 
         # Transformer fusion
-        if sum(flag)==3:
+        if sum(flag) == 3:
             fusion_cat = torch.cat([x_t3, x_a3, x_v3], dim=-1)
-        elif sum(flag)==2:
+        elif sum(flag) == 2:
             if flag[0] and flag[1]:
                 fusion_cat = torch.cat([x_t3, x_a3, x_a3], dim=-1)
             elif flag[0] and flag[2]:
                 fusion_cat = torch.cat([x_t3, x_v3, x_v3], dim=-1)
             elif flag[1] and flag[2]:
                 fusion_cat = torch.cat([x_a3, x_v3, x_v3], dim=-1)
-        elif sum(flag)==1:
+        elif sum(flag) == 1:
             if flag[0]:
                 fusion_cat = torch.cat([x_t3, x_t3, x_t3], dim=-1)
             elif flag[1]:
@@ -145,7 +141,6 @@ class SentimentAnalysis(nn.Module):
         res['M'] = output_fusion
         print(res)
         return res
-
 
 
 class SubNet(nn.Module):

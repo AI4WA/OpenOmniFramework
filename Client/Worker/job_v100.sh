@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --job-name=llm
-#SBATCH --output=result.txt
+#SBATCH --job-name=llm_v100
+#SBATCH --output=result_v100.txt
 #SBATCH --nodes=1
 #SBATCH --time=03:00:00
 #SBATCH --partition=gpu

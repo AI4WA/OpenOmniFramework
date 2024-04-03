@@ -44,6 +44,10 @@ class Command(BaseCommand):
         while True:
             text, audio_file, image_np_list, audio_obj = gather_data()
             try:
+                if audio_obj is None:
+                    logger.info("No audio data found")
+                    time.sleep(1)
+                    continue
                 emotion_output = trigger_model(text, audio_file, image_np_list)
                 logger.info(f"Emotion output: {emotion_output}")
             except Exception as e:

@@ -9,6 +9,10 @@ from sklearn.decomposition import PCA
 from torch.nn.parameter import Parameter
 from transformers import BertModel, BertTokenizer
 
+from authenticate.utils.get_logger import get_logger
+
+logger = get_logger(__name__)
+
 models_dir = Path(settings.BASE_DIR) / "ml" / "ml_models" / "model_data"
 
 
@@ -89,7 +93,7 @@ class SentimentAnalysis(nn.Module):
         flag = [0, 0, 0]
         res = {}
         if text_x is not None:
-            text_x = self.text_model(text_x)[:, 0, :]
+            # text_x = self.text_model(text_x)[:, 0, :]
             text_x = torch.mean(text_x, dim=0, keepdim=True)
             text_h = self.tliner(text_x)
             # text
@@ -101,8 +105,8 @@ class SentimentAnalysis(nn.Module):
             res["T"] = output_text
 
         if audio_x is not None:
-            audio_x = pca(audio_x, 25)  # from 33 to 25
-            audio_x = torch.mean(audio_x, dim=0, keepdim=True)
+            # audio_x = pca(audio_x, 25)  # from 33 to 25
+            audio_x = torch.mean(audio_x[:, :25], dim=0, keepdim=True)
             audio_h = self.audio_model(audio_x)
             # audio
             x_a1 = self.post_audio_dropout(audio_h)
@@ -152,7 +156,7 @@ class SentimentAnalysis(nn.Module):
         output_fusion = output_fusion * self.output_range + self.output_shift
 
         res["M"] = output_fusion
-        print(res)
+        logger.info(res)
         return res
 
 
@@ -215,10 +219,10 @@ class BertTextEncoder(nn.Module):
     def forward(self, text):
         """
         text: (batch_size, 3, seq_len)
-        3: input_ids, input_mask, segment_ids
-        input_ids: input_ids,
-        input_mask: attention_mask,
-        segment_ids: token_type_ids
+            3: input_ids, input_mask, segment_ids
+            input_ids: input_ids,
+            input_mask: attention_mask,
+            segment_ids: token_type_ids
         """
         input_ids, input_mask, segment_ids = (
             text[:, 0, :].long(),
@@ -235,7 +239,6 @@ class BertTextEncoder(nn.Module):
             ]  # Models outputs are now tuples
         else:
             with torch.no_grad():
-
                 last_hidden_states = self.model(
                     input_ids=input_ids,
                     attention_mask=input_mask,
@@ -247,6 +250,7 @@ class BertTextEncoder(nn.Module):
 
 
 def pca(input_tensor, out_dim=25):
+    logger.info(f"input_tensor: {input_tensor.shape}")
     input_np = input_tensor.detach().numpy()
 
     # use PCA to reduce the dimension to 25

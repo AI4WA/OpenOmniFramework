@@ -119,8 +119,9 @@ def trigger_model(text, audio, images) -> Optional[str]:
     )
     model.eval()
 
+    logger.info(feature_text)
     # run model
-    output = model(feature_text, feature_audio, feature_video)
+    output = model(feature_text[1], feature_audio, feature_video)
     logger.critical(f"output: {output}")
     # loop the output dict, get all of them into float
     for k, v in output.items():

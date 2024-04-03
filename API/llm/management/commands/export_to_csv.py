@@ -49,7 +49,9 @@ class Command(BaseCommand):
             return
 
         # limit the queryset to the number of rows per csv file
-        queryset = LLMRequestRecord.objects.filter(name=task_name, success=True).order_by("id")
+        queryset = LLMRequestRecord.objects.filter(
+            name=task_name, success=True
+        ).order_by("id")
         if not queryset.exists():
             logger.error(f"No records found for task_name: {task_name}")
             return

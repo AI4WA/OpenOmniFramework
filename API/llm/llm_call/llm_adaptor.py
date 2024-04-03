@@ -100,35 +100,34 @@ class LLMAdaptor:
         model_config = self.get_llm_model_config()
         if not isinstance(prompt, str) and model_config.model_type == MT_LLAMA:
             return self.llm_model_mem.llm.create_chat_completion(messages=prompt)
-        else:
-            if model_config.model_type == MT_LLAMA:
-                return self.llm_model_mem.llm.create_chat_completion(
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are an assistant who perfectly understand Western Australia.",
-                        },
-                        {"role": "user", "content": prompt},
-                    ]
-                )
-            if model_config.model_type == MT_CHATGLM:
-                model_path = Path(
-                    settings.BASE_DIR
-                    / "llm"
-                    / "llm_call"
-                    / "models"
-                    / model_config.model_family
-                    / model_config.filename
-                )
-                chatglm_pipeline = chatglm_cpp.Pipeline(
-                    model_path=model_path.as_posix()
-                )
-                output = chatglm_pipeline.chat(
-                    [chatglm_cpp.ChatMessage(role="user", content=prompt)]
-                )
-                logger.critical(f"Response: {output}")
-                return {"role": output.role, "content": output.content}
-            raise ValueError(f"Model {model_config.model_type} is not supported")
+        if model_config.model_type == MT_LLAMA:
+            return self.llm_model_mem.llm.create_chat_completion(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an assistant who perfectly understand Western Australia.",
+                    },
+                    {"role": "user", "content": prompt},
+                ]
+            )
+        if model_config.model_type == MT_CHATGLM:
+            model_path = Path(
+                settings.BASE_DIR
+                / "llm"
+                / "llm_call"
+                / "models"
+                / model_config.model_family
+                / model_config.filename
+            )
+            chatglm_pipeline = chatglm_cpp.Pipeline(
+                model_path=model_path.as_posix()
+            )
+            output = chatglm_pipeline.chat(
+                [chatglm_cpp.ChatMessage(role="user", content=prompt)]
+            )
+            logger.critical(f"Response: {output}")
+            return {"role": output.role, "content": output.content}
+        raise ValueError(f"Model {model_config.model_type} is not supported")
 
     def create_embedding(self, text: str):
         model_config = self.get_llm_model_config()

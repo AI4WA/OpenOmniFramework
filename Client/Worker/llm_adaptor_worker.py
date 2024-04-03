@@ -44,27 +44,26 @@ class LLMAdaptor:
     def create_chat_completion(self, prompt: Union[str, list[Dict]]):
         if not isinstance(prompt, str) and self.model_config.model_type == MT_LLAMA:
             return self.llm.create_chat_completion(messages=prompt)
-        else:
-            if self.model_config.model_type == MT_LLAMA:
-                return self.llm.create_chat_completion(
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are an assistant who perfectly understand Western Australia.",
-                        },
-                        {"role": "user", "content": prompt},
-                    ]
-                )
-            if self.model_config.model_type == MT_CHATGLM:
-                chatglm_pipeline = chatglm_cpp.Pipeline(
-                    model_path=self.model_path.as_posix()
-                )
-                output = chatglm_pipeline.chat(
-                    [chatglm_cpp.ChatMessage(role="user", content=prompt)]
-                )
-                logger.critical(f"Response: {output}")
-                return {"role": output.role, "content": output.content}
-            raise ValueError(f"Model {self.model_config.model_type} is not supported")
+        if self.model_config.model_type == MT_LLAMA:
+            return self.llm.create_chat_completion(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an assistant who perfectly understand Western Australia.",
+                    },
+                    {"role": "user", "content": prompt},
+                ]
+            )
+        if self.model_config.model_type == MT_CHATGLM:
+            chatglm_pipeline = chatglm_cpp.Pipeline(
+                model_path=self.model_path.as_posix()
+            )
+            output = chatglm_pipeline.chat(
+                [chatglm_cpp.ChatMessage(role="user", content=prompt)]
+            )
+            logger.critical(f"Response: {output}")
+            return {"role": output.role, "content": output.content}
+        raise ValueError(f"Model {self.model_config.model_type} is not supported")
 
     def create_embedding(self, text: str):
         if self.model_config.model_type == MT_LLAMA:

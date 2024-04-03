@@ -1,13 +1,13 @@
 from pathlib import Path
+from typing import Tuple
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from transformers import BertTokenizer, BertModel
-from torch.nn.parameter import Parameter
-from typing import Tuple
-from sklearn.decomposition import PCA
 from django.conf import settings
+from sklearn.decomposition import PCA
+from torch.nn.parameter import Parameter
+from transformers import BertModel, BertTokenizer
 
 models_dir = Path(settings.BASE_DIR) / "ml" / "ml_models" / "model_data"
 
@@ -86,7 +86,7 @@ class SentimentAnalysis(nn.Module):
             output_text = self.post_text_layer_3(x_t3)
             flag[0] = 1
             res['T'] = output_text
-            
+
         if audio_x is not None:
             audio_x = pca(audio_x, 25)  # from 33 to 25
             audio_x = torch.mean(audio_x, dim=0, keepdim=True)
@@ -98,7 +98,7 @@ class SentimentAnalysis(nn.Module):
             output_audio = self.post_audio_layer_3(x_a3)
             flag[1] = 1
             res['A'] = output_audio
-            
+
         if video_x is not None:
             video_copy = video_x[:, :49]
             video_x = torch.cat((video_x, video_copy), dim=1)  # from 128 to 177

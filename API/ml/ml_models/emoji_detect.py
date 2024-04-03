@@ -7,10 +7,10 @@ import cv2
 import torch
 from django.conf import settings
 
-from ...authenticate.utils.get_logger import get_logger
-from ...hardware.models import AudioData, VideoData
-from ...ml.ml_models.get_features import GetFeatures
-from ...ml.ml_models.sentiment import SentimentAnalysis
+from authenticate.utils.get_logger import get_logger
+from hardware.models import AudioData, VideoData
+from ml.ml_models.get_features import GetFeatures
+from ml.ml_models.sentiment import SentimentAnalysis
 
 models_dir = Path(settings.BASE_DIR) / "ml" / "ml_models" / "model_data"
 

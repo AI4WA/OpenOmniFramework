@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from llm.models import LLMRequestRecord
-from worker.models import Task
+from worker.models import Task, GPUWorker
 from worker.serializers import (
     TaskCustomLLMRequestSerializer,
     TaskLLMRequestSerializer,
@@ -16,6 +16,7 @@ from worker.serializers import (
     TaskReportSerializer,
     TaskSerializer,
     TaskSTTRequestSerializer,
+    GPUWorkerSerializer
 )
 
 logger = logging.getLogger(__name__)
@@ -274,5 +275,37 @@ class QueueTaskViewSet(viewsets.ViewSet):
         llm_record.save()
         return Response(
             {"message": f"Task {task.id} updated successfully"},
+            status=status.HTTP_200_OK,
+        )
+
+    @swagger_auto_schema(
+        operation_description="Register a GPU worker",
+        responses={200: "GPU worker registered or updated successfully"},
+        request_body=GPUWorkerSerializer,
+    )
+    @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
+    def gpu_worker(self, request):
+        """
+        Endpoint to register a GPU worker.
+        """
+        data = request.data
+        serializer = TaskReportSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        uuid = data.get("uuid")
+        mac_address = data.get("mac_address")
+        ip_address = data.get("ip_address")
+
+        gpu_worker, created = GPUWorker.objects.get_or_create(
+            uuid=uuid,
+            defaults={"mac_address": mac_address, "ip_address": ip_address},
+        )
+        if not created:
+            gpu_worker.mac_address = mac_address
+            gpu_worker.ip_address = ip_address
+            gpu_worker.save()
+
+        return Response(
+            {"message": f"GPU worker {uuid} registered or updated successfully"},
             status=status.HTTP_200_OK,
         )

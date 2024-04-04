@@ -113,6 +113,14 @@ subscription OnFailed($userId:bigint!){
 }
 `
 
+const GPU_WORKER = gql`
+subscription GpuWorker {
+  gpu_worker_count {
+    recent_update_count
+  }
+}
+`
+
 const TaskPage = () => {
     const {data, loading, error} = useSubscription(TASK_SUB);
     const userId = useAppSelector(state => state.auth.authState.userId)
@@ -166,6 +174,12 @@ const TaskPage = () => {
     } = useSubscription(TASK_TOTAL_SUCCESS)
 
 
+    const {
+        data: gpuWorkerData,
+        // loading: pendingLoading,
+        // error: errorLoading
+    } = useSubscription(GPU_WORKER)
+
     // Display loading overlay while loading
     if (loading) return (
         <div className="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center"
@@ -184,19 +198,24 @@ const TaskPage = () => {
             <div className="grid grid-cols-4 gap-4 mb-8">
                 {/* Pending Tasks Card */}
                 <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-red-600 hover:bg-red-700 transition-colors">
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-yellow-600 hover:bg-yellow-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{totalPendingData?.totalPending?.aggregate?.count}</p>
                     <p className="text-white text-xl">Total Pending</p>
                 </div>
+                <div
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-yellow-600 hover:bg-yellow-700 transition-colors">
+                    <p className="text-white text-3xl font-semibold">{gpuWorkerData?.gpu_worker_count[0]?.recent_update_count}</p>
+                    <p className="text-white text-xl">Live GPU Worker</p>
+                </div>
                 {/* Pending Tasks Card */}
                 <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-red-600 hover:bg-red-700 transition-colors">
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-blue-600 hover:bg-blue-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{pendingData?.pending?.aggregate?.count}</p>
                     <p className="text-white text-xl">Your Pending</p>
                 </div>
                 {/* Started Tasks Card */}
                 <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-yellow-600 hover:bg-yellow-700 transition-colors">
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-blue-600 hover:bg-blue-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{startedData?.started?.aggregate?.count}</p>
                     <p className="text-white text-xl">Started</p>
                 </div>
@@ -205,6 +224,12 @@ const TaskPage = () => {
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{successData?.success?.aggregate?.count}</p>
                     <p className="text-white text-xl">Success</p>
+                </div>
+                {/* Success Tasks Card */}
+                <div
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
+                    <p className="text-white text-3xl font-semibold">{totalSuccessData?.totalSuccess?.aggregate?.count}</p>
+                    <p className="text-white text-xl">Total Success</p>
                 </div>
                 {/* Failed Tasks Card */}
                 <div
@@ -218,12 +243,7 @@ const TaskPage = () => {
                     <p className="text-white text-3xl font-semibold">{cancelledData?.cancelled?.aggregate?.count}</p>
                     <p className="text-white text-xl">Cancelled</p>
                 </div>
-                {/* Success Tasks Card */}
-                <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
-                    <p className="text-white text-3xl font-semibold">{totalSuccessData?.totalSuccess?.aggregate?.count}</p>
-                    <p className="text-white text-xl">Total Success</p>
-                </div>
+
             </div>
 
             {/* Task Details Table */}

@@ -4,7 +4,6 @@ from typing import Dict, Union
 
 import chatglm_cpp
 from django.conf import settings
-from llama_cpp import Llama
 
 from llm.llm_call.config import MN_GEMMA, MN_LLAMA2, MODELS, MT_CHATGLM, MT_LLAMA
 from llm.llm_call.llm_model import LLMModelMemory
@@ -12,21 +11,24 @@ from llm.models import LLMConfigRecords
 
 logger = logging.getLogger(__name__)
 
-AVAILABLE_MODELS_IN_MEMORY = {
-    llm_model_obj.model_name: LLMModelMemory(
-        model_name=llm_model_obj.model_name,
-        model_size=llm_model_obj.model_size,
-        model_family=llm_model_obj.model_family,
-        model_path=llm_model_obj.model_path,
-        model_type=llm_model_obj.model_type,
-        repo=llm_model_obj.repo,
-        filename=llm_model_obj.filename,
-        file_size=llm_model_obj.file_size,
-        available=llm_model_obj.available,
-    )
-    for llm_model_obj in LLMConfigRecords.objects.filter(available=True)
-}
-
+try:
+    AVAILABLE_MODELS_IN_MEMORY = {
+        llm_model_obj.model_name: LLMModelMemory(
+            model_name=llm_model_obj.model_name,
+            model_size=llm_model_obj.model_size,
+            model_family=llm_model_obj.model_family,
+            model_path=llm_model_obj.model_path,
+            model_type=llm_model_obj.model_type,
+            repo=llm_model_obj.repo,
+            filename=llm_model_obj.filename,
+            file_size=llm_model_obj.file_size,
+            available=llm_model_obj.available,
+        )
+        for llm_model_obj in LLMConfigRecords.objects.filter(available=True)
+    }
+except Exception as e:
+    logger.exception(e)
+    AVAILABLE_MODELS_IN_MEMORY = {}
 
 class LLMAdaptor:
     def __init__(self, model_name: str):

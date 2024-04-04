@@ -279,7 +279,8 @@ const TaskPage = () => {
                             <td className="px-4 py-3 text-sm">{task.id}</td>
                             <td className="px-4 py-3 text-sm">{task.name}</td>
                             <td className="px-4 py-3 text-sm">{task.parameters?.llm_task_type}</td>
-                            <td className="px-4 py-3 text-sm">{task.parameters?.prompt}</td>
+                            {/*only show first 30 characters*/}
+                            <td className="px-4 py-3 text-sm">{task.parameters?.prompt.substring(0, 30)}</td>
                             <td className="px-4 py-3 text-sm">{task.result_status}</td>
                             {/*format time to proper style*/}
                             <td className="px-4 py-3 text-sm">{moment(task.updated_at).format('YY-MM-DD, HH:mm:ss')}</td>

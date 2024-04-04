@@ -18,8 +18,9 @@ from worker.serializers import (
     TaskSTTRequestSerializer,
     TaskWorkerSerializer,
 )
+from authenticate.utils.get_logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class QueueTaskViewSet(viewsets.ViewSet):
@@ -229,18 +230,28 @@ class QueueTaskViewSet(viewsets.ViewSet):
         task.result_status = data.get("result_status", task.result_status)
         task.description = data.get("description", task.description)
         task.save()
-        # at the same time, create a LLMRequestRecord
-        llm_record = LLMRequestRecord(
-            user=task.user,
-            name=task.name,
-            model_name=task.parameters.get("model_name"),
-            prompt=task.parameters.get("prompt"),
-            task=task.parameters.get("llm_task_type"),
-            completed_in_seconds=data.get("completed_in_seconds", 0),
-            success=data.get("success", True),
-            response=data.get("result", {}),
-        )
-        llm_record.save()
+        try:
+            # at the same time, create a LLMRequestRecord
+            prompt = task.parameters.get("prompt", None)
+            if prompt is None:
+                messages = task.parameters.get("messages", None)
+                functions = task.parameters.get("functions", None)
+                function_call = task.parameters.get("function_call", None)
+                prompt = f"messages: {str(messages)}, functions: {str(functions)}, function_call: {str(function_call)}"
+            llm_record = LLMRequestRecord(
+                user=task.user,
+                name=task.name,
+                model_name=task.parameters.get("model_name"),
+                prompt=prompt,
+                task=task.parameters.get("llm_task_type"),
+                completed_in_seconds=data.get("completed_in_seconds", 0),
+                success=data.get("success", True),
+                response=data.get("result", {}),
+            )
+            llm_record.save()
+        except Exception as e:
+            logger.error(f"Error saving LLMRequestRecord: {e}")
+            logger.exception(e)
         return Response(
             {"message": f"Task {task.id} updated successfully"},
             status=status.HTTP_200_OK,

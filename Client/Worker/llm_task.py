@@ -1,6 +1,7 @@
 from llm_adaptor_worker import LLMAdaptor
 from utils import get_logger
 from pydantic import BaseModel
+from typing import List
 
 logger = get_logger(__name__)
 
@@ -14,7 +15,7 @@ class LlamaParams(BaseModel):
     model_name: str
     llm_task_type: str
     prompt: str = None
-    messages: list[LlamaMessage] = None
+    messages: List[LlamaMessage] = None
 
 
 class LLMTask:

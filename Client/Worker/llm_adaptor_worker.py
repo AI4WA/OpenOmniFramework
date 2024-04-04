@@ -46,13 +46,16 @@ class LLMAdaptor:
                                prompt: str = None,
                                messages: List[Dict[str, str]] = None,
                                functions: List[ChatCompletionToolFunction] = None,
-                               function_call: ChatCompletionFunctionCall = None
+                               function_call: ChatCompletionFunctionCall = None,
+                               *args,
+                               **kwargs
                                ):
         if messages:
             """
             This is trying to replicate passing all params chat completion provided via llama_cpp
             """
             if self.model_config.model_type == MT_LLAMA:
+                logger.info(f"Creating chat completion for messages: {messages}")
                 return self.llm.create_chat_completion(messages=messages,
                                                        functions=functions,
                                                        function_call=function_call)
@@ -81,7 +84,10 @@ class LLMAdaptor:
         raise ValueError("Prompt or messages are required")
 
     def create_embedding(self, text: str):
+        if text is None:
+            raise ValueError("Text is required")
         if self.model_config.model_type == MT_LLAMA:
+            logger.info(f"Creating embedding for text: {text}")
             return self.llm.create_embedding(text)
         raise ValueError(
             f"Model {self.model_config.model_type} is not supported for embedding"

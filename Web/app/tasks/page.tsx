@@ -18,7 +18,7 @@ interface Task {
 
 const TASK_SUB = gql`
 subscription TaskList {
-  worker_task(order_by: {created_at: desc}, limit:5) {
+  worker_task(order_by: {created_at: desc}, limit:50) {
     id
     description
     result_status

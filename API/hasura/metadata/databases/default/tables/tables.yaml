@@ -1,4 +1,6 @@
 - "!include public_authenticate_user.yaml"
+- "!include public_gpu_worker_count.yaml"
 - "!include public_llm_llmconfigrecords.yaml"
 - "!include public_llm_llmrequestrecord.yaml"
+- "!include public_worker_gpuworker.yaml"
 - "!include public_worker_task.yaml"

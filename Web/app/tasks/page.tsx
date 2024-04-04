@@ -115,7 +115,7 @@ subscription OnFailed($userId:bigint!){
 
 const GPU_WORKER = gql`
 subscription GpuWorker {
-  gpu_worker_count {
+  view_live_gpu_worker {
     recent_update_count
   }
 }
@@ -179,7 +179,7 @@ const TaskPage = () => {
         // loading: pendingLoading,
         // error: errorLoading
     } = useSubscription(GPU_WORKER)
-
+    console.log(gpuWorkerData)
     // Display loading overlay while loading
     if (loading) return (
         <div className="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center"
@@ -204,7 +204,7 @@ const TaskPage = () => {
                 </div>
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-yellow-600 hover:bg-yellow-700 transition-colors">
-                    <p className="text-white text-3xl font-semibold">{gpuWorkerData?.gpu_worker_count[0]?.recent_update_count}</p>
+                    <p className="text-white text-3xl font-semibold">{gpuWorkerData?.view_live_gpu_worker[0]?.recent_update_count}</p>
                     <p className="text-white text-xl">Live GPU Worker</p>
                 </div>
                 {/* Pending Tasks Card */}

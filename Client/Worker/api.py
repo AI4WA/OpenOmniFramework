@@ -13,9 +13,10 @@ logger = get_logger("GPU-Worker-API")
 
 
 class API:
-    def __init__(self, domain: str = API_DOMAIN, token: str = "", uuid: str = ""):
+    def __init__(self, domain: str = API_DOMAIN, token: str = "", uuid: str = "", task_type: str = "gpu"):
         self.domain = domain
         self.token = token
+        self.task_type = task_type
         self.uuid = uuid
         self.mac_address = getmac.get_mac_address()
         self.ip_address = self.get_local_ip()
@@ -27,7 +28,7 @@ class API:
         return r.json()
 
     def get_task(self):
-        url = f"{self.domain}/queue_task/gpu_task/"
+        url = f"{self.domain}/queue_task/task/{self.task_type}/"
         r = requests.get(url, headers={"Authorization": f"Token {self.token}"})
         logger.info(f"GET {url} {r.status_code}")
         if r.status_code != 200:
@@ -64,13 +65,14 @@ class API:
         url = "queue_task/gpu_worker/"
         """
         try:
-            url = f"{self.domain}/queue_task/gpu_worker/"
+            url = f"{self.domain}/queue_task/worker/"
             r = requests.post(
                 url,
                 data={
                     "uuid": self.uuid,
                     "mac_address": self.mac_address,
                     "ip_address": self.ip_address,
+                    "task_type": self.task_type,
                 },
                 headers={"Authorization": f"Token {self.token}"},
             )

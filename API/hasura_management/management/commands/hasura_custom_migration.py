@@ -8,10 +8,17 @@ logger = get_logger(__name__)
 
 SQL_SCRIPTS = [
     """
-    CREATE VIEW view_live_gpu_worker AS
-    SELECT COUNT(*) AS recent_update_count 
-    FROM worker_gpuworker 
-    WHERE updated_at > NOW() - INTERVAL '5 minutes';
+    DROP VIEW IF EXISTS view_live_worker;
+    CREATE VIEW view_live_worker AS
+    SELECT 
+        task_type,
+        COUNT(*) AS recent_update_count 
+    FROM 
+        worker_taskworker 
+    WHERE 
+        updated_at > NOW() - INTERVAL '1 minutes'
+    GROUP BY 
+        task_type;
     """
 ]
 

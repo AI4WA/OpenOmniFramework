@@ -40,7 +40,7 @@ subscription TaskList($userId:bigint!) {
 
 const TASK_PENDING = gql`
 subscription OnPending($userId:bigint!){
-    pending: worker_task_aggregate(where: {result_status: {_eq: "pending"}, user_id: {_eq: $userId}, work_type: {_eq: "gpu"} }) {
+    pending: worker_task_aggregate(where: {result_status: {_eq: "pending"}, user_id: {_eq: $userId}, work_type: {_in: ["gpu", "cpu"]} }) {
         aggregate {
             count
         }
@@ -50,7 +50,7 @@ subscription OnPending($userId:bigint!){
 
 const TASK_TOTAL_PENDING = gql`
 subscription TotalOnPending{
-    totalPending: worker_task_aggregate(where: {result_status: {_eq: "pending"}, work_type: {_eq: "gpu"}}) {
+    totalPending: worker_task_aggregate(where: {result_status: {_eq: "pending"}, work_type: {_in: ["gpu", "cpu"]}}) {
         aggregate {
             count
         }
@@ -60,7 +60,7 @@ subscription TotalOnPending{
 
 const TASK_TOTAL_SUCCESS = gql`
 subscription TotalOnSuccess{
-    totalSuccess: worker_task_aggregate(where: {result_status: {_eq: "completed"}, work_type: {_eq: "gpu"}}) {
+    totalSuccess: worker_task_aggregate(where: {result_status: {_eq: "completed"}, work_type: {_in: ["gpu", "cpu"]}}) {
         aggregate {
             count
         }
@@ -70,7 +70,7 @@ subscription TotalOnSuccess{
 
 const TASK_STARTED = gql`
 subscription OnStarted($userId:bigint!) {
-    started: worker_task_aggregate(where: {result_status: {_eq: "started"}, user_id: {_eq: $userId}, work_type: {_eq: "gpu"}}) {
+    started: worker_task_aggregate(where: {result_status: {_eq: "started"}, user_id: {_eq: $userId}, work_type: {_in: ["gpu", "cpu"]}}) {
         aggregate {
             count
         }
@@ -82,7 +82,7 @@ const TASK_SUCCESS = gql`
 subscription OnSuccess($userId:bigint!){
     success: worker_task_aggregate(where: {result_status: {_eq: "completed"},
                                            user_id: {_eq: $userId},
-                                           work_type: {_eq: "gpu"}}) {
+                                           work_type: {_in: ["gpu", "cpu"]}}) {
         aggregate {
             count
         }
@@ -94,7 +94,7 @@ const TASK_FAILED = gql`
 subscription OnFailed($userId:bigint!){
     failed: worker_task_aggregate(where: {result_status: {_eq: "failed"}, 
                                           user_id: {_eq: $userId},
-                                          work_type: {_eq: "gpu"}}) {
+                                          work_type: {_in: ["gpu", "cpu"]}}) {
         aggregate {
             count
         }
@@ -106,7 +106,7 @@ const TASK_CANCELLED = gql`
 subscription OnFailed($userId:bigint!){
     cancelled: worker_task_aggregate(where: {result_status: {_eq: "cancelled"},
                                              user_id: {_eq: $userId},
-                                             work_type: {_eq: "gpu"}}) {
+                                             work_type: {_in: ["gpu", "cpu"]}}) {
         aggregate {
             count
         }

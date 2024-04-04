@@ -16,7 +16,7 @@ SQL_SCRIPTS = [
     FROM 
         worker_taskworker 
     WHERE 
-        updated_at > NOW() - INTERVAL '5 minutes'
+        updated_at > NOW() - INTERVAL '1 minutes'
     GROUP BY 
         task_type;
     """

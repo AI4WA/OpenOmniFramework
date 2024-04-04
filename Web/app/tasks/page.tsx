@@ -1,6 +1,7 @@
 'use client'
 import {useSubscription, gql} from "@apollo/client";
 import React from 'react';
+import moment from 'moment';
 import {useAppSelector} from "@/store"; // Make sure to import React when using JSX
 
 interface Task {
@@ -19,8 +20,8 @@ interface Task {
 }
 
 const TASK_SUB = gql`
-subscription TaskList {
-  worker_task(order_by: {created_at: desc}, limit:50) {
+subscription TaskList($userId:bigint!) {
+  worker_task(order_by: {created_at: desc}, limit:50, where: {user_id: {_eq: $userId}}) {
     id
     description
     result_status
@@ -113,9 +114,21 @@ subscription OnFailed($userId:bigint!){
 }
 `
 
+const GPU_WORKER = gql`
+subscription GpuWorker {
+  view_live_gpu_worker {
+    recent_update_count
+  }
+}
+`
+
 const TaskPage = () => {
-    const {data, loading, error} = useSubscription(TASK_SUB);
+
     const userId = useAppSelector(state => state.auth.authState.userId)
+    const {data, loading, error} = useSubscription(TASK_SUB, {
+            variables: {userId: userId} // Replace with the actual user ID
+        }
+    );
     const {
         data: totalPendingData,
         // loading: pendingLoading,
@@ -166,6 +179,12 @@ const TaskPage = () => {
     } = useSubscription(TASK_TOTAL_SUCCESS)
 
 
+    const {
+        data: gpuWorkerData,
+        // loading: pendingLoading,
+        // error: errorLoading
+    } = useSubscription(GPU_WORKER)
+
     // Display loading overlay while loading
     if (loading) return (
         <div className="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center"
@@ -184,19 +203,24 @@ const TaskPage = () => {
             <div className="grid grid-cols-4 gap-4 mb-8">
                 {/* Pending Tasks Card */}
                 <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-red-600 hover:bg-red-700 transition-colors">
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-yellow-600 hover:bg-yellow-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{totalPendingData?.totalPending?.aggregate?.count}</p>
                     <p className="text-white text-xl">Total Pending</p>
                 </div>
+                <div
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-yellow-600 hover:bg-yellow-700 transition-colors">
+                    <p className="text-white text-3xl font-semibold">{gpuWorkerData?.view_live_gpu_worker[0]?.recent_update_count}</p>
+                    <p className="text-white text-xl">Live GPU Worker</p>
+                </div>
                 {/* Pending Tasks Card */}
                 <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-red-600 hover:bg-red-700 transition-colors">
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-blue-600 hover:bg-blue-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{pendingData?.pending?.aggregate?.count}</p>
                     <p className="text-white text-xl">Your Pending</p>
                 </div>
                 {/* Started Tasks Card */}
                 <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-yellow-600 hover:bg-yellow-700 transition-colors">
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-blue-600 hover:bg-blue-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{startedData?.started?.aggregate?.count}</p>
                     <p className="text-white text-xl">Started</p>
                 </div>
@@ -205,6 +229,12 @@ const TaskPage = () => {
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{successData?.success?.aggregate?.count}</p>
                     <p className="text-white text-xl">Success</p>
+                </div>
+                {/* Success Tasks Card */}
+                <div
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
+                    <p className="text-white text-3xl font-semibold">{totalSuccessData?.totalSuccess?.aggregate?.count}</p>
+                    <p className="text-white text-xl">Total Success</p>
                 </div>
                 {/* Failed Tasks Card */}
                 <div
@@ -218,12 +248,7 @@ const TaskPage = () => {
                     <p className="text-white text-3xl font-semibold">{cancelledData?.cancelled?.aggregate?.count}</p>
                     <p className="text-white text-xl">Cancelled</p>
                 </div>
-                {/* Success Tasks Card */}
-                <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
-                    <p className="text-white text-3xl font-semibold">{totalSuccessData?.totalSuccess?.aggregate?.count}</p>
-                    <p className="text-white text-xl">Total Success</p>
-                </div>
+
             </div>
 
             {/* Task Details Table */}
@@ -232,7 +257,10 @@ const TaskPage = () => {
                     <thead>
                     <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-50">
                         <th className="px-4 py-3">Task ID</th>
-                        <th className="px-4 py-3">Description</th>
+                        <th className="px-4 py-3">Task Name</th>
+                        <th className="px-4 py-3">Task Type</th>
+                        <th className="px-4 py-3">Prompt</th>
+
                         <th className="px-4 py-3">Status</th>
                         <th className="px-4 py-3">Created At</th>
                         <th className="px-4 py-3">Actions</th>
@@ -244,8 +272,11 @@ const TaskPage = () => {
                         <tr key={index} className="text-gray-700">
                             <td className="px-4 py-3 text-sm">{task.id}</td>
                             <td className="px-4 py-3 text-sm">{task.name}</td>
+                            <td className="px-4 py-3 text-sm">{task.parameters?.llm_task_type}</td>
+                            <td className="px-4 py-3 text-sm">{task.parameters?.prompt}</td>
                             <td className="px-4 py-3 text-sm">{task.result_status}</td>
-                            <td className="px-4 py-3 text-sm">{task.created_at}</td>
+                            {/*format time to proper style*/}
+                            <td className="px-4 py-3 text-sm">{moment(task.updated_at).format('YY-MM-DD, HH:mm:ss')}</td>
                             <td className="px-4 py-3">
                                 <div className="flex items-center space-x-4 text-sm">
                                     <button

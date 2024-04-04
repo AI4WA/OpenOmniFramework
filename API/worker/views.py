@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from authenticate.utils.get_logger import get_logger
 from llm.models import LLMRequestRecord
 from worker.models import Task, TaskWorker
 from worker.serializers import (
@@ -18,7 +19,6 @@ from worker.serializers import (
     TaskSTTRequestSerializer,
     TaskWorkerSerializer,
 )
-from authenticate.utils.get_logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -13,7 +13,13 @@ logger = get_logger("GPU-Worker-API")
 
 
 class API:
-    def __init__(self, domain: str = API_DOMAIN, token: str = "", uuid: str = "", task_type: str = "gpu"):
+    def __init__(
+        self,
+        domain: str = API_DOMAIN,
+        token: str = "",
+        uuid: str = "",
+        task_type: str = "gpu",
+    ):
         self.domain = domain
         self.token = token
         self.task_type = task_type
@@ -36,12 +42,12 @@ class API:
         return r.json()
 
     def post_task_result(
-            self,
-            task_id: str,
-            result_status: str,
-            description: str,
-            completed_in_seconds: Optional[float] = 0,
-            result: Optional[dict] = None,
+        self,
+        task_id: str,
+        result_status: str,
+        description: str,
+        completed_in_seconds: Optional[float] = 0,
+        result: Optional[dict] = None,
     ):
         url = f"{self.domain}/queue_task/{task_id}/update_result/"
         r = requests.post(
@@ -88,11 +94,11 @@ class API:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
             # doesn't matter if the address is reachable
-            s.connect(('10.255.255.255', 1))
+            s.connect(("10.255.255.255", 1))
             ip = s.getsockname()[0]
         except Exception as e:
             logger.error(f"Error getting local IP: {e}")
-            ip = '127.0.0.1'
+            ip = "127.0.0.1"
         finally:
             s.close()
         return ip

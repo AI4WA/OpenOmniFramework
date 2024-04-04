@@ -35,10 +35,12 @@ class LLMTask:
     def run(self, model_config):
         llm_adaptor = LLMAdaptor(model_config)
         if self.llm_task_type == "chat_completion":
-            return llm_adaptor.create_chat_completion(prompt=self.llm_prompt,
-                                                      messages=self.llm_messages,
-                                                      functions=self.llm_functions,
-                                                      function_call=self.llm_function_call)
+            return llm_adaptor.create_chat_completion(
+                prompt=self.llm_prompt,
+                messages=self.llm_messages,
+                functions=self.llm_functions,
+                function_call=self.llm_function_call,
+            )
         elif self.llm_task_type == "completion":
             return llm_adaptor.create_completion(self.llm_prompt)
         elif self.llm_task_type == "create_embedding":

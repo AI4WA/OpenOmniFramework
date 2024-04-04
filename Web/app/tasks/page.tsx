@@ -18,7 +18,7 @@ interface Task {
 
 const TASK_SUB = gql`
 subscription TaskList {
-  worker_task(order_by: {created_at: desc}, limit:100) {
+  worker_task(order_by: {created_at: desc}, limit:5) {
     id
     description
     result_status
@@ -37,7 +37,6 @@ subscription TaskList {
 
 const TaskPage = () => {
     const {data, loading, error} = useSubscription(TASK_SUB);
-
     // Display loading overlay while loading
     if (loading) return (
         <div className="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center"

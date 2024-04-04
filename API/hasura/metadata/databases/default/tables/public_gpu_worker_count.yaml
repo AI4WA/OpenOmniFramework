@@ -1,0 +1,22 @@
+table:
+  name: gpu_worker_count
+  schema: public
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - recent_update_count
+      filter: {}
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - recent_update_count
+      filter: {}
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - recent_update_count
+      filter: {}
+    comment: ""

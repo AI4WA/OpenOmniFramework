@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "worker",
     "ml",
     "rag",
+    "hasura_management",
 ]
 
 MIDDLEWARE = [

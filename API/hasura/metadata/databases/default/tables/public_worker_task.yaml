@@ -49,6 +49,7 @@ select_permissions:
         - created_at
         - updated_at
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: org_viewer
     permission:
@@ -63,4 +64,5 @@ select_permissions:
         - created_at
         - updated_at
       filter: {}
+      allow_aggregations: true
     comment: ""

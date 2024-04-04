@@ -4,6 +4,7 @@ from constants import API_DOMAIN
 from llm_task import LLMTask
 from utils import get_logger, timer
 import time
+import uuid
 from llm_models import LLMModelConfig
 
 logger = get_logger("GPU-Worker")
@@ -13,8 +14,10 @@ if __name__ == "__main__":
     args.add_argument("--token", type=str, required=True)
     args.add_argument("--api_domain", type=str, required=False, default=API_DOMAIN)
     args = args.parse_args()
-
-    api = API(domain=args.api_domain, token=args.token)
+    uuid = uuid.uuid4()
+    logger.info(f"GPU Worker UUID: {uuid}")
+    api = API(domain=args.api_domain, token=args.token, uuid=str(uuid))
+    api.register_or_update_worker()
     available_models = api.get_available_models()
     logger.info(available_models)
 
@@ -23,7 +26,12 @@ if __name__ == "__main__":
     }
     logger.info("Init process complete. Waiting for tasks...")
 
+    counter = 0
     while True:
+        counter += 1
+        if counter % 100 == 0:
+            logger.info(f"Still alive. Counter: {counter}")
+            api.register_or_update_worker()
         try:
             with timer(logger=logger, message="get_task"):
                 task = api.get_task()

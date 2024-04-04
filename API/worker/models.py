@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 from authenticate.models import User
@@ -54,3 +56,14 @@ class Task(models.Model):
         )
         task.save()
         return task
+
+
+class GPUWorker(models.Model):
+    uuid = models.CharField(max_length=100, unique=True)
+    mac_address = models.CharField(max_length=100, blank=True, null=True)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.uuid

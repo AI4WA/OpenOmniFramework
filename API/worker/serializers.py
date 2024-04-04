@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from worker.models import Task
+from worker.models import GPUWorker, Task
 
 
 class TaskLLMRequestSerializer(serializers.Serializer):
@@ -121,3 +121,9 @@ class TaskReportSerializer(serializers.Serializer):
     success = serializers.BooleanField(
         required=False, help_text="The success status of the task"
     )
+
+
+class GPUWorkerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GPUWorker
+        fields = "__all__"

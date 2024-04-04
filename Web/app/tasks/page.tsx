@@ -57,6 +57,16 @@ subscription TotalOnPending{
 }
 `
 
+const TASK_TOTAL_SUCCESS = gql`
+subscription TotalOnSuccess{
+    totalSuccess: worker_task_aggregate(where: {result_status: {_eq: "completed"}, work_type: {_eq: "gpu"}}) {
+        aggregate {
+            count
+        }
+    }
+}
+`
+
 const TASK_STARTED = gql`
 subscription OnStarted($userId:bigint!) {
     started: worker_task_aggregate(where: {result_status: {_eq: "started"}, user_id: {_eq: $userId}, work_type: {_eq: "gpu"}}) {
@@ -149,6 +159,13 @@ const TaskPage = () => {
         variables: {userId}
     })
 
+    const {
+        data: totalSuccessData,
+        // loading: pendingLoading,
+        // error: errorLoading
+    } = useSubscription(TASK_TOTAL_SUCCESS)
+
+
     // Display loading overlay while loading
     if (loading) return (
         <div className="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center"
@@ -200,6 +217,12 @@ const TaskPage = () => {
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-gray-600 hover:bg-gray-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{cancelledData?.cancelled?.aggregate?.count}</p>
                     <p className="text-white text-xl">Cancelled</p>
+                </div>
+                {/* Success Tasks Card */}
+                <div
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
+                    <p className="text-white text-3xl font-semibold">{totalSuccessData?.totalSuccess?.aggregate?.count}</p>
+                    <p className="text-white text-xl">Total Success</p>
                 </div>
             </div>
 

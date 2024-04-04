@@ -8,9 +8,6 @@ import {onError} from "@apollo/client/link/error"
 const HASURA_URL = process.env.NEXT_PUBLIC_GQL_DOMAIN
 const WS_HASURA_URL = process.env.NEXT_PUBLIC_GQL_WS_DOMAIN
 
-console.log(HASURA_URL)
-console.log(WS_HASURA_URL)
-
 const getAccessToken = async () => {
     return localStorage.getItem('access');
 }
@@ -31,7 +28,7 @@ const authLink = setContext((_, {headers}) => {
 })
 
 
-const wsLink = process.browser ? new WebSocketLink({
+const wsLink = new WebSocketLink({
     uri: WS_HASURA_URL,
     options: {
         reconnect: true,
@@ -45,18 +42,7 @@ const wsLink = process.browser ? new WebSocketLink({
             }
         },
     },
-}) : null;
-
-const errorLink = onError(({graphQLErrors, networkError, response}) => {
-    if (graphQLErrors) {
-        // graphQLErrors.map(error => Sentry.captureException(error))
-
-        // workaround for unhandled mutation errors
-        // https://github.com/apollographql/apollo-client/issues/5708
-        response.errors = undefined
-    }
-})
-
+});
 
 const link = split(
     ({query}) => {
@@ -70,7 +56,7 @@ const link = split(
     authLink.concat(httpLink)
 )
 
-const links = ApolloLink.from([errorLink, link])
+const links = ApolloLink.from([link])
 
 const client = new ApolloClient({
     link: links,

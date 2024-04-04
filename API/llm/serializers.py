@@ -19,7 +19,8 @@ class LLMCustomRequestSerializer(LLMRequestSerializer):
     prompt = serializers.JSONField(
         required=True,
         help_text="The custom prompt to use for chat completion. Now can input 3 parameters in JSON format:"
-        "messages: [{}] (required), functions: [{}] (optional), function_call: auto/none/{} (optional)",
+        "messages: list[dict] (required), functions: list[dict] (optional), function_call: 'auto'/'none'/dict() ("
+        "optional)",
     )
 
 

@@ -1,22 +1,25 @@
 table:
-  name: view_live_gpu_worker
+  name: view_live_worker
   schema: public
 select_permissions:
   - role: org_admin
     permission:
       columns:
         - recent_update_count
+        - task_type
       filter: {}
     comment: ""
   - role: org_editor
     permission:
       columns:
         - recent_update_count
+        - task_type
       filter: {}
     comment: ""
   - role: org_viewer
     permission:
       columns:
         - recent_update_count
+        - task_type
       filter: {}
     comment: ""

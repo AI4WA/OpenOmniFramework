@@ -116,7 +116,8 @@ subscription OnFailed($userId:bigint!){
 
 const GPU_WORKER = gql`
 subscription GpuWorker {
-  view_live_gpu_worker {
+  view_live_worker {
+    task_type
     recent_update_count
   }
 }
@@ -201,17 +202,24 @@ const TaskPage = () => {
         <div className="container mx-auto px-4 py-8">
             {/* Cards for task states */}
             <div className="grid grid-cols-4 gap-4 mb-8">
+                <div
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-purple-600 hover:bg-purple-700 transition-colors">
+                    <p className="text-white text-3xl font-semibold">{gpuWorkerData?.view_live_worker?.filter((worker: {
+                        task_type: string,
+                        recent_update_count: number;
+                    }) => worker.task_type === 'gpu')?.[0]?.recent_update_count || 0} vs {gpuWorkerData?.view_live_worker?.filter((worker: {
+                        task_type: string,
+                        recent_update_count: number;
+                    }) => worker.task_type === 'cpu')?.[0]?.recent_update_count || 0}</p>
+                    <p className="text-white text-xl">Live Worker (GPU vs CPU)</p>
+                </div>
                 {/* Pending Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-yellow-600 hover:bg-yellow-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{totalPendingData?.totalPending?.aggregate?.count}</p>
                     <p className="text-white text-xl">Total Pending</p>
                 </div>
-                <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-yellow-600 hover:bg-yellow-700 transition-colors">
-                    <p className="text-white text-3xl font-semibold">{gpuWorkerData?.view_live_gpu_worker[0]?.recent_update_count}</p>
-                    <p className="text-white text-xl">Live GPU Worker</p>
-                </div>
+
                 {/* Pending Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-blue-600 hover:bg-blue-700 transition-colors">
@@ -227,14 +235,13 @@ const TaskPage = () => {
                 {/* Success Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
-                    <p className="text-white text-3xl font-semibold">{successData?.success?.aggregate?.count}</p>
-                    <p className="text-white text-xl">Success</p>
-                </div>
-                {/* Success Tasks Card */}
-                <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{totalSuccessData?.totalSuccess?.aggregate?.count}</p>
                     <p className="text-white text-xl">Total Success</p>
+                </div>
+                <div
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
+                    <p className="text-white text-3xl font-semibold">{successData?.success?.aggregate?.count}</p>
+                    <p className="text-white text-xl">Success</p>
                 </div>
                 {/* Failed Tasks Card */}
                 <div
@@ -260,7 +267,6 @@ const TaskPage = () => {
                         <th className="px-4 py-3">Task Name</th>
                         <th className="px-4 py-3">Task Type</th>
                         <th className="px-4 py-3">Prompt</th>
-
                         <th className="px-4 py-3">Status</th>
                         <th className="px-4 py-3">Created At</th>
                         <th className="px-4 py-3">Actions</th>

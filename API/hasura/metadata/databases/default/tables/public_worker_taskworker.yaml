@@ -1,5 +1,5 @@
 table:
-  name: worker_gpuworker
+  name: worker_taskworker
   schema: public
 select_permissions:
   - role: org_admin
@@ -7,6 +7,7 @@ select_permissions:
       columns:
         - id
         - mac_address
+        - task_type
         - uuid
         - ip_address
         - created_at
@@ -19,6 +20,7 @@ select_permissions:
       columns:
         - id
         - mac_address
+        - task_type
         - uuid
         - ip_address
         - created_at
@@ -31,6 +33,7 @@ select_permissions:
       columns:
         - id
         - mac_address
+        - task_type
         - uuid
         - ip_address
         - created_at

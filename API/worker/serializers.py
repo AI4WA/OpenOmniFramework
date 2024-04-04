@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
-from worker.models import GPUWorker, Task
+from worker.models import Task, TaskWorker
 
 
 class TaskLLMRequestSerializer(serializers.Serializer):
-    task_worker = serializers.ChoiceField(
+    task_type = serializers.ChoiceField(
         help_text="The worker to assign the task to",
         choices=[
             ("cpu", "cpu"),
@@ -88,7 +88,7 @@ class ChatCompletionFunctionSerializer(serializers.Serializer):
 
 
 class TaskCustomLLMRequestSerializer(serializers.Serializer):
-    task_worker = serializers.ChoiceField(
+    task_type = serializers.ChoiceField(
         help_text="The worker to assign the task to",
         choices=[
             ("cpu", "cpu"),
@@ -135,7 +135,7 @@ class TaskCustomLLMRequestSerializer(serializers.Serializer):
 
 
 class TaskLLMRequestsSerializer(serializers.Serializer):
-    task_worker = serializers.ChoiceField(
+    task_type = serializers.ChoiceField(
         help_text="The worker to assign the task to",
         choices=[
             ("cpu", "cpu"),
@@ -215,7 +215,7 @@ class TaskReportSerializer(serializers.Serializer):
     )
 
 
-class GPUWorkerSerializer(serializers.ModelSerializer):
+class TaskWorkerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GPUWorker
+        model = TaskWorker
         fields = "__all__"

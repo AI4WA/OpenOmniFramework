@@ -1,7 +1,7 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
-from worker.models import GPUWorker, Task
+from worker.models import Task, TaskWorker
 
 
 @admin.register(Task)
@@ -30,8 +30,8 @@ class TaskAdmin(ImportExportModelAdmin):
     readonly_fields = ("created_at", "updated_at", "process_delay_seconds")
 
 
-@admin.register(GPUWorker)
-class GPUWorkerAdmin(ImportExportModelAdmin):
+@admin.register(TaskWorker)
+class TaskWorkerAdmin(ImportExportModelAdmin):
     list_display = ("uuid", "created_at", "updated_at")
     search_fields = ("uuid",)
     readonly_fields = ("created_at", "updated_at")

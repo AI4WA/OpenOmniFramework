@@ -1,6 +1,8 @@
 'use client'
 import {useSubscription, gql} from "@apollo/client";
-import React from 'react'; // Make sure to import React when using JSX
+import React from 'react';
+import {useAppSelector} from "@/store"; // Make sure to import React when using JSX
+
 interface Task {
     id: string;
     description: string;
@@ -36,17 +38,28 @@ subscription TaskList {
 `;
 
 const TASK_PENDING = gql`
-subscription OnPending {
-    pending: worker_task_aggregate(where: {result_status: {_eq: "pending"}}) {
+subscription OnPending($userId:bigint!){
+    pending: worker_task_aggregate(where: {result_status: {_eq: "pending"}, user_id: {_eq: $userId}, work_type: {_eq: "gpu"} }) {
         aggregate {
             count
         }
     }
 }
 `
+
+const TASK_TOTAL_PENDING = gql`
+subscription TotalOnPending{
+    totalPending: worker_task_aggregate(where: {result_status: {_eq: "pending"}, work_type: {_eq: "gpu"}}) {
+        aggregate {
+            count
+        }
+    }
+}
+`
+
 const TASK_STARTED = gql`
-subscription OnStarted {
-    started: worker_task_aggregate(where: {result_status: {_eq: "started"}}) {
+subscription OnStarted($userId:bigint!) {
+    started: worker_task_aggregate(where: {result_status: {_eq: "started"}, user_id: {_eq: $userId}, work_type: {_eq: "gpu"}}) {
         aggregate {
             count
         }
@@ -55,8 +68,10 @@ subscription OnStarted {
 `
 
 const TASK_SUCCESS = gql`
-subscription OnSuccess {
-    success: worker_task_aggregate(where: {result_status: {_eq: "completed"}}) {
+subscription OnSuccess($userId:bigint!){
+    success: worker_task_aggregate(where: {result_status: {_eq: "completed"},
+                                           user_id: {_eq: $userId},
+                                           work_type: {_eq: "gpu"}}) {
         aggregate {
             count
         }
@@ -65,8 +80,22 @@ subscription OnSuccess {
 `
 
 const TASK_FAILED = gql`
-subscription OnFailed {
-    failed: worker_task_aggregate(where: {result_status: {_eq: "failed"}}) {
+subscription OnFailed($userId:bigint!){
+    failed: worker_task_aggregate(where: {result_status: {_eq: "failed"}, 
+                                          user_id: {_eq: $userId},
+                                          work_type: {_eq: "gpu"}}) {
+        aggregate {
+            count
+        }
+    }
+}
+`
+
+const TASK_CANCELLED = gql`
+subscription OnFailed($userId:bigint!){
+    cancelled: worker_task_aggregate(where: {result_status: {_eq: "cancelled"},
+                                             user_id: {_eq: $userId},
+                                             work_type: {_eq: "gpu"}}) {
         aggregate {
             count
         }
@@ -76,27 +105,49 @@ subscription OnFailed {
 
 const TaskPage = () => {
     const {data, loading, error} = useSubscription(TASK_SUB);
+    const userId = useAppSelector(state => state.auth.authState.userId)
+    const {
+        data: totalPendingData,
+        // loading: pendingLoading,
+        // error: errorLoading
+    } = useSubscription(TASK_TOTAL_PENDING)
     const {
         data: pendingData,
         // loading: pendingLoading,
         // error: errorLoading
-    } = useSubscription(TASK_PENDING)
+    } = useSubscription(TASK_PENDING, {
+        variables: {userId}
+    })
     const {
         data: startedData,
         // loading: pendingLoading,
         // error: errorLoading
-    } = useSubscription(TASK_STARTED)
+    } = useSubscription(TASK_STARTED, {
+        variables: {userId}
+    })
 
     const {
         data: successData,
         // loading: pendingLoading,
         // error: errorLoading
-    } = useSubscription(TASK_SUCCESS)
+    } = useSubscription(TASK_SUCCESS, {
+        variables: {userId}
+    })
     const {
         data: failedData,
         // loading: pendingLoading,
         // error: errorLoading
-    } = useSubscription(TASK_FAILED)
+    } = useSubscription(TASK_FAILED, {
+        variables: {userId}
+    })
+
+    const {
+        data: cancelledData,
+        // loading: pendingLoading,
+        // error: errorLoading
+    } = useSubscription(TASK_CANCELLED, {
+        variables: {userId}
+    })
 
     // Display loading overlay while loading
     if (loading) return (
@@ -117,8 +168,14 @@ const TaskPage = () => {
                 {/* Pending Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-red-600 hover:bg-red-700 transition-colors">
+                    <p className="text-white text-3xl font-semibold">{totalPendingData?.totalPending?.aggregate?.count}</p>
+                    <p className="text-white text-xl">Total Pending</p>
+                </div>
+                {/* Pending Tasks Card */}
+                <div
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-red-600 hover:bg-red-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{pendingData?.pending?.aggregate?.count}</p>
-                    <p className="text-white text-xl">Pending</p>
+                    <p className="text-white text-xl">Your Pending</p>
                 </div>
                 {/* Started Tasks Card */}
                 <div
@@ -137,6 +194,12 @@ const TaskPage = () => {
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-gray-600 hover:bg-gray-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{failedData?.failed?.aggregate?.count}</p>
                     <p className="text-white text-xl">Failed</p>
+                </div>
+                {/* Cancelled Tasks Card */}
+                <div
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-gray-600 hover:bg-gray-700 transition-colors">
+                    <p className="text-white text-3xl font-semibold">{cancelledData?.cancelled?.aggregate?.count}</p>
+                    <p className="text-white text-xl">Cancelled</p>
                 </div>
             </div>
 

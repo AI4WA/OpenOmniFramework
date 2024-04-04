@@ -31,7 +31,8 @@ class QueueTaskViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
-        operation_description="Queue Large Language Model (LLM) tasks",
+        operation_summary="LLM Single Task Queue",
+        operation_description="Queue Large Language Model (LLM) tasks with a prompt",
         request_body=TaskLLMRequestSerializer,
         responses={200: "Task queued successfully"},
     )
@@ -58,6 +59,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
         )
 
     @swagger_auto_schema(
+        operation_summary="LLM Batch Tasks Queue",
         operation_description="Queue a list of prompts for Large Language Model (LLM) tasks",
         request_body=TaskLLMRequestsSerializer,
         responses={200: "Tasks queued successfully"},
@@ -81,7 +83,6 @@ class QueueTaskViewSet(viewsets.ViewSet):
                 data={
                     "model_name": request.data["model_name"],
                     "prompt": prompt,
-                    ""
                     "llm_task_type": request.data.get(
                         "llm_task_type", "chat_completion"
                     ),
@@ -95,7 +96,10 @@ class QueueTaskViewSet(viewsets.ViewSet):
         )
 
     @swagger_auto_schema(
-        operation_description="Custom Queue Large Language Model (LLM) tasks",
+        operation_summary="LLM Custom Task Queue",
+        operation_description="""Custom Queue Large Language Model (LLM) tasks, 
+                              with more flexibility to customize the parameters of the task
+                              """,
         request_body=TaskCustomLLMRequestSerializer,
         responses={200: "Task queued successfully"},
     )
@@ -112,7 +116,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
         task_id = self.__queue_task(
             user=request.user,
             task_type=task_type,
-            name=serializer.data["name"],
+            name=serializer.validated_data["name"],
             data=serializer.data,
         )
         return Response(
@@ -121,6 +125,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
         )
 
     @swagger_auto_schema(
+        operation_summary="STT Task Queue",
         operation_description="Queue Speech To Text (STT) tasks",
         request_body=TaskSTTRequestSerializer,
         responses={200: "Task queued successfully"},
@@ -161,6 +166,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
 
     # add an endpoint to check the status of a task
     @swagger_auto_schema(
+        operation_summary="Task Status Check",
         operation_description="Check the status of a task",
         responses={200: "Task status retrieved successfully"},
     )
@@ -196,6 +202,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
 
     # add an endpoint to get the task for GPU
     @swagger_auto_schema(
+        operation_summary="GPU Worker: Get Task",
         operation_description="Get the task for GPU",
         responses={200: "Task retrieved successfully"},
     )
@@ -231,6 +238,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
 
     # add an endpoint to update the task result
     @swagger_auto_schema(
+        operation_summary="GPU Worker: Result Update",
         operation_description="Update the task result",
         request_body=TaskReportSerializer,
         responses={200: "Task result updated successfully"},
@@ -279,6 +287,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
         )
 
     @swagger_auto_schema(
+        operation_summary="GPU Worker: Register",
         operation_description="Register a GPU worker",
         responses={200: "GPU worker registered or updated successfully"},
         request_body=GPUWorkerSerializer,

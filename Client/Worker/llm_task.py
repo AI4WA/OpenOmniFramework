@@ -1,11 +1,24 @@
 from llm_adaptor_worker import LLMAdaptor
 from utils import get_logger
+from pydantic import BaseModel
 
 logger = get_logger(__name__)
 
 
+class LlamaMessage(BaseModel):
+    role: str
+    content: str
+
+
+class LlamaParams(BaseModel):
+    model_name: str
+    llm_task_type: str
+    prompt: str = None
+    messages: list[LlamaMessage] = None
+
+
 class LLMTask:
-    def __init__(self, name: str, parameters: dict, *args, **kwargs):
+    def __init__(self, name: str, parameters: LlamaParams, *args, **kwargs):
         self.task_id = kwargs.get("id")
         self.name = name
         self.parameters = parameters

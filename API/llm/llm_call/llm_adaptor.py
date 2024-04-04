@@ -99,20 +99,8 @@ class LLMAdaptor:
             return {"content": output}
         raise ValueError(f"Model {model_config.model_type} is not supported")
 
-    def create_chat_completion(self, prompt: Union[str, dict]):
+    def create_chat_completion(self, prompt: str):
         model_config = self.get_llm_model_config()
-        if not isinstance(prompt, str) and model_config.model_type == MT_LLAMA:
-            if "functions" in prompt:
-                if "function_call" not in prompt:
-                    prompt["function_call"] = "auto"
-                return self.llm_model_mem.llm.create_chat_completion(
-                    messages=prompt["messages"],
-                    functions=prompt["functions"],
-                    function_call=prompt["function_call"],
-                )
-            return self.llm_model_mem.llm.create_chat_completion(
-                messages=prompt["messages"]
-            )
         if model_config.model_type == MT_LLAMA:
             return self.llm_model_mem.llm.create_chat_completion(
                 messages=[

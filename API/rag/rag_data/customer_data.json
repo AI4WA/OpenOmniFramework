@@ -1,0 +1,92 @@
+[
+  {
+    "customer_id": "001",
+    "routine": "Morning: Take 1 tablet of Amlodipine; Afternoon: Walk for 30 minutes; Evening: Dinner at 6 PM",
+    "family_condition": "Living with spouse; Daily visits from children",
+    "health_condition": "Hypertension, Diabetes, Arthritis",
+    "diet_preference": "Low salt, diabetic-friendly",
+    "hobby": "Gardening, Reading, Sudoku",
+    "personality": "Friendly, Talkative",
+    "additional_info": "Needs assistance with mobility; Enjoys listening to music"
+  },
+  {
+    "customer_id": "002",
+    "routine": "Morning: Take 1 tablet of Atorvastatin, 1 tablet of Aspirin; Evening: Take 1 capsule of Calcium; Morning: Walk for 20 minutes; Afternoon: Tea with friends",
+    "family_condition": "Lives alone; Weekly gatherings with grandchildren",
+    "health_condition": "Osteoporosis, High cholesterol, Heart disease",
+    "diet_preference": "Balanced diet, low cholesterol",
+    "hobby": "Painting, Knitting, Cooking",
+    "personality": "Calm, Introverted",
+    "additional_info": "Enjoys watching classic movies; Likes to have tea in the evening"
+  },
+  {
+    "customer_id": "003",
+    "routine": "Morning: Take 1 tablet of Donepezil, 1 tablet of Levothyroxine; Evening: Take 1 capsule of Vitamin D; Morning: Stretching exercises; Afternoon: Engage in puzzles",
+    "family_condition": "Lives with adult children; Regular family dinners",
+    "health_condition": "Alzheimer's disease, Hypothyroidism",
+    "diet_preference": "Soft foods, easy to chew",
+    "hobby": "Bird watching, Playing cards",
+    "personality": "Forgetful, Kind-hearted",
+    "additional_info": "Needs reminders for medication; Enjoys storytelling sessions"
+  },
+    {
+        "customer_id": "004",
+        "routine": "Morning: Take 1 tablet of Metformin, 1 tablet of Lisinopril; Evening: Take 1 capsule of Omega-3; Morning: Light yoga; Evening: Watch TV",
+        "family_condition": "Living with spouse; Regular visits from children",
+        "health_condition": "Diabetes, High blood pressure",
+        "diet_preference": "Low sugar, heart-healthy",
+        "hobby": "Gardening, Cooking, Watching movies",
+        "personality": "Cheerful, Energetic",
+        "additional_info": "Enjoys cooking traditional dishes; Likes to watch nature documentaries"
+    },
+    {
+        "customer_id": "005",
+        "routine": "Morning: Take 1 tablet of Losartan, 1 tablet of Metoprolol; Evening: Take 1 capsule of Magnesium; Morning: Light walk; Evening: Read a book",
+        "family_condition": "Living alone; Weekly visits from children",
+        "health_condition": "High blood pressure, Heart disease",
+        "diet_preference": "Low sodium, heart-healthy",
+        "hobby": "Reading, Painting, Gardening",
+        "personality": "Independent, Reserved",
+        "additional_info": "Needs assistance with grocery shopping; Enjoys reading mystery novels"
+    },
+    {
+        "customer_id": "006",
+        "routine": "Morning: Take 1 tablet of Warfarin, 1 tablet of Clopidogrel; Evening: Take 1 capsule of Vitamin K; Morning: Light stretching; Evening: Watch TV",
+        "family_condition": "Living with spouse; Regular family gatherings",
+        "health_condition": "Heart disease, Blood clotting disorder",
+        "diet_preference": "Low vitamin K, heart-healthy",
+        "hobby": "Gardening, Cooking, Watching movies",
+        "personality": "Friendly, Outgoing",
+        "additional_info": "Enjoys cooking traditional dishes; Likes to watch nature documentaries"
+    },
+    {
+        "customer_id": "007",
+        "routine": "Morning: Take 1 tablet of Metformin, 1 tablet of Lisinopril; Evening: Take 1 capsule of Omega-3; Morning: Light yoga; Evening: Watch TV",
+        "family_condition": "Living with spouse; Regular visits from children",
+        "health_condition": "Diabetes, High blood pressure",
+        "diet_preference": "Low sugar, heart-healthy",
+        "hobby": "Gardening, Cooking, Watching movies",
+        "personality": "Cheerful, Energetic",
+        "additional_info": "Enjoys cooking traditional dishes; Likes to watch nature documentaries"
+    },
+    {
+        "customer_id": "008",
+        "routine": "Morning: Take 1 tablet of Losartan, 1 tablet of Metoprolol; Evening: Take 1 capsule of Magnesium; Morning: Light walk; Evening: Read a book",
+        "family_condition": "Living alone; Weekly visits from children",
+        "health_condition": "High blood pressure, Heart disease",
+        "diet_preference": "Low sodium, heart-healthy",
+        "hobby": "Reading, Painting, Gardening",
+        "personality": "Independent, Reserved",
+        "additional_info": "Needs assistance with grocery shopping; Enjoys reading mystery novels"
+    },
+    {
+        "customer_id": "009",
+        "routine": "Morning: Take 1 tablet of Warfarin, 1 tablet of Clopidogrel; Evening: Take 1 capsule of Vitamin K; Morning: Light stretching; Evening: Watch TV",
+        "family_condition": "Living with spouse; Regular family gatherings",
+        "health_condition": "Heart disease, Blood clotting disorder",
+        "diet_preference": "Low vitamin K, heart-healthy",
+        "hobby": "Gardening, Cooking, Watching movies",
+        "personality": "Friendly, Outgoing",
+        "additional_info": "Enjoys cooking traditional dishes; Likes to watch nature documentaries"
+    }
+]

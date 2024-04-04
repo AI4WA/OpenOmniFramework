@@ -35,8 +35,69 @@ subscription TaskList {
 }
 `;
 
+const TASK_PENDING = gql`
+subscription OnPending {
+    pending: worker_task_aggregate(where: {result_status: {_eq: "pending"}}) {
+        aggregate {
+            count
+        }
+    }
+}
+`
+const TASK_STARTED = gql`
+subscription OnStarted {
+    started: worker_task_aggregate(where: {result_status: {_eq: "started"}}) {
+        aggregate {
+            count
+        }
+    }
+}
+`
+
+const TASK_SUCCESS = gql`
+subscription OnSuccess {
+    success: worker_task_aggregate(where: {result_status: {_eq: "success"}}) {
+        aggregate {
+            count
+        }
+    }
+}
+`
+
+const TASK_FAILED = gql`
+subscription OnFailed {
+    failed: worker_task_aggregate(where: {result_status: {_eq: "failed"}}) {
+        aggregate {
+            count
+        }
+    }
+}
+`
+
 const TaskPage = () => {
     const {data, loading, error} = useSubscription(TASK_SUB);
+    const {
+        data: pendingData,
+        // loading: pendingLoading,
+        // error: errorLoading
+    } = useSubscription(TASK_PENDING)
+    const {
+        data: startedData,
+        // loading: pendingLoading,
+        // error: errorLoading
+    } = useSubscription(TASK_STARTED)
+
+    const {
+        data: successData,
+        // loading: pendingLoading,
+        // error: errorLoading
+    } = useSubscription(TASK_SUCCESS)
+    const {
+        data: failedData,
+        // loading: pendingLoading,
+        // error: errorLoading
+    } = useSubscription(TASK_FAILED)
+
     // Display loading overlay while loading
     if (loading) return (
         <div className="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center"
@@ -97,25 +158,25 @@ const TaskPage = () => {
                 {/* Pending Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-red-600 hover:bg-red-700 transition-colors">
-                    <p className="text-white text-3xl font-semibold">12</p>
+                    <p className="text-white text-3xl font-semibold">{pendingData?.pending?.aggregate?.count}</p>
                     <p className="text-white text-xl">Pending</p>
                 </div>
                 {/* Started Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-yellow-600 hover:bg-yellow-700 transition-colors">
-                    <p className="text-white text-3xl font-semibold">5</p>
+                    <p className="text-white text-3xl font-semibold">{startedData?.started?.aggregate?.count}</p>
                     <p className="text-white text-xl">Started</p>
                 </div>
                 {/* Success Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
-                    <p className="text-white text-3xl font-semibold">20</p>
+                    <p className="text-white text-3xl font-semibold">{successData?.success?.aggregate?.count}</p>
                     <p className="text-white text-xl">Success</p>
                 </div>
                 {/* Failed Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-gray-600 hover:bg-gray-700 transition-colors">
-                    <p className="text-white text-3xl font-semibold">3</p>
+                    <p className="text-white text-3xl font-semibold">{failedData?.failed?.aggregate?.count}</p>
                     <p className="text-white text-xl">Failed</p>
                 </div>
             </div>
@@ -134,28 +195,29 @@ const TaskPage = () => {
                     </thead>
                     <tbody className="bg-white divide-y">
                     {/* Example row */}
-                    <tr className="text-gray-700">
-                        <td className="px-4 py-3 text-sm">1</td>
-                        <td className="px-4 py-3 text-sm">Implement login feature</td>
-                        <td className="px-4 py-3 text-sm">Pending</td>
-                        <td className="px-4 py-3 text-sm">2024-04-01</td>
-                        <td className="px-4 py-3">
-                            <div className="flex items-center space-x-4 text-sm">
-                                <button
-                                    className="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
-                                    aria-label="Edit">
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path
-                                            d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                                        <path fillRule="evenodd"
-                                              d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                                              clipRule="evenodd"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    {/* Repeat rows as needed */}
+                    {data && data?.worker_task.map((task: Task, index: number) => (
+                        <tr key={index} className="text-gray-700">
+                            <td className="px-4 py-3 text-sm">{task.id}</td>
+                            <td className="px-4 py-3 text-sm">{task.name}</td>
+                            <td className="px-4 py-3 text-sm">{task.result_status}</td>
+                            <td className="px-4 py-3 text-sm">{task.created_at}</td>
+                            <td className="px-4 py-3">
+                                <div className="flex items-center space-x-4 text-sm">
+                                    <button
+                                        className="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                                        aria-label="Edit">
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                                            <path fillRule="evenodd"
+                                                  d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                                                  clipRule="evenodd"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
                     </tbody>
                 </table>
             </div>

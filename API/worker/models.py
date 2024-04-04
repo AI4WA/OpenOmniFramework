@@ -1,7 +1,8 @@
+from datetime import datetime
+
 from django.db import models
 
 from authenticate.models import User
-from datetime import datetime
 
 
 # Create your models here.

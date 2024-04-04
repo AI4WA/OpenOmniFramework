@@ -30,6 +30,7 @@ except Exception as e:
     logger.exception(e)
     AVAILABLE_MODELS_IN_MEMORY = {}
 
+
 class LLMAdaptor:
     def __init__(self, model_name: str):
         logger.info(f"Creating LLMAdaptor for model {model_name}")

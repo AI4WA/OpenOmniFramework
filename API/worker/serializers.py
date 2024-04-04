@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from worker.models import Task, GPUWorker
+from worker.models import GPUWorker, Task
 
 
 class TaskLLMRequestSerializer(serializers.Serializer):
@@ -20,7 +20,7 @@ class TaskLLMRequestSerializer(serializers.Serializer):
     model_name = serializers.CharField(
         required=True,
         help_text="The model name to use for chat completion, "
-                  "it can be found in the llm_config_list endpoint",
+        "it can be found in the llm_config_list endpoint",
     )
     prompt = serializers.CharField(
         required=True, help_text="The prompt to use for chat completion"
@@ -59,7 +59,7 @@ class TaskLLMRequestsSerializer(serializers.Serializer):
     model_name = serializers.CharField(
         required=True,
         help_text="The model name to use for chat completion, "
-                  "it can be found in the llm_config_list endpoint",
+        "it can be found in the llm_config_list endpoint",
     )
     prompts = serializers.ListField(
         child=serializers.CharField(),

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import connection
+
 from authenticate.utils.get_logger import get_logger
 
 logger = get_logger(__name__)

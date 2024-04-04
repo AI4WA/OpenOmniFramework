@@ -1,7 +1,7 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
-from worker.models import Task, GPUWorker
+from worker.models import GPUWorker, Task
 
 
 @admin.register(Task)

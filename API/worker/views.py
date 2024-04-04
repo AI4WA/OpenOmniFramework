@@ -8,15 +8,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from llm.models import LLMRequestRecord
-from worker.models import Task, GPUWorker
+from worker.models import GPUWorker, Task
 from worker.serializers import (
+    GPUWorkerSerializer,
     TaskCustomLLMRequestSerializer,
     TaskLLMRequestSerializer,
     TaskLLMRequestsSerializer,
     TaskReportSerializer,
     TaskSerializer,
     TaskSTTRequestSerializer,
-    GPUWorkerSerializer
 )
 
 logger = logging.getLogger(__name__)

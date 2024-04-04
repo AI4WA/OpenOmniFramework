@@ -1,6 +1,7 @@
 'use client'
 import {useSubscription, gql} from "@apollo/client";
 import React from 'react';
+import moment from 'moment';
 import {useAppSelector} from "@/store"; // Make sure to import React when using JSX
 
 interface Task {
@@ -19,8 +20,8 @@ interface Task {
 }
 
 const TASK_SUB = gql`
-subscription TaskList {
-  worker_task(order_by: {created_at: desc}, limit:50) {
+subscription TaskList($userId:bigint!) {
+  worker_task(order_by: {created_at: desc}, limit:50, where: {user_id: {_eq: $userId}}) {
     id
     description
     result_status
@@ -122,8 +123,12 @@ subscription GpuWorker {
 `
 
 const TaskPage = () => {
-    const {data, loading, error} = useSubscription(TASK_SUB);
+
     const userId = useAppSelector(state => state.auth.authState.userId)
+    const {data, loading, error} = useSubscription(TASK_SUB, {
+            variables: {userId: userId} // Replace with the actual user ID
+        }
+    );
     const {
         data: totalPendingData,
         // loading: pendingLoading,
@@ -179,7 +184,7 @@ const TaskPage = () => {
         // loading: pendingLoading,
         // error: errorLoading
     } = useSubscription(GPU_WORKER)
-    console.log(gpuWorkerData)
+
     // Display loading overlay while loading
     if (loading) return (
         <div className="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center"
@@ -252,7 +257,10 @@ const TaskPage = () => {
                     <thead>
                     <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-50">
                         <th className="px-4 py-3">Task ID</th>
-                        <th className="px-4 py-3">Description</th>
+                        <th className="px-4 py-3">Task Name</th>
+                        <th className="px-4 py-3">Task Type</th>
+                        <th className="px-4 py-3">Prompt</th>
+
                         <th className="px-4 py-3">Status</th>
                         <th className="px-4 py-3">Created At</th>
                         <th className="px-4 py-3">Actions</th>
@@ -264,8 +272,11 @@ const TaskPage = () => {
                         <tr key={index} className="text-gray-700">
                             <td className="px-4 py-3 text-sm">{task.id}</td>
                             <td className="px-4 py-3 text-sm">{task.name}</td>
+                            <td className="px-4 py-3 text-sm">{task.parameters?.llm_task_type}</td>
+                            <td className="px-4 py-3 text-sm">{task.parameters?.prompt}</td>
                             <td className="px-4 py-3 text-sm">{task.result_status}</td>
-                            <td className="px-4 py-3 text-sm">{task.created_at}</td>
+                            {/*format time to proper style*/}
+                            <td className="px-4 py-3 text-sm">{moment(task.updated_at).format('YY-MM-DD, HH:mm:ss')}</td>
                             <td className="px-4 py-3">
                                 <div className="flex items-center space-x-4 text-sm">
                                     <button

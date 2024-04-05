@@ -118,7 +118,7 @@ class TaskCustomLLMRequestSerializer(serializers.Serializer):
     # message is a list of ChatCompletionRequestMessageSerializer
     messages = serializers.ListField(
         child=ChatCompletionRequestMessageSerializer(),
-        required=False,
+        required=True,
         help_text="The messages to use for chat completion",
     )
     functions = serializers.ListField(

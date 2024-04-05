@@ -116,6 +116,19 @@ subscription OnFailed($userId:bigint!){
 }
 `
 
+const TASK_UNIQUE_NAME = gql`
+subscription OnUniqueTaskName($userId: bigint!) {
+  llm_llmrequestrecord_aggregate(distinct_on: name, where: {user_id: {_eq: $userId}}) {
+    nodes {
+      name
+    }
+    aggregate {
+      count
+    }
+  }
+}
+`
+
 const GPU_WORKER = gql`
 subscription GpuWorker {
   view_live_worker {
@@ -188,6 +201,15 @@ const TaskPage = () => {
         // loading: pendingLoading,
         // error: errorLoading
     } = useSubscription(GPU_WORKER)
+
+
+    const {
+        data: uniqueTaskNameData,
+        // loading: pendingLoading,
+        // error: errorLoading
+    } = useSubscription(TASK_UNIQUE_NAME, {
+        variables: {userId}
+    })
 
     // Display loading overlay while loading
     if (loading) return (
@@ -273,6 +295,12 @@ const TaskPage = () => {
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
                     </button>
+                </div>
+                {/* Add Task Card */}
+                <div
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-teal-500 hover:bg-teal-600 transition-colors">
+                    <p className="text-white text-3xl font-semibold">{uniqueTaskNameData?.llm_llmrequestrecord_aggregate?.aggregate?.count}</p>
+                    <p className="text-white text-xl">Unique Task Names</p>
                 </div>
             </div>
             <LLMTaskAdd open={open} onClose={() => setOpen(false)}/>

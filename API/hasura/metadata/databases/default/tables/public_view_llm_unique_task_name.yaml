@@ -1,0 +1,31 @@
+table:
+  name: view_llm_unique_task_name
+  schema: public
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - count
+        - user_id
+        - name
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - count
+        - user_id
+        - name
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - count
+        - user_id
+        - name
+      filter: {}
+      allow_aggregations: true
+    comment: ""

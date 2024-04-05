@@ -4,7 +4,7 @@ import React, {useState} from 'react';
 import moment from 'moment';
 import {useAppSelector} from "@/store"; // Make sure to import React when using JSX
 import LLMTaskAdd from "@/components/LLMTaskAdd";
-
+import LLMTaskUniqueName from "@/components/LLMTaskUniqueName";
 
 interface Task {
     id: string;
@@ -118,13 +118,10 @@ subscription OnFailed($userId:bigint!){
 
 const TASK_UNIQUE_NAME = gql`
 subscription OnUniqueTaskName($userId: bigint!) {
-  llm_llmrequestrecord_aggregate(distinct_on: name, where: {user_id: {_eq: $userId}}) {
-    nodes {
-      name
-    }
-    aggregate {
-      count
-    }
+    view_llm_unique_task_name(where: {user_id: {_eq: $userId}}) {
+    count
+    name
+    user_id
   }
 }
 `
@@ -140,6 +137,7 @@ subscription GpuWorker {
 
 const TaskPage = () => {
     const [open, setOpen] = useState(false)
+    const [uniqueTaskNameOpen, setUniqueTaskOpen] = useState(false)
     const userId = useAppSelector(state => state.auth.authState.userId)
     const {data, loading, error} = useSubscription(TASK_SUB, {
             variables: {userId: userId} // Replace with the actual user ID
@@ -219,6 +217,7 @@ const TaskPage = () => {
         </div>
     );
 
+    console.log(uniqueTaskNameData?.view_llm_unique_task_name.length)
     // Display error message if an error occurs
     if (error) return <div className="text-red-500">Error :(</div>;
 
@@ -298,12 +297,17 @@ const TaskPage = () => {
                 </div>
                 {/* Add Task Card */}
                 <div
+                    onClick={() => setUniqueTaskOpen(true)}
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-teal-500 hover:bg-teal-600 transition-colors">
-                    <p className="text-white text-3xl font-semibold">{uniqueTaskNameData?.llm_llmrequestrecord_aggregate?.aggregate?.count}</p>
+                    <p className="text-white text-3xl font-semibold">{uniqueTaskNameData?.view_llm_unique_task_name.length}</p>
                     <p className="text-white text-xl">Unique Task Names</p>
                 </div>
             </div>
             <LLMTaskAdd open={open} onClose={() => setOpen(false)}/>
+            <LLMTaskUniqueName open={uniqueTaskNameOpen}
+                               onClose={() => setUniqueTaskOpen(false)}
+                               tasks={uniqueTaskNameData?.view_llm_unique_task_name || []}/>
+
 
             {/* Task Details Table */}
             <div className="overflow-x-auto">

@@ -12,12 +12,14 @@ import {
     FormControl,
     InputLabel,
     Alert,
-    Snackbar
+    Snackbar,
+    AlertColor
 } from '@mui/material';
 import {useAppSelector} from "@/store";
 import {gql} from '@apollo/client';
 import {useQuery} from '@apollo/client';
 import {llmCreateTask} from "@/cloud/utils/llm_create_task";
+import {SelectChangeEvent} from '@mui/material/Select';
 
 
 const GET_MODELS = gql`
@@ -29,16 +31,30 @@ const GET_MODELS = gql`
     }
 `;
 
+interface MyFormDialogProps {
+    open: boolean;
+    onClose: () => void; // Assuming onClose doesn't expect any argument
+}
 
-export default function MyFormDialog({open, onClose, onSubmit}) {
+interface SnackbarState {
+    open: boolean;
+    message: string;
+    severity: AlertColor; // Use AlertColor type here
+}
 
+interface LLMConfigModel {
+    id: number;
+    model_name: string;
+}
+
+const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
     const username = useAppSelector(state => state.auth.authState.username);
     const {
         data,
         // loading,
         // error
     } = useQuery(GET_MODELS);
-    const [snackbar, setSnackbar] = React.useState({
+    const [snackbar, setSnackbar] = React.useState<SnackbarState>({
         open: false,
         message: '',
         severity: 'success', // or 'error'
@@ -51,32 +67,36 @@ export default function MyFormDialog({open, onClose, onSubmit}) {
         llmTaskType: 'create_embedding', // default task type
     });
 
-    const handleChange = (event) => {
-        const {name, value} = event.target;
-        setFormData(prevState => ({
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement> | SelectChangeEvent) => {
+        // Assuming all inputs/selects have 'name' and 'value' attributes
+        const name = (event.target as HTMLInputElement).name;
+        const value = (event as React.ChangeEvent<HTMLInputElement>).target.value || (event as SelectChangeEvent).target.value;
+
+        setFormData((prevState) => ({
             ...prevState,
             [name]: value,
         }));
     };
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        // change camelCase to snake_case
+
+        // Assuming formData is correctly structured and llmCreateTask expects such structure
         const requestData = {
             ...formData,
             model_name: formData.modelName,
             work_type: formData.workType,
             llm_task_type: formData.llmTaskType,
         };
-        const resStatus = await llmCreateTask(requestData)
+
+        const resStatus = await llmCreateTask(requestData);
         if (resStatus) {
             setSnackbar({open: true, message: 'Request submitted successfully!', severity: 'success'});
-            onClose(); // Optionally close the dialog
+            onClose(); // Close the dialog
         } else {
-            // Assume failure if resStatus isn't true
+            // Handle submission failure
             setSnackbar({open: true, message: 'Failed to submit the request.', severity: 'error'});
         }
-
     };
 
     if (!data) {
@@ -140,7 +160,7 @@ export default function MyFormDialog({open, onClose, onSubmit}) {
                                 onChange={handleChange}
                                 variant='filled'
                             >
-                                {data?.llm_llmconfigrecords.map((model) => (
+                                {data?.llm_llmconfigrecords.map((model: LLMConfigModel) => (
                                     <MenuItem key={model.id} value={model.model_name}>{model.model_name}</MenuItem>
                                 ))}
                                 <MenuItem value="bert">sentence_transformers</MenuItem>
@@ -182,7 +202,7 @@ export default function MyFormDialog({open, onClose, onSubmit}) {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleSubmit} autoFocus>
+                    <Button type="submit" autoFocus>
                         Submit
                     </Button>
                 </DialogActions>
@@ -190,3 +210,6 @@ export default function MyFormDialog({open, onClose, onSubmit}) {
         </>
     );
 }
+
+
+export default MyFormDialog

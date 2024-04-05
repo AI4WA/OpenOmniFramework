@@ -1,8 +1,15 @@
 'use client'
 import apiClient from "@/cloud/apiClient";
 
+interface LLMTaskFormData {
+    name: string;
+    work_type: string;
+    prompt: string;
+    model_name: string;
+    llm_task_type: string;
+}
 
-export const llmCreateTask = async (formData) => {
+export const llmCreateTask = async (formData: LLMTaskFormData) => {
     const response = await apiClient.post('/queue_task/llm/', formData);
     return response.status === 200;
 }

@@ -203,7 +203,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),  # 5 minutes for an access token
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # 1 day for a refresh token
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),  # 5 minutes for an access token
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),  # 1 day for a refresh token
     # Add any other simplejwt settings here as needed
 }

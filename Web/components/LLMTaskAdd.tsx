@@ -104,6 +104,7 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
     }
     return (
         <>
+
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={6000}
@@ -116,9 +117,10 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
                 </Alert>
             </Snackbar>
             <Dialog open={open} onClose={onClose}>
-                <DialogTitle>Submit Your LLM Prompt Task</DialogTitle>
-                <DialogContent>
-                    <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit}>
+                    <DialogTitle>Submit Your LLM Prompt Task</DialogTitle>
+                    <DialogContent>
+
                         <FormControl fullWidth sx={{mt: 2, mb: 2}} variant="standard">
                             <TextField
                                 name="name"
@@ -197,18 +199,20 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
                                 <MenuItem value="completion">Completion</MenuItem>
                             </Select>
                         </FormControl>
-                    </form>
-                    {/*    add a component to indicate result */}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={onClose}>Cancel</Button>
-                    <Button type="submit" autoFocus>
-                        Submit
-                    </Button>
-                </DialogActions>
+
+                        {/*    add a component to indicate result */}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={onClose}>Cancel</Button>
+                        <Button type="submit" autoFocus>
+                            Submit
+                        </Button>
+                    </DialogActions>
+                </form>
             </Dialog>
         </>
-    );
+    )
+        ;
 }
 
 

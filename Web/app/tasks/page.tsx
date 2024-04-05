@@ -217,7 +217,6 @@ const TaskPage = () => {
         </div>
     );
 
-    console.log(uniqueTaskNameData?.view_llm_unique_task_name.length)
     // Display error message if an error occurs
     if (error) return <div className="text-red-500">Error :(</div>;
 

@@ -1,5 +1,5 @@
 'use client'
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Button,
     Dialog,
@@ -13,14 +13,19 @@ import {
     InputLabel,
     Alert,
     Snackbar,
-    AlertColor
+    Checkbox,
+    FormGroup,
+    FormControlLabel,
+    AlertColor,
+    IconButton
 } from '@mui/material';
 import {useAppSelector} from "@/store";
 import {gql} from '@apollo/client';
 import {useQuery} from '@apollo/client';
-import {llmCreateTask} from "@/cloud/utils/llm_create_task";
+import {llmCreateTask, llmCustomCreateTask} from "@/cloud/utils/llm_create_task";
 import {SelectChangeEvent} from '@mui/material/Select';
-
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
 const GET_MODELS = gql`
     query GetModels {
@@ -47,7 +52,22 @@ interface LLMConfigModel {
     model_name: string;
 }
 
+interface Message {
+    role: string;
+    content: string;
+}
+
+interface FormData {
+    name: string;
+    workType: string;
+    prompt: string;
+    messages: Message[];
+    modelName: string;
+    llmTaskType: string;
+}
+
 const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
+    const messageTypes = ['system', 'user', 'assistant', 'function'];
     const username = useAppSelector(state => state.auth.authState.username);
     const {
         data,
@@ -59,14 +79,15 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
         message: '',
         severity: 'success', // or 'error'
     });
-    const [formData, setFormData] = React.useState({
+    const [formData, setFormData] = React.useState<FormData>({
         name: "",
         workType: 'gpu', // default to GPU
         prompt: '',
+        messages: [],
         modelName: 'llama2-13b-chat', // default model name
         llmTaskType: 'create_embedding', // default task type
     });
-
+    const [isAdvanced, setIsAdvanced] = useState(false);
     const handleChange = (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement> | SelectChangeEvent) => {
         // Assuming all inputs/selects have 'name' and 'value' attributes
         const name = (event.target as HTMLInputElement).name;
@@ -80,16 +101,31 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        let resStatus: boolean;
+        console.log(formData.messages)
+        if (isAdvanced) {
 
-        // Assuming formData is correctly structured and llmCreateTask expects such structure
-        const requestData = {
-            ...formData,
-            model_name: formData.modelName,
-            task_type: formData.workType,
-            llm_task_type: formData.llmTaskType,
-        };
+            const requestData = {
+                ...formData,
+                messages: formData.messages,
+                model_name: formData.modelName,
+                task_type: formData.workType,
+                llm_task_type: formData.llmTaskType,
+            };
 
-        const resStatus = await llmCreateTask(requestData);
+            resStatus = await llmCustomCreateTask(requestData);
+        } else {
+            // Assuming formData is correctly structured and llmCreateTask expects such structure
+            const requestData = {
+                ...formData,
+                model_name: formData.modelName,
+                task_type: formData.workType,
+                llm_task_type: formData.llmTaskType,
+            };
+
+            resStatus = await llmCreateTask(requestData);
+        }
+
         if (resStatus) {
             setSnackbar({open: true, message: 'Request submitted successfully!', severity: 'success'});
             onClose(); // Close the dialog
@@ -97,6 +133,39 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
             // Handle submission failure
             setSnackbar({open: true, message: 'Failed to submit the request.', severity: 'error'});
         }
+    };
+
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setIsAdvanced(event.target.checked);
+    };
+
+    const handleAddMessage = () => {
+        setFormData((prevState: FormData) => ({
+            ...prevState,
+            messages: [...prevState.messages, {role: '', content: ''}],
+        }));
+    };
+
+    const handleRemoveMessage = (index: number) => {
+        setFormData((prevState: FormData) => ({
+            ...prevState,
+            messages: prevState.messages.filter((_, i) => i !== index),
+        }));
+    };
+
+    const handleChangeMessage = (index: number, field: keyof Message, value: string) => {
+        setFormData((prevState: FormData) => ({
+            ...prevState,
+            messages: prevState.messages.map((message, i) => {
+                if (i === index) {
+                    return {
+                        ...message,
+                        [field]: value,
+                    };
+                }
+                return message;
+            }),
+        }));
     };
 
     if (!data) {
@@ -137,21 +206,68 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
                                 sx={{mb: 2}}
                             />
                         </FormControl>
-                        <FormControl fullWidth sx={{mb: 2}} variant="standard">
-                            <TextField
-                                name="prompt"
-                                label="Prompt"
-                                type="text"
-                                fullWidth
-                                required
-                                variant="filled"
-                                value={formData.prompt}
-                                multiline
-                                rows={4}
-                                onChange={handleChange}
-                                sx={{mb: 2}} // Add more bottom margin
+                        <FormGroup>
+                            <FormControlLabel
+                                control={<Checkbox checked={isAdvanced} onChange={handleCheckboxChange}/>}
+                                label="Use Advanced Settings"
                             />
-                        </FormControl>
+                        </FormGroup>
+
+                        {!isAdvanced ? (
+                            <FormControl fullWidth sx={{mb: 2}} variant="standard">
+                                <TextField
+                                    name="prompt"
+                                    label="Prompt"
+                                    type="text"
+                                    fullWidth
+                                    required
+                                    variant="filled"
+                                    value={formData.prompt}
+                                    multiline
+                                    rows={4}
+                                    onChange={handleChange}
+                                    sx={{mb: 2}}
+                                />
+                            </FormControl>
+                        ) : (
+                            <div>
+                                {formData.messages.map((message: Message, index) => (
+                                    <div key={index}
+                                         style={{display: 'flex', alignItems: 'center', marginBottom: '10px'}}>
+                                        <FormControl fullWidth sx={{mr: 1}}>
+                                            <InputLabel>Role</InputLabel>
+                                            <Select
+                                                value={message.role}
+                                                label="Role"
+                                                onChange={(e) => handleChangeMessage(index, 'role', e.target.value)}
+                                            >
+                                                {messageTypes.map((type) => (
+                                                    <MenuItem key={type} value={type}>
+                                                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                        <FormControl fullWidth sx={{mx: 1}}>
+                                            <TextField
+                                                label="Content"
+                                                variant="outlined"
+                                                value={message.content}
+                                                onChange={(e) => handleChangeMessage(index, 'content', e.target.value)}
+                                            />
+                                        </FormControl>
+                                        {index > 0 && (
+                                            <IconButton onClick={() => handleRemoveMessage(index)}>
+                                                <RemoveCircleOutlineIcon/>
+                                            </IconButton>
+                                        )}
+                                    </div>
+                                ))}
+                                <Button startIcon={<AddCircleOutlineIcon/>} onClick={handleAddMessage}>
+                                    Add Message
+                                </Button>
+                            </div>
+                        )}
                         <FormControl fullWidth sx={{mb: 2}} variant="standard"> {/* Add more bottom margin */}
                             <InputLabel id="model-name-label">Model Name</InputLabel>
                             <Select

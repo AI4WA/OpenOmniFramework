@@ -139,6 +139,7 @@ const TaskPage = () => {
     const [open, setOpen] = useState(false)
     const [uniqueTaskNameOpen, setUniqueTaskOpen] = useState(false)
     const userId = useAppSelector(state => state.auth.authState.userId)
+
     const {data, loading, error} = useSubscription(TASK_SUB, {
             variables: {userId: userId} // Replace with the actual user ID
         }
@@ -209,17 +210,12 @@ const TaskPage = () => {
         variables: {userId}
     })
 
-    const logout = () => {
-        localStorage.removeItem('access')
-        localStorage.removeItem('refresh')
-    }
 
     // Display loading overlay while loading
     if (loading) return (
         <div className="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center"
              style={{backgroundColor: 'rgba(255, 255, 255, 0.5)'}}>
             <div className="loader">Loading...</div>
-            <button onClick={logout}>Logout</button>
         </div>
     );
 
@@ -345,7 +341,7 @@ const TaskPage = () => {
                             <td className="px-4 py-3 text-sm">{task.name}</td>
                             <td className="px-4 py-3 text-sm">{task.parameters?.llm_task_type}</td>
                             {/*only show first 30 characters*/}
-                            <td className="px-4 py-3 text-sm">{task.parameters?.prompt?.substring(0, 30)}</td>
+                            <td className="px-4 py-3 text-sm">{JSON.stringify(task.parameters?.prompt)?.length > 30 ? JSON.stringify(task.parameters?.prompt)?.substring(0, 30) + "..." : JSON.stringify(task.parameters?.prompt)}</td>
                             <td className="px-4 py-3 text-sm">{task.result_status}</td>
                             {/*format time to proper style*/}
                             <td className="px-4 py-3 text-sm">{moment(task.updated_at).format('YY-MM-DD, HH:mm:ss')}</td>

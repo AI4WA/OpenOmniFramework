@@ -1,8 +1,10 @@
 'use client'
 import {useSubscription, gql} from "@apollo/client";
-import React from 'react';
+import React, {useState} from 'react';
 import moment from 'moment';
 import {useAppSelector} from "@/store"; // Make sure to import React when using JSX
+import LLMTaskAdd from "@/components/LLMTaskAdd";
+import LLMTaskUniqueName from "@/components/LLMTaskUniqueName";
 
 interface Task {
     id: string;
@@ -114,6 +116,16 @@ subscription OnFailed($userId:bigint!){
 }
 `
 
+const TASK_UNIQUE_NAME = gql`
+subscription OnUniqueTaskName($userId: bigint!) {
+    view_llm_unique_task_name(where: {user_id: {_eq: $userId}}) {
+    count
+    name
+    user_id
+  }
+}
+`
+
 const GPU_WORKER = gql`
 subscription GpuWorker {
   view_live_worker {
@@ -124,12 +136,14 @@ subscription GpuWorker {
 `
 
 const TaskPage = () => {
-
+    const [open, setOpen] = useState(false)
+    const [uniqueTaskNameOpen, setUniqueTaskOpen] = useState(false)
     const userId = useAppSelector(state => state.auth.authState.userId)
     const {data, loading, error} = useSubscription(TASK_SUB, {
             variables: {userId: userId} // Replace with the actual user ID
         }
-    );
+    )
+
     const {
         data: totalPendingData,
         // loading: pendingLoading,
@@ -186,22 +200,32 @@ const TaskPage = () => {
         // error: errorLoading
     } = useSubscription(GPU_WORKER)
 
+
+    const {
+        data: uniqueTaskNameData,
+        // loading: pendingLoading,
+        // error: errorLoading
+    } = useSubscription(TASK_UNIQUE_NAME, {
+        variables: {userId}
+    })
+
     // Display loading overlay while loading
     if (loading) return (
         <div className="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center"
              style={{backgroundColor: 'rgba(255, 255, 255, 0.5)'}}>
             <div className="loader">Loading...</div>
-            {/* Consider using a Tailwind-styled spinner */}
         </div>
     );
 
+    console.log(uniqueTaskNameData?.view_llm_unique_task_name.length)
     // Display error message if an error occurs
     if (error) return <div className="text-red-500">Error :(</div>;
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 w-screen h-screen ">
             {/* Cards for task states */}
-            <div className="grid grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {/* GPU vs CPU Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-purple-600 hover:bg-purple-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{gpuWorkerData?.view_live_worker?.filter((worker: {
@@ -213,14 +237,13 @@ const TaskPage = () => {
                     }) => worker.task_type === 'cpu')?.[0]?.recent_update_count || 0}</p>
                     <p className="text-white text-xl">Live Worker (GPU vs CPU)</p>
                 </div>
-                {/* Pending Tasks Card */}
+                {/* Total Pending Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-yellow-600 hover:bg-yellow-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{totalPendingData?.totalPending?.aggregate?.count}</p>
                     <p className="text-white text-xl">Total Pending</p>
                 </div>
-
-                {/* Pending Tasks Card */}
+                {/* Your Pending Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-blue-600 hover:bg-blue-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{pendingData?.pending?.aggregate?.count}</p>
@@ -232,12 +255,13 @@ const TaskPage = () => {
                     <p className="text-white text-3xl font-semibold">{startedData?.started?.aggregate?.count}</p>
                     <p className="text-white text-xl">Started</p>
                 </div>
-                {/* Success Tasks Card */}
+                {/* Total Success Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{totalSuccessData?.totalSuccess?.aggregate?.count}</p>
                     <p className="text-white text-xl">Total Success</p>
                 </div>
+                {/* Success Tasks Card */}
                 <div
                     className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-green-600 hover:bg-green-700 transition-colors">
                     <p className="text-white text-3xl font-semibold">{successData?.success?.aggregate?.count}</p>
@@ -255,8 +279,35 @@ const TaskPage = () => {
                     <p className="text-white text-3xl font-semibold">{cancelledData?.cancelled?.aggregate?.count}</p>
                     <p className="text-white text-xl">Cancelled</p>
                 </div>
-
+                {/* Add Task Card */}
+                <div
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-teal-500 hover:bg-teal-600 transition-colors">
+                    <p className="text-white text-xl">Add task</p>
+                    <button
+                        className="mt-4 flex items-center justify-center bg-white text-teal-600 hover:text-teal-700 font-bold py-2 px-4 rounded-full transition-colors"
+                        onClick={() => setOpen(true)}
+                        aria-label="Add task">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2"
+                             fill="none" strokeLinecap="round" strokeLinejoin="round"
+                             className="text-teal-600 hover:text-teal-700">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+                {/* Add Task Card */}
+                <div
+                    onClick={() => setUniqueTaskOpen(true)}
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-teal-500 hover:bg-teal-600 transition-colors">
+                    <p className="text-white text-3xl font-semibold">{uniqueTaskNameData?.view_llm_unique_task_name.length}</p>
+                    <p className="text-white text-xl">Unique Task Names</p>
+                </div>
             </div>
+            <LLMTaskAdd open={open} onClose={() => setOpen(false)}/>
+            <LLMTaskUniqueName open={uniqueTaskNameOpen}
+                               onClose={() => setUniqueTaskOpen(false)}
+                               tasks={uniqueTaskNameData?.view_llm_unique_task_name || []}/>
+
 
             {/* Task Details Table */}
             <div className="overflow-x-auto">

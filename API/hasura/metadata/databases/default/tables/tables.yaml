@@ -2,5 +2,6 @@
 - "!include public_llm_llmconfigrecords.yaml"
 - "!include public_llm_llmrequestrecord.yaml"
 - "!include public_view_live_worker.yaml"
+- "!include public_view_llm_unique_task_name.yaml"
 - "!include public_worker_task.yaml"
 - "!include public_worker_taskworker.yaml"

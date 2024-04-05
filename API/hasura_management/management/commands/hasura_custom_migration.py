@@ -19,7 +19,18 @@ SQL_SCRIPTS = [
         updated_at > NOW() - INTERVAL '1 minutes'
     GROUP BY 
         task_type;
+    """,
     """
+    DROP VIEW IF EXISTS view_llm_unique_task_name;
+    CREATE VIEW view_llm_unique_task_name AS
+    SELECT 
+        user_id,
+        name,
+        COUNT(*) AS count
+    FROM llm_llmrequestrecord
+    GROUP BY 
+        user_id, name;
+    """,
 ]
 
 

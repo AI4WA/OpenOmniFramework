@@ -1,3 +1,55 @@
 table:
   name: llm_llmrequestrecord
   schema: public
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - id
+        - user_id
+        - success
+        - model_name
+        - name
+        - task
+        - completed_in_seconds
+        - response
+        - prompt
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - user_id
+        - success
+        - model_name
+        - name
+        - task
+        - completed_in_seconds
+        - response
+        - prompt
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - user_id
+        - success
+        - model_name
+        - name
+        - task
+        - completed_in_seconds
+        - response
+        - prompt
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""

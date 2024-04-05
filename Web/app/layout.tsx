@@ -11,7 +11,6 @@ import apolloClient from "@/cloud/graphqlClient"
 import {jwtDecode} from 'jwt-decode';
 import {ApolloProvider} from '@apollo/client';
 import {PUBLIC_URLS} from "@/utils/constants";
-import {AppRouterCacheProvider} from '@mui/material-nextjs/v14-appRouter';
 import {ThemeProvider} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from '@/theme';
@@ -99,17 +98,17 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
 
         </head>
         <body className={inter.className}>
-        <AppRouterCacheProvider options={{enableCssLayer: true}}>
-            <ThemeProvider theme={theme}>
-                {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-                <CssBaseline/>
-                <ApolloProvider client={apolloClient}>
-                    <ReduxProvider>
-                        {children}
-                    </ReduxProvider>
-                </ApolloProvider>
-            </ThemeProvider>
-        </AppRouterCacheProvider>
+
+        <ThemeProvider theme={theme}>
+            {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+            <CssBaseline/>
+            <ApolloProvider client={apolloClient}>
+                <ReduxProvider>
+                    {children}
+                </ReduxProvider>
+            </ApolloProvider>
+        </ThemeProvider>
+
         </body>
         </html>
     );

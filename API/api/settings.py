@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -200,3 +201,9 @@ CORS_ALLOWED_ORIGINS = [
     "https://jarv5.vercel.app",
     "https://llm.nlp-tlp.org",
 ]
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),  # 5 minutes for an access token
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # 1 day for a refresh token
+    # Add any other simplejwt settings here as needed
+}

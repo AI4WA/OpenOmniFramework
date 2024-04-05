@@ -8,7 +8,7 @@ import {onError} from "@apollo/client/link/error"
 const HASURA_URL = process.env.NEXT_PUBLIC_GQL_DOMAIN
 const WS_HASURA_URL = process.env.NEXT_PUBLIC_GQL_WS_DOMAIN
 
-const getAccessToken = async () => {
+const getAccessToken = () => {
     return localStorage.getItem('access');
 }
 
@@ -33,10 +33,9 @@ const wsLink = new WebSocketLink({
     options: {
         reconnect: true,
         connectionParams: async () => {
-            const token = await getAccessToken()
+            const token = getAccessToken()
             return {
                 headers: {
-                    // "x-hasura-admin-secret": "gamespw",
                     Authorization: `Bearer ${token}`
                 },
             }

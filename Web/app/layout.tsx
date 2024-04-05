@@ -10,8 +10,11 @@ import {store} from "@/store";
 import apolloClient from "@/cloud/graphqlClient"
 import {jwtDecode} from 'jwt-decode';
 import {ApolloProvider} from '@apollo/client';
-import {MantineProvider} from '@mantine/core';
 import {PUBLIC_URLS} from "@/utils/constants";
+import {AppRouterCacheProvider} from '@mui/material-nextjs/v14-appRouter';
+import {ThemeProvider} from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from '@/theme';
 
 const ReduxProvider = dynamic(() => import("@/store/redux-provider"), {
     ssr: false
@@ -88,7 +91,6 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
             <meta name="description" content="WA LLM Platform"/>
             {/* Standard favicon */}
             <link rel="icon" href="/assets/favicon.ico"/>
-
             {/* For example, adding a 32x32 .png favicon */}
             <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"/>
 
@@ -97,11 +99,17 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
 
         </head>
         <body className={inter.className}>
-        <MantineProvider>
-            <ApolloProvider client={apolloClient}>
-                <ReduxProvider> {children}</ReduxProvider>
-            </ApolloProvider>
-        </MantineProvider>
+        <AppRouterCacheProvider options={{enableCssLayer: true}}>
+            <ThemeProvider theme={theme}>
+                {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+                <CssBaseline/>
+                <ApolloProvider client={apolloClient}>
+                    <ReduxProvider>
+                        {children}
+                    </ReduxProvider>
+                </ApolloProvider>
+            </ThemeProvider>
+        </AppRouterCacheProvider>
         </body>
         </html>
     );

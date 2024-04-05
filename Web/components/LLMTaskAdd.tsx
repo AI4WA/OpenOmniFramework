@@ -28,7 +28,7 @@ import {SelectChangeEvent} from '@mui/material/Select';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
-import LLMTaskAddCSV from "@/components/LLMTaskAddCSV";
+import LLMTaskAddFile from "@/components/LLMTaskAddFile";
 
 const GET_MODELS = gql`
     query GetModels {
@@ -56,7 +56,7 @@ interface LLMConfigModel {
 }
 
 interface Message {
-    role: string;
+    role: "system" | "user" | "assistant" | "function";
     content: string;
 }
 
@@ -147,7 +147,7 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
     const handleAddMessage = () => {
         setFormData((prevState: FormData) => ({
             ...prevState,
-            messages: [...prevState.messages, {role: '', content: ''}],
+            messages: [...prevState.messages, {role: 'system', content: ''}],
         }));
     };
 
@@ -216,7 +216,7 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
                     useCsvImport ? (
                         <>
                             <DialogContent>
-                                <LLMTaskAddCSV
+                                <LLMTaskAddFile
                                     setSnackbar={setSnackbar}/>
                             </DialogContent>
                             <DialogActions>

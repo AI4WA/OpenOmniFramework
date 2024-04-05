@@ -22,7 +22,7 @@ interface LLMTaskUniqueNameProps {
 const LLMTaskUniqueName: React.FC<LLMTaskUniqueNameProps> = ({open, onClose, tasks}) => {
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-            <DialogTitle>Unique Task Names</DialogTitle>
+            <DialogTitle>Unique Names for Results</DialogTitle>
             <DialogContent>
                 <TableContainer component={Paper}>
                     <Table aria-label="simple table">

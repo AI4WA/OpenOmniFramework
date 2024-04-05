@@ -85,7 +85,7 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
         const requestData = {
             ...formData,
             model_name: formData.modelName,
-            work_type: formData.workType,
+            task_type: formData.workType,
             llm_task_type: formData.llmTaskType,
         };
 

@@ -3,7 +3,7 @@ import apiClient from "@/cloud/apiClient";
 
 interface LLMTaskFormData {
     name: string;
-    work_type: string;
+    task_type: string;
     prompt: string;
     model_name: string;
     llm_task_type: string;

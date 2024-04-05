@@ -55,6 +55,7 @@ const link = split(
     authLink.concat(httpLink)
 )
 
+
 const links = ApolloLink.from([link])
 
 const client = new ApolloClient({

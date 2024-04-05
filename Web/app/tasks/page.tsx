@@ -209,16 +209,31 @@ const TaskPage = () => {
         variables: {userId}
     })
 
+    const logout = () => {
+        localStorage.removeItem('access')
+        localStorage.removeItem('refresh')
+    }
+
     // Display loading overlay while loading
     if (loading) return (
         <div className="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center"
              style={{backgroundColor: 'rgba(255, 255, 255, 0.5)'}}>
             <div className="loader">Loading...</div>
+            <button onClick={logout}>Logout</button>
         </div>
     );
 
     // Display error message if an error occurs
-    if (error) return <div className="text-red-500">Error :(</div>;
+    if (error) {
+        return (<div className="text-red-500">Error: <h3>Error:</h3>
+            <p>{error.message}</p>
+            {error && (
+                <div>
+                    <h4>Details:</h4>
+                    <pre>{JSON.stringify(error, null, 2)}</pre>
+                </div>
+            )}(</div>)
+    }
 
     return (
         <div className="container mx-auto px-4 py-8 w-screen h-screen ">

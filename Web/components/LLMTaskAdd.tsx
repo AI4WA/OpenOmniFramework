@@ -17,7 +17,8 @@ import {
     FormGroup,
     FormControlLabel,
     AlertColor,
-    IconButton
+    IconButton,
+    Box
 } from '@mui/material';
 import {useAppSelector} from "@/store";
 import {gql} from '@apollo/client';
@@ -26,6 +27,8 @@ import {llmCreateTask, llmCustomCreateTask} from "@/cloud/utils/llm_create_task"
 import {SelectChangeEvent} from '@mui/material/Select';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+
+import LLMTaskAddCSV from "@/components/LLMTaskAddCSV";
 
 const GET_MODELS = gql`
     query GetModels {
@@ -88,6 +91,8 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
         llmTaskType: 'create_embedding', // default task type
     });
     const [isAdvanced, setIsAdvanced] = useState(false);
+    const [useCsvImport, setUseCsvImport] = useState(false);
+
     const handleChange = (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement> | SelectChangeEvent) => {
         // Assuming all inputs/selects have 'name' and 'value' attributes
         const name = (event.target as HTMLInputElement).name;
@@ -168,6 +173,10 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
         }));
     };
 
+    const handleCsvCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setUseCsvImport(event.target.checked);
+    };
+
     if (!data) {
         return null;
     }
@@ -186,149 +195,187 @@ const MyFormDialog: React.FC<MyFormDialogProps> = ({open, onClose}) => {
                 </Alert>
             </Snackbar>
             <Dialog open={open} onClose={onClose}>
-                <form onSubmit={handleSubmit}>
-                    <DialogTitle>Submit Your LLM Prompt Task</DialogTitle>
-                    <DialogContent>
-
-                        <FormControl fullWidth sx={{mt: 2, mb: 2}} variant="standard">
-                            <TextField
-                                name="name"
-                                label="Name"
-                                type="text"
-                                fullWidth
-                                required
-                                variant="filled"
-                                placeholder={username}
-                                value={formData.name}
-                                multiline
-                                helperText="Name your request to identify and manage tasks later"
-                                onChange={handleChange}
-                                sx={{mb: 2}}
-                            />
-                        </FormControl>
-                        <FormGroup>
-                            <FormControlLabel
-                                control={<Checkbox checked={isAdvanced} onChange={handleCheckboxChange}/>}
-                                label="Use Advanced Settings"
-                            />
-                        </FormGroup>
-
-                        {!isAdvanced ? (
-                            <FormControl fullWidth sx={{mb: 2}} variant="standard">
-                                <TextField
-                                    name="prompt"
-                                    label="Prompt"
-                                    type="text"
-                                    fullWidth
-                                    required
-                                    variant="filled"
-                                    value={formData.prompt}
-                                    multiline
-                                    rows={4}
-                                    onChange={handleChange}
-                                    sx={{mb: 2}}
+                <DialogTitle
+                    // mb 0
+                    sx={{pb: 0, mb: 0}}
+                >Submit Your LLM Prompt Task
+                    <FormGroup row>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={useCsvImport}
+                                    onChange={handleCsvCheckboxChange}
+                                    name="useCsvImport"
                                 />
-                            </FormControl>
-                        ) : (
-                            <div>
-                                {formData.messages.map((message: Message, index) => (
-                                    <div key={index}
-                                         style={{display: 'flex', alignItems: 'center', marginBottom: '10px'}}>
-                                        <FormControl fullWidth sx={{mr: 1}}>
-                                            <InputLabel>Role</InputLabel>
-                                            <Select
-                                                value={message.role}
-                                                label="Role"
-                                                onChange={(e) => handleChangeMessage(index, 'role', e.target.value)}
-                                            >
-                                                {messageTypes.map((type) => (
-                                                    <MenuItem key={type} value={type}>
-                                                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                        <FormControl fullWidth sx={{mx: 1}}>
+                            }
+                            label="Batch Submit file import"
+                        />
+                    </FormGroup>
+                </DialogTitle>
+                {
+                    useCsvImport ? (
+                        <>
+                            <DialogContent>
+                                <LLMTaskAddCSV
+                                    setSnackbar={setSnackbar}/>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={onClose}>Cancel</Button>
+                            </DialogActions>
+                        </>
+
+                    ) : (
+                        <div>
+                            <form onSubmit={handleSubmit}>
+                                <DialogContent>
+                                    <FormControl fullWidth sx={{mt: 2, mb: 2}} variant="standard">
+                                        <TextField
+                                            name="name"
+                                            label="Name"
+                                            type="text"
+                                            fullWidth
+                                            required
+                                            variant="filled"
+                                            placeholder={username}
+                                            value={formData.name}
+                                            multiline
+                                            helperText="Name your request to identify and manage tasks later"
+                                            onChange={handleChange}
+                                            sx={{mb: 2}}
+                                        />
+                                    </FormControl>
+                                    <FormGroup>
+                                        <FormControlLabel
+                                            control={<Checkbox checked={isAdvanced} onChange={handleCheckboxChange}/>}
+                                            label="Use Advanced Settings"
+                                        />
+                                    </FormGroup>
+
+                                    {!isAdvanced ? (
+                                        <FormControl fullWidth sx={{mb: 2}} variant="standard">
                                             <TextField
-                                                label="Content"
-                                                variant="outlined"
-                                                value={message.content}
-                                                onChange={(e) => handleChangeMessage(index, 'content', e.target.value)}
+                                                name="prompt"
+                                                label="Prompt"
+                                                type="text"
+                                                fullWidth
+                                                required
+                                                variant="filled"
+                                                value={formData.prompt}
+                                                multiline
+                                                rows={4}
+                                                onChange={handleChange}
+                                                sx={{mb: 2}}
                                             />
                                         </FormControl>
-                                        {index > 0 && (
-                                            <IconButton onClick={() => handleRemoveMessage(index)}>
-                                                <RemoveCircleOutlineIcon/>
-                                            </IconButton>
-                                        )}
-                                    </div>
-                                ))}
-                                <Button startIcon={<AddCircleOutlineIcon/>} onClick={handleAddMessage}>
-                                    Add Message
-                                </Button>
-                            </div>
-                        )}
-                        <FormControl fullWidth sx={{mb: 2}} variant="standard"> {/* Add more bottom margin */}
-                            <InputLabel id="model-name-label">Model Name</InputLabel>
-                            <Select
-                                labelId="model-name-label"
-                                name="modelName"
-                                value={formData.modelName}
-                                label="Model Name"
-                                onChange={handleChange}
-                                variant='filled'
-                            >
-                                {data?.llm_llmconfigrecords.map((model: LLMConfigModel) => (
-                                    <MenuItem key={model.id} value={model.model_name}>{model.model_name}</MenuItem>
-                                ))}
-                                <MenuItem value="bert">sentence_transformers</MenuItem>
-                                {/* Add other model options here */}
-                            </Select>
-                        </FormControl>
-                        <FormControl fullWidth sx={{mb: 2}} variant="standard">
-                            <InputLabel id="work-type-label">Work Type</InputLabel>
-                            <Select
-                                labelId="work-type-label"
-                                name="workType"
-                                value={formData.workType}
-                                label="Work Type"
-                                variant='filled'
-                                onChange={handleChange}
-                            >
-                                <MenuItem value="gpu">GPU</MenuItem>
-                                <MenuItem value="cpu">CPU</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl fullWidth sx={{mb: 2}}
-                                     variant="standard"> {/* Add more bottom margin for the last item */}
-                            <InputLabel id="llm-task-type-label">LLM Task Type</InputLabel>
-                            <Select
-                                labelId="llm-task-type-label"
-                                name="llmTaskType"
-                                value={formData.llmTaskType}
-                                label="LLM Task Type"
-                                variant='filled'
-                                onChange={handleChange}
-                            >
-                                <MenuItem value="create_embedding">Create Embedding</MenuItem>
-                                <MenuItem value="chat_completion">Chat Completion</MenuItem>
-                                <MenuItem value="completion">Completion</MenuItem>
-                            </Select>
-                        </FormControl>
-
-                        {/*    add a component to indicate result */}
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={onClose}>Cancel</Button>
-                        <Button type="submit" autoFocus>
-                            Submit
-                        </Button>
-                    </DialogActions>
-                </form>
+                                    ) : (
+                                        <div>
+                                            {formData.messages.map((message: Message, index) => (
+                                                <Box
+                                                    key={index}
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        marginBottom: '10px',
+                                                    }}
+                                                >
+                                                    <FormControl fullWidth sx={{mr: 1}}>
+                                                        <InputLabel>Role</InputLabel>
+                                                        <Select
+                                                            value={message.role}
+                                                            label="Role"
+                                                            onChange={(e) => handleChangeMessage(index, 'role', e.target.value)}
+                                                        >
+                                                            {messageTypes.map((type) => (
+                                                                <MenuItem key={type} value={type}>
+                                                                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                    <FormControl fullWidth sx={{mx: 1}}>
+                                                        <TextField
+                                                            label="Content"
+                                                            type="text"
+                                                            variant="filled"
+                                                            value={message.content}
+                                                            onChange={(e) => handleChangeMessage(index, 'content', e.target.value)}
+                                                        />
+                                                    </FormControl>
+                                                    {index > 0 && (
+                                                        <IconButton onClick={() => handleRemoveMessage(index)}>
+                                                            <RemoveCircleOutlineIcon/>
+                                                        </IconButton>
+                                                    )}
+                                                </Box>
+                                            ))}
+                                            <Button startIcon={<AddCircleOutlineIcon/>} onClick={handleAddMessage}>
+                                                Add Message
+                                            </Button>
+                                        </div>
+                                    )}
+                                    <FormControl fullWidth sx={{mb: 2}}
+                                                 variant="standard"> {/* Add more bottom margin */}
+                                        <InputLabel id="model-name-label">Model Name</InputLabel>
+                                        <Select
+                                            labelId="model-name-label"
+                                            name="modelName"
+                                            value={formData.modelName}
+                                            label="Model Name"
+                                            onChange={handleChange}
+                                            variant='filled'
+                                        >
+                                            {data?.llm_llmconfigrecords.map((model: LLMConfigModel) => (
+                                                <MenuItem key={model.id}
+                                                          value={model.model_name}>{model.model_name}</MenuItem>
+                                            ))}
+                                            <MenuItem value="bert">sentence_transformers</MenuItem>
+                                            {/* Add other model options here */}
+                                        </Select>
+                                    </FormControl>
+                                    <FormControl fullWidth sx={{mb: 2}} variant="standard">
+                                        <InputLabel id="work-type-label">Work Type</InputLabel>
+                                        <Select
+                                            labelId="work-type-label"
+                                            name="workType"
+                                            value={formData.workType}
+                                            label="Work Type"
+                                            variant='filled'
+                                            onChange={handleChange}
+                                        >
+                                            <MenuItem value="gpu">GPU</MenuItem>
+                                            <MenuItem value="cpu">CPU</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                    <FormControl fullWidth sx={{mb: 2}}
+                                                 variant="standard"> {/* Add more bottom margin for the last item */}
+                                        <InputLabel id="llm-task-type-label">LLM Task Type</InputLabel>
+                                        <Select
+                                            labelId="llm-task-type-label"
+                                            name="llmTaskType"
+                                            value={formData.llmTaskType}
+                                            label="LLM Task Type"
+                                            variant='filled'
+                                            onChange={handleChange}
+                                        >
+                                            <MenuItem value="create_embedding">Create Embedding</MenuItem>
+                                            <MenuItem value="chat_completion">Chat Completion</MenuItem>
+                                            <MenuItem value="completion">Completion</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={onClose}>Cancel</Button>
+                                    <Button type="submit" autoFocus>
+                                        Submit
+                                    </Button>
+                                </DialogActions>
+                            </form>
+                        </div>
+                    )
+                }
             </Dialog>
         </>
-    )
-        ;
+    );
 }
 
 

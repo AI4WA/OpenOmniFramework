@@ -13,3 +13,8 @@ export const llmCreateTask = async (formData: LLMTaskFormData) => {
     const response = await apiClient.post('/queue_task/llm/', formData);
     return response.status === 200;
 }
+
+export const llmCustomCreateTask = async (formData: LLMTaskFormData) => {
+    const response = await apiClient.post('/queue_task/custom_llm/', formData);
+    return response.status === 200;
+}

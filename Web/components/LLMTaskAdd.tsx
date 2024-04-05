@@ -96,7 +96,7 @@ export default function MyFormDialog({open, onClose, onSubmit}) {
                 </Alert>
             </Snackbar>
             <Dialog open={open} onClose={onClose}>
-                <DialogTitle>Submit Your Request</DialogTitle>
+                <DialogTitle>Submit Your LLM Prompt Task</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit}>
                         <FormControl fullWidth sx={{mt: 2, mb: 2}} variant="standard">

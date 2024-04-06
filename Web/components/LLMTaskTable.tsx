@@ -5,6 +5,8 @@ import moment from 'moment';
 import {useAppSelector} from "@/store"; // Make sure to import React when using JSX
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {useTheme} from '@mui/material/styles';
+import TaskDetailsDialog from "@/components/LLMDetailsDialog";
+import {Task} from "@/components/LLMDetailsDialog"; // Make sure to import React when using JSX
 
 import {
     Table,
@@ -18,21 +20,6 @@ import {
     TableSortLabel,
 } from '@mui/material';
 
-
-interface Task {
-    id: string;
-    description: string;
-    result_status: string;
-    parameters: any; // Use the appropriate type based on your actual data structure
-    created_at: string;
-    name: string;
-    user_id: string;
-    updated_at: string;
-    work_type: string;
-    authenticate_user: {
-        username: string;
-    }
-}
 
 const TASK_SUB = gql`
 subscription TaskList($userId: bigint!, $limit: Int, $offset: Int, $orderBy: [worker_task_order_by!]) {
@@ -87,6 +74,17 @@ const TaskPage = () => {
     const [pageSize, setPageSize] = useState<number>(10);
     const [orderBy, setOrderBy] = useState<OrderBy>({created_at: 'desc'});
     const userId = useAppSelector(state => state.auth.authState.userId)
+    const [openDialog, setOpenDialog] = useState(false);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+    const handleRowClick = (task: Task) => {
+        setSelectedTask(task);
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
 
 
     const handleChangePage = (event: unknown, newPage: number) => {
@@ -204,11 +202,16 @@ const TaskPage = () => {
                     </TableHead>
                     <TableBody>
                         {data?.worker_task.map((task: Task) => (
-                            <TableRow key={task.id}>
+                            <TableRow key={task.id} hover onClick={() => handleRowClick(task)}>
                                 <TableCell>{task.name}</TableCell>
                                 <TableCell>{task.result_status}</TableCell>
                                 {!isMobile && <TableCell>{task.parameters?.llm_task_type}</TableCell>}
-                                <TableCell>{task.parameters?.prompt}</TableCell>
+                                <TableCell>
+                                    {task.parameters?.prompt ?
+                                        `${task.parameters.prompt.substring(0, 30)}${task.parameters.prompt.length > 30 ? "..." : ""}` :
+                                        `${JSON.stringify(task.parameters.messages)?.substring(0, 30)}${JSON.stringify(task.parameters.messages)?.length > 30 ? "..." : ""}`
+                                    }
+                                </TableCell>
                                 {!isMobile && <TableCell>{task.work_type}</TableCell>}
                                 {!isMobile &&
                                     <TableCell>{moment(task.created_at).format('YYYY-MM-DD HH:mm:ss')}</TableCell>}
@@ -226,6 +229,13 @@ const TaskPage = () => {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
             />
+            {selectedTask && (
+                <TaskDetailsDialog
+                    task={selectedTask}
+                    open={openDialog}
+                    onClose={handleCloseDialog}
+                />
+            )}
         </div>
 
     );

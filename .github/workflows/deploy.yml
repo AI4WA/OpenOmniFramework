@@ -18,7 +18,7 @@ jobs:
           username: pascal
           password: ${{ secrets.PASWEY_PASSWORD }}
           port: 22
-          script: cd /home/pascal/Assistant && git pull && cd ./API && docker-compose down && docker-compose up -d
+          script: cd /home/pascal/Assistant && git pull && cd ./API && docker compose down && docker compose up -d
       - name: Restart Worker CPU
         uses: appleboy/ssh-action@master
         with:
@@ -26,4 +26,4 @@ jobs:
           username: pascal
           password: ${{ secrets.PASWEY_PASSWORD }}
           port: 22
-          script: cd /home/pascal/Assistant && git pull && cd ./Client/Worker && docker-compose -f docker-compose-prod.yml down && docker-compose -f docker-compose-prod.yml up -d
+          script: cd /home/pascal/Assistant && git pull && cd ./Client/Worker && docker compose -f docker-compose-prod.yml down && docker compose -f docker-compose-prod.yml up -d

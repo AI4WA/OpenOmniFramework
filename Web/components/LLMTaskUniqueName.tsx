@@ -56,8 +56,8 @@ const LLMTaskUniqueName: React.FC<LLMTaskUniqueNameProps> = ({open, onClose, tas
                     <Table aria-label="simple table">
                         <TableHead>
                             <TableRow>
-                                <TableCell>Task Name</TableCell>
-                                <TableCell align="center">Task Number</TableCell>
+                                <TableCell>Name</TableCell>
+                                <TableCell align="center">Count</TableCell>
                                 <TableCell align="center">Download</TableCell>
                             </TableRow>
                         </TableHead>

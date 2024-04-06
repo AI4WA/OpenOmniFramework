@@ -27,6 +27,9 @@ interface Task {
     result_status: string;
     parameters: {
         prompt?: string; // Assuming parameters might have a prompt. Adjust according to your actual structure.
+        messages?: {
+            [key: string]: string;
+        }[]
     };
     created_at: string;
     name: string;

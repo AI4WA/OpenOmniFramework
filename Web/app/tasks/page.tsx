@@ -276,6 +276,21 @@ const TaskPage = () => {
                 wrongTask !== null &&
                 <LLMTaskWrong status={wrongTask} open={wrongTask !== null} onClose={() => setWrongTask(null)}/>
             }
+            <footer className="bg-gray-800 text-white text-center p-4">
+                <p>Developed by
+                    <a href="https://www.linkedin.com/in/pascalsun23/" target="_blank" rel="noopener noreferrer"
+                       className="text-blue-400 hover:text-blue-300 mx-1">
+                        Pascal Sun
+                    </a>
+                    supported by
+                    <a href="https://nlp-tlp.org/" target="_blank" rel="noopener noreferrer"
+                       className="text-blue-400 hover:text-blue-300 mx-1">
+                        UWA NLP-TLP GROUP
+                    </a>
+                    and
+                    UWA HPC Centre
+                </p>
+            </footer>
         </div>
     );
 };

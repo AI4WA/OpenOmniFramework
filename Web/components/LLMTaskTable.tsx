@@ -6,7 +6,7 @@ import {useAppSelector} from "@/store"; // Make sure to import React when using 
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {useTheme} from '@mui/material/styles';
 import TaskDetailsDialog from "@/components/LLMDetailsDialog";
-import {Task} from "@/types"; // Make sure to import React when using JSX
+import {Task} from "@/components/LLMDetailsDialog"; // Make sure to import React when using JSX
 
 import {
     Table,
@@ -18,19 +18,7 @@ import {
     Paper,
     TablePagination,
     TableSortLabel,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    Grid,
-    Typography,
-    Accordion,
-    AccordionSummary,
-    ListItem,
-    ListItemText,
-    List,
-    AccordionDetails
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 
 const TASK_SUB = gql`
@@ -221,7 +209,7 @@ const TaskPage = () => {
                                 <TableCell>
                                     {task.parameters?.prompt ?
                                         `${task.parameters.prompt.substring(0, 30)}${task.parameters.prompt.length > 30 ? "..." : ""}` :
-                                        `${JSON.stringify(task.messages)?.substring(0, 30)}${JSON.stringify(task.messages)?.length > 30 ? "..." : ""}`
+                                        `${JSON.stringify(task.parameters.messages)?.substring(0, 30)}${JSON.stringify(task.parameters.messages)?.length > 30 ? "..." : ""}`
                                     }
                                 </TableCell>
                                 {!isMobile && <TableCell>{task.work_type}</TableCell>}

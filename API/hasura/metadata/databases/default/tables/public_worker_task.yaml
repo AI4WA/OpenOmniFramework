@@ -66,3 +66,49 @@ select_permissions:
       filter: {}
       allow_aggregations: true
     comment: ""
+update_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+      check: {}
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+      check: {}
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+      check: {}
+    comment: ""

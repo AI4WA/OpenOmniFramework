@@ -86,8 +86,8 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
     return (
         <html lang="en">
         <head>
-            <title>WA LLM Platform</title>
-            <meta name="description" content="WA LLM Platform"/>
+            <title>WA Data & LLM Platform</title>
+            <meta name="description" content="WA Data & LLM Platform"/>
             {/* Standard favicon */}
             <link rel="icon" href="/assets/favicon.ico"/>
             {/* For example, adding a 32x32 .png favicon */}

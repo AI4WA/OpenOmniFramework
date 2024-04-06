@@ -14,6 +14,8 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+import boto3
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -207,3 +209,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),  # 1 day for a refresh token
     # Add any other simplejwt settings here as needed
 }
+
+BOTO3_SESSION = boto3.Session(region_name=os.environ.get("AWS_REGION", "us-west-2"))
+
+CSV_BUCKET = "wa-data-and-llm-platform"

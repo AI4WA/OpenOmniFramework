@@ -32,3 +32,15 @@ export const llmCustomCreateTask = async (formData: LLMTaskFormCustomData) => {
     const response = await apiClient.post('/queue_task/custom_llm/', formData);
     return response.status === 200;
 }
+
+export const llmDownloadTaskName = async (taskName: string) => {
+    const response = await apiClient.post(`/llm/download`, {
+        "task_name": taskName
+    });
+    return response.data;
+}
+
+export const llmDownloadOutputCSV = async (task_id: number) => {
+    const response = await apiClient.get(`/llm/download/${task_id}`);
+    return response.data;
+}

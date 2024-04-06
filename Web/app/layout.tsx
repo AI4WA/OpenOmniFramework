@@ -98,7 +98,6 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
 
         </head>
         <body className={inter.className}>
-
         <ThemeProvider theme={theme}>
             {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
             <CssBaseline/>
@@ -108,7 +107,6 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
                 </ReduxProvider>
             </ApolloProvider>
         </ThemeProvider>
-
         </body>
         </html>
     );

@@ -6,7 +6,7 @@ export default function Home() {
             <main className="flex flex-col items-center justify-center p-24 bg-gray-50 dark:bg-gray-900 flex-grow">
                 <div className="mb-10 text-center">
                     <h1 className="text-5xl font-bold text-gray-800 dark:text-white">
-                        WA LLM Platform
+                        WA Data & LLM Platform
                     </h1>
                     <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
                         Evaluate and interact with state-of-the-art Large Language Models (LLM) freely and easily.

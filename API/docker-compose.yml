@@ -13,7 +13,7 @@ services:
     ports:
       - "5432:5432"
 
-  web:
+  api:
     build:
       context: .
       dockerfile: Dockerfile
@@ -21,6 +21,7 @@ services:
     command: /usr/src/app/entrypoint.sh
     volumes:
       - .:/usr/src/app
+      - .aws:/root/.aws
     ports:
       - "8000:8000"
     environment:
@@ -42,6 +43,7 @@ services:
       - .:/usr/src/app
       - ../Client/Listener/data:/usr/src/Client/Listener/data
       - whisper_cache:/root/.cache
+      - .aws:/root/.aws
     environment:
       - DB_NAME=yourdbname
       - DB_USER=youruser

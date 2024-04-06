@@ -1,3 +1,5 @@
+import os
+import zipfile
 from datetime import datetime
 
 from django.conf import settings
@@ -31,6 +33,13 @@ class Command(BaseCommand):
             default=20000,
         )
 
+        parser.add_argument(
+            "--user_id",
+            type=int,
+            help="The user id",
+            default=None,
+        )
+
     def handle(self, *args, **options):
         """
         Loop through the MODELS dictionary and check if the model is in the database. If it is not, add it.
@@ -40,18 +49,28 @@ class Command(BaseCommand):
         """
         task_name = options["task_name"]
         rows_per_csv = options["rows_per_csv"]
-        self.export_to_csv(task_name=task_name, rows_per_csv=rows_per_csv)
+        user_id = options["user_id"]
+        self.export_to_csv(
+            task_name=task_name, rows_per_csv=rows_per_csv, user_id=user_id
+        )
 
     @classmethod
-    def export_to_csv(cls, task_name: str = None, rows_per_csv: int = 20000):
+    def export_to_csv(
+        cls, task_name: str = None, rows_per_csv: int = 20000, user_id: int = None
+    ):
         if task_name is None:
             logger.error("Task Name is required")
             return
 
         # limit the queryset to the number of rows per csv file
-        queryset = LLMRequestRecord.objects.filter(
-            name=task_name, success=True
-        ).order_by("id")
+        if user_id is None:
+            queryset = LLMRequestRecord.objects.filter(
+                name=task_name, success=True
+            ).order_by("id")
+        else:
+            queryset = LLMRequestRecord.objects.filter(
+                name=task_name, success=True, user__id=user_id
+            ).order_by("id")
         if not queryset.exists():
             logger.error(f"No records found for task_name: {task_name}")
             return
@@ -59,6 +78,7 @@ class Command(BaseCommand):
         paginator = Paginator(queryset, rows_per_csv)
         logger.info(f"Total number of pages: {paginator.num_pages}")
 
+        csv_files = []
         for page_num in range(1, paginator.num_pages + 1):
             logger.info(f"Exporting {task_name} part {page_num}")
             page = paginator.page(page_num)
@@ -73,3 +93,31 @@ class Command(BaseCommand):
 
             logger.info(f"Exported {task_name} part {page_num} to csv file")
             logger.info(f"File path: {filename}")
+            csv_files.append(filename)
+
+        # then zip all the csv files
+        zip_file_name = cls.zip_files(task_name=task_name, csv_files=csv_files)
+
+        # upload to s3
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        s3_client.upload_file(
+            zip_file_name,
+            settings.CSV_BUCKET,
+            f"llm/{user_id or 'general'}/{task_name}/{zip_file_name.split('/')[-1]}",
+        )
+
+        # then delete the csv files and the zip file
+        for csv_file in csv_files:
+            os.remove(csv_file)
+        os.remove(zip_file_name)
+
+    @staticmethod
+    def zip_files(task_name: str, csv_files: list):
+        current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+        zip_filename = f"{settings.TMP_FOLDER}/{task_name}_{current_datetime}.zip"
+        with zipfile.ZipFile(zip_filename, "w") as zip_file:
+            for csv_file in csv_files:
+                zip_file.write(csv_file, arcname=csv_file.split("/")[-1])
+
+        logger.info(f"Zipped all csv files to {zip_filename}")
+        return zip_filename

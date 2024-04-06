@@ -22,14 +22,13 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
-admin.site.site_header = "WA LLM Platform Admin"
-admin.site.site_title = "WA LLM Platform Admin Portal"
-admin.site.index_title = "WA LLM Platform Admin Portal"
-
+admin.site.site_header = "WA Data & LLM Platform Admin"
+admin.site.site_title = "WA Data & LLM Platform Admin Portal"
+admin.site.index_title = "WA Data & LLM Platform Admin Portal"
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="WA LLM Platform API Documentation",
+        title="WA Data & LLM Platform API Documentation",
         default_version="v1",
         description="API description for you to queue LLM tasks, authenticate, and interact with hardware.",
     ),

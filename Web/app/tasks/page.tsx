@@ -122,6 +122,11 @@ subscription OnUniqueTaskName($userId: bigint!) {
     count
     name
     user_id
+    downloadlink(limit: 1, order_by: {created_at: desc}) {
+      progress
+      download_link
+      id
+    }
   }
 }
 `

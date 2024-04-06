@@ -10,7 +10,7 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
 from authenticate.utils.fire_and_forget import fire_and_forget
-from llm.models import LLMConfigRecords, LLMRequestRecord
+from llm.models import LLMConfigRecords, LLMRequestRecord, LLMRequestResultDownload
 
 
 class LLMRequestRecordResource(resources.ModelResource):
@@ -20,9 +20,6 @@ class LLMRequestRecordResource(resources.ModelResource):
 
 class TaskNameActionForm(ActionForm):
     task_name = forms.CharField(label="Task Name", required=False)
-
-
-# add a function to export the data to a csv file
 
 
 @admin.action(description="Export to CSV file")
@@ -91,3 +88,20 @@ class LLMConfigRecordsAdmin(ImportExportModelAdmin):
         "model_type",
         "available",
     )
+
+
+@admin.register(LLMRequestResultDownload)
+class LLMRequestResultDownloadAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "name",
+        "progress",
+        "download_link",
+        "created_at",
+        "updated_at",
+    )
+    list_filter = (
+        "user",
+        "progress",
+    )
+    search_fields = ("name",)

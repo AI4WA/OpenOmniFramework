@@ -23,6 +23,7 @@ class Task(models.Model):
             ("stt", "Speech2Text"),
             ("gpu", "GPU"),
             ("cpu", "CPU"),
+            ("cmc", "Call Management Command"),
         ],
         help_text="Select the type of work, GPU and CPU are for LLM, STT is for Speech2Text, llm is Legacy",
     )

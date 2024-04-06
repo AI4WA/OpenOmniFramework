@@ -5,6 +5,7 @@ import {useAppSelector} from "@/store"; // Make sure to import React when using 
 import LLMTaskAdd from "@/components/LLMTaskAdd";
 import LLMTaskUniqueName from "@/components/LLMTaskUniqueName";
 import LLMTaskTable from "@/components/LLMTaskTable";
+import LLMTaskWrong from "@/components/LLMTaskWrong";
 
 
 const TASK_PENDING = gql`
@@ -72,7 +73,7 @@ subscription OnFailed($userId:bigint!){
 `
 
 const TASK_CANCELLED = gql`
-subscription OnFailed($userId:bigint!){
+subscription OnCancelled($userId:bigint!){
     cancelled: worker_task_aggregate(where: {result_status: {_eq: "cancelled"},
                                              user_id: {_eq: $userId},
                                              work_type: {_in: ["gpu", "cpu"]}}) {
@@ -109,6 +110,7 @@ subscription GpuWorker {
 
 const TaskPage = () => {
     const [open, setOpen] = useState(false)
+    const [wrongTask, setWrongTask] = useState<string | null>(null)
     const [uniqueTaskNameOpen, setUniqueTaskOpen] = useState(false)
     const userId = useAppSelector(state => state.auth.authState.userId)
 
@@ -209,7 +211,9 @@ const TaskPage = () => {
                 </div>
                 {/* Started Tasks Card */}
                 <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-blue-600 hover:bg-blue-700 transition-colors">
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-blue-600 hover:bg-blue-700 transition-colors"
+                    onClick={() => setWrongTask("started")}
+                >
                     <p className="text-white text-3xl font-semibold">{startedData?.started?.aggregate?.count}</p>
                     <p className="text-white text-xl">Started</p>
                 </div>
@@ -227,13 +231,15 @@ const TaskPage = () => {
                 </div>
                 {/* Failed Tasks Card */}
                 <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-gray-600 hover:bg-gray-700 transition-colors">
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-gray-600 hover:bg-gray-700 transition-colors"
+                    onClick={() => setWrongTask("failed")}>
                     <p className="text-white text-3xl font-semibold">{failedData?.failed?.aggregate?.count}</p>
                     <p className="text-white text-xl">Failed</p>
                 </div>
                 {/* Cancelled Tasks Card */}
                 <div
-                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-gray-600 hover:bg-gray-700 transition-colors">
+                    className="flex flex-col items-center justify-center rounded-lg border border-transparent p-6 bg-gray-600 hover:bg-gray-700 transition-colors"
+                    onClick={() => setWrongTask("cancelled")}>
                     <p className="text-white text-3xl font-semibold">{cancelledData?.cancelled?.aggregate?.count}</p>
                     <p className="text-white text-xl">Cancelled</p>
                 </div>
@@ -265,8 +271,11 @@ const TaskPage = () => {
             <LLMTaskUniqueName open={uniqueTaskNameOpen}
                                onClose={() => setUniqueTaskOpen(false)}
                                tasks={uniqueTaskNameData?.view_llm_unique_task_name || []}/>
-
             <LLMTaskTable/>
+            {
+                wrongTask !== null &&
+                <LLMTaskWrong status={wrongTask} open={wrongTask !== null} onClose={() => setWrongTask(null)}/>
+            }
         </div>
     );
 };

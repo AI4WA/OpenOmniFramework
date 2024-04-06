@@ -45,7 +45,6 @@ subscription TaskList($userId: bigint!, $limit: Int, $offset: Int, $orderBy: [wo
     work_type
   }
 }
-
 `;
 
 
@@ -208,8 +207,8 @@ const TaskPage = () => {
                                 {!isMobile && <TableCell>{task.parameters?.llm_task_type}</TableCell>}
                                 <TableCell>
                                     {task.parameters?.prompt ?
-                                        `${task.parameters.prompt.substring(0, 30)}${task.parameters.prompt.length > 30 ? "..." : ""}` :
-                                        `${JSON.stringify(task.parameters.messages)?.substring(0, 30)}${JSON.stringify(task.parameters.messages)?.length > 30 ? "..." : ""}`
+                                        `${task.parameters.prompt.substring(0, 20)}${task.parameters.prompt.length > 20 ? "..." : ""}` :
+                                        `${JSON.stringify(task.parameters.messages)?.substring(0, 20)}${JSON.stringify(task.parameters.messages)?.length > 20 ? "..." : ""}`
                                     }
                                 </TableCell>
                                 {!isMobile && <TableCell>{task.work_type}</TableCell>}

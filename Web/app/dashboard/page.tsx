@@ -7,7 +7,8 @@ import React from "react"; // Make sure the import path is correct
 
 export default function Dashboard() {
     return (
-        <div><Header/>
+        <div>
+            <Header/>
             <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
                 <main className="flex-grow">
                     <div className="text-center py-10">

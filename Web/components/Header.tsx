@@ -24,6 +24,11 @@ const Header = () => {
         setAnchorEl(null);
     };
 
+    const goToProfile = () => {
+        handleClose();
+        router.push('/profile');
+    }
+
     const clickLogout = async () => {
         handleClose();
         store.dispatch(logout());
@@ -66,7 +71,7 @@ const Header = () => {
                         open={open}
                         onClose={handleClose}
                     >
-                        <MenuItem onClick={handleClose} disabled>Profile</MenuItem>
+                        <MenuItem onClick={goToProfile}>Profile</MenuItem>
                         <MenuItem onClick={clickLogout}>Logout</MenuItem>
                     </Menu>
                 </div>

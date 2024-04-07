@@ -1,4 +1,5 @@
 - "!include public_authenticate_user.yaml"
+- "!include public_authtoken_token.yaml"
 - "!include public_llm_llmconfigrecords.yaml"
 - "!include public_llm_llmrequestrecord.yaml"
 - "!include public_llm_llmrequestresultdownload.yaml"

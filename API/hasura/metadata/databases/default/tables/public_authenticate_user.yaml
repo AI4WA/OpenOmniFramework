@@ -1,6 +1,14 @@
 table:
   name: authenticate_user
   schema: public
+object_relationships:
+  - name: authtoken_token
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: authtoken_token
+          schema: public
 select_permissions:
   - role: org_admin
     permission:

@@ -1,0 +1,28 @@
+table:
+  name: authtoken_token
+  schema: public
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - user_id
+        - key
+        - created
+      filter: {}
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - user_id
+        - key
+        - created
+      filter: {}
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - user_id
+        - key
+        - created
+      filter: {}
+    comment: ""

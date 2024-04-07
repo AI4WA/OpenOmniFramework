@@ -1,4 +1,7 @@
+import json
+
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from worker.models import Task, TaskWorker
 
@@ -87,6 +90,25 @@ class ChatCompletionFunctionSerializer(serializers.Serializer):
     )
 
 
+class FunctionCallField(serializers.Field):
+    def to_internal_value(self, data):
+        if data == "none" or data == "auto":
+            return data
+        else:
+            try:
+                parsed_data = json.loads(data)
+                if not isinstance(parsed_data, dict):
+                    raise ValueError("Invalid JSON data. Must be an object.")
+                if "name" not in parsed_data:
+                    raise ValueError("Missing 'name' key in JSON object.")
+                return parsed_data
+            except ValueError as e:
+                raise ValidationError(str(e))
+
+    def to_representation(self, value):
+        return value
+
+
 class TaskCustomLLMRequestSerializer(serializers.Serializer):
     task_type = serializers.ChoiceField(
         help_text="The worker to assign the task to",
@@ -126,7 +148,7 @@ class TaskCustomLLMRequestSerializer(serializers.Serializer):
         required=False,
         help_text="The functions to use for chat completion",
     )
-    function_call = serializers.CharField(
+    function_call = FunctionCallField(
         required=False,
         help_text="The function call to use for chat completion, can be none or auto, "
         "or a function you mentioned in functions",

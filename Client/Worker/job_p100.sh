@@ -11,4 +11,4 @@ module load cuda/12.4
 cd $MYGROUP/Jarv5/Client/Worker/
 
 source venv_p100/bin/activate
-python3 main.py --token f07d79cda0137abacd39258654090410650c2c0d
+python3 main.py --token 221d6c1982662ee3e5e6178f67040c72ce6685fb

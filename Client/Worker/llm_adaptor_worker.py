@@ -43,13 +43,13 @@ class LLMAdaptor:
         raise ValueError(f"Model {self.model_config.model_type} is not supported")
 
     def create_chat_completion(
-            self,
-            prompt: str = None,
-            messages: List[Dict[str, str]] = None,
-            tools: List[ChatCompletionTool] = None,
-            tool_choice: ChatCompletionToolChoiceOption = None,
-            *args,
-            **kwargs,
+        self,
+        prompt: str = None,
+        messages: List[Dict[str, str]] = None,
+        tools: List[ChatCompletionTool] = None,
+        tool_choice: ChatCompletionToolChoiceOption = None,
+        *args,
+        **kwargs,
     ):
         if messages:
             """
@@ -59,8 +59,7 @@ class LLMAdaptor:
             if self.model_config.model_type == MT_LLAMA:
                 logger.info(f"Creating chat completion for messages: {messages}")
                 return self.llm.create_chat_completion(
-                    messages=messages, tools=tools,
-                    tool_choice=tool_choice
+                    messages=messages, tools=tools, tool_choice=tool_choice
                 )
             raise ValueError(
                 f"Model {self.model_config.model_type} is not supported when messages are provided"

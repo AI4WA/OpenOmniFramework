@@ -23,7 +23,7 @@ class TaskLLMRequestSerializer(serializers.Serializer):
     model_name = serializers.CharField(
         required=True,
         help_text="The model name to use for chat completion, "
-        "it can be found in the llm_config_list endpoint",
+                  "it can be found in the llm_config_list endpoint",
     )
     prompt = serializers.CharField(
         required=True, help_text="The prompt to use for chat completion"
@@ -59,7 +59,7 @@ class ChatCompletionRequestMessageSerializer(serializers.Serializer):
     )
 
 
-class ChatCompletionFunctionSerializer(serializers.Serializer):
+class ChatCompletionToolFunctionSerializer(serializers.Serializer):
     name = serializers.CharField(
         required=True,
         help_text="The name of the function to call",
@@ -90,7 +90,15 @@ class ChatCompletionFunctionSerializer(serializers.Serializer):
     )
 
 
-class FunctionCallField(serializers.Field):
+class ChatCompletionToolSerializer(serializers.Serializer):
+    type = serializers.ChoiceField(
+        required=True,
+        choices=[("function", "function")]
+    )
+    function = ChatCompletionToolFunctionSerializer()
+
+
+class ToolChoiceField(serializers.Field):
     def to_internal_value(self, data):
         if data == "none" or data == "auto":
             return data
@@ -126,7 +134,7 @@ class TaskCustomLLMRequestSerializer(serializers.Serializer):
     model_name = serializers.CharField(
         required=True,
         help_text="The model name to use for chat completion, "
-        "it can be found in the llm_config_list endpoint",
+                  "it can be found in the llm_config_list endpoint",
     )
     llm_task_type = serializers.ChoiceField(
         required=True,
@@ -143,15 +151,15 @@ class TaskCustomLLMRequestSerializer(serializers.Serializer):
         required=True,
         help_text="The messages to use for chat completion",
     )
-    functions = serializers.ListField(
-        child=ChatCompletionFunctionSerializer(),
+    tools = serializers.ListField(
+        child=ChatCompletionToolSerializer(),
         required=False,
         help_text="The functions to use for chat completion",
     )
-    function_call = FunctionCallField(
+    tool_choice = ToolChoiceField(
         required=False,
         help_text="The function call to use for chat completion, can be none or auto, "
-        "or a function you mentioned in functions",
+                  "or a function you mentioned in functions",
         default="auto",
     )
 
@@ -173,7 +181,7 @@ class TaskLLMRequestsSerializer(serializers.Serializer):
     model_name = serializers.CharField(
         required=True,
         help_text="The model name to use for chat completion, "
-        "it can be found in the llm_config_list endpoint",
+                  "it can be found in the llm_config_list endpoint",
     )
     prompts = serializers.ListField(
         child=serializers.CharField(),

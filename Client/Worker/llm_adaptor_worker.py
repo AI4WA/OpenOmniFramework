@@ -3,7 +3,7 @@ from constants import MT_LLAMA, MT_CHATGLM
 import chatglm_cpp
 from llm_models import LLMModelConfig
 from typing import Dict, List
-from llama_cpp.llama_types import ChatCompletionToolFunction, ChatCompletionFunctionCall
+from llama_cpp.llama_types import ChatCompletionTool, ChatCompletionToolChoiceOption
 
 logger = get_logger(__name__)
 
@@ -43,22 +43,24 @@ class LLMAdaptor:
         raise ValueError(f"Model {self.model_config.model_type} is not supported")
 
     def create_chat_completion(
-        self,
-        prompt: str = None,
-        messages: List[Dict[str, str]] = None,
-        functions: List[ChatCompletionToolFunction] = None,
-        function_call: ChatCompletionFunctionCall = None,
-        *args,
-        **kwargs,
+            self,
+            prompt: str = None,
+            messages: List[Dict[str, str]] = None,
+            tools: List[ChatCompletionTool] = None,
+            tool_choice: ChatCompletionToolChoiceOption = None,
+            *args,
+            **kwargs,
     ):
         if messages:
             """
             This is trying to replicate passing all params chat completion provided via llama_cpp
             """
+
             if self.model_config.model_type == MT_LLAMA:
                 logger.info(f"Creating chat completion for messages: {messages}")
                 return self.llm.create_chat_completion(
-                    messages=messages, functions=functions, function_call=function_call
+                    messages=messages, tools=tools,
+                    tool_choice=tool_choice
                 )
             raise ValueError(
                 f"Model {self.model_config.model_type} is not supported when messages are provided"

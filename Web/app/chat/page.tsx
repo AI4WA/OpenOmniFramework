@@ -16,7 +16,8 @@ import {
     MenuItem,
     Select,
     InputLabel,
-    FormControl
+    FormControl,
+    Fab
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import Header from "@/components/Header";
@@ -370,6 +371,21 @@ const ChatGPTApp = () => {
                         </p>
                     </footer>
                 </Box>
+            }
+            {
+                isMobile &&
+                <Fab
+                    color="primary"
+                    aria-label="start new chat"
+                    style={{
+                        position: 'fixed',
+                        bottom: theme.spacing(11),
+                        left: theme.spacing(2),
+                    }}
+                    onClick={handleAddChat}
+                >
+                    <AddIcon/>
+                </Fab>
             }
         </div>
     )

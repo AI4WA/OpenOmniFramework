@@ -258,7 +258,11 @@ const ChatGPTApp = () => {
                     {
                         !isMobile &&
                         <Grid item xs={12} md={3} lg={3}>
-                            <Box sx={{overflowY: 'auto', height: '100%', pr: 2, borderRight: '1px solid #e0e0e0'}}>
+                            <Box sx={{
+                                overflowY: 'auto',
+                                height: isMobile ? 'calc(100vh - 252px)' : 'calc(100vh - 308px)',
+                                pr: 2, borderRight: '1px solid #e0e0e0'
+                            }}>
                                 <Box sx={{
                                     display: 'flex',
                                     alignItems: 'center',

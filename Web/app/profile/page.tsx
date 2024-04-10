@@ -2,7 +2,7 @@
 import React, {useState} from 'react';
 
 import Header from '@/components/Header'; // Ensure the path to your Header component is correct
-import axios, { AxiosError } from 'axios'; // Make sure AxiosError is imported if you're using axios
+import axios, {AxiosError} from 'axios'; // Make sure AxiosError is imported if you're using axios
 
 import {
     Divider,

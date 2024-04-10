@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "ml",
     "rag",
     "hasura_management",
+    "chat",
 ]
 
 MIDDLEWARE = [

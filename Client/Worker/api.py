@@ -14,11 +14,11 @@ logger = get_logger("GPU-Worker-API")
 
 class API:
     def __init__(
-        self,
-        domain: str = API_DOMAIN,
-        token: str = "",
-        uuid: str = "",
-        task_type: str = "gpu",
+            self,
+            domain: str = API_DOMAIN,
+            token: str = "",
+            uuid: str = "",
+            task_type: str = "gpu",
     ):
         self.domain = domain
         self.token = token
@@ -42,12 +42,12 @@ class API:
         return r.json()
 
     def post_task_result(
-        self,
-        task_id: str,
-        result_status: str,
-        description: str,
-        completed_in_seconds: Optional[float] = 0,
-        result: Optional[dict] = None,
+            self,
+            task_id: str,
+            result_status: str,
+            description: str,
+            completed_in_seconds: Optional[float] = 0,
+            result: Optional[dict] = None,
     ):
         url = f"{self.domain}/queue_task/{task_id}/update_result/"
         r = requests.post(
@@ -102,3 +102,47 @@ class API:
         finally:
             s.close()
         return ip
+
+    def get_chat(self):
+        url = f"{self.domain}/chat/get_chat/"
+        r = requests.get(url, headers={"Authorization": f"Token {self.token}"})
+        logger.info(f"GET {url} {r.status_code}")
+        if r.status_code != 200:
+            return None
+        return r.json()
+
+    def post_chat(self, chat_uuid: str, message: str):
+        url = f"{self.domain}/chat/respond/"
+        r = requests.post(
+            url,
+            data={
+                "chat_uuid": chat_uuid,
+                "message": message,
+            },
+            headers={"Authorization": f"Token {self.token}"},
+        )
+        logger.info(f"POST {url} {r.status_code}")
+        logger.info(r.json())
+        return r.json()
+
+    def get_chat_summary(self):
+        url = f"{self.domain}/chat/summarize_chat/"
+        r = requests.get(url, headers={"Authorization": f"Token {self.token}"})
+        logger.info(f"GET {url} {r.status_code}")
+        if r.status_code != 200:
+            return None
+        return r.json()
+
+    def post_chat_summary(self, chat_uuid: str, summary: str):
+        url = f"{self.domain}/chat/summarize_chat/"
+        r = requests.post(
+            url,
+            data={
+                "chat_uuid": chat_uuid,
+                "message": summary,
+            },
+            headers={"Authorization": f"Token {self.token}"},
+        )
+        logger.info(f"POST {url} {r.status_code}")
+        logger.info(r.json())
+        return r.json()

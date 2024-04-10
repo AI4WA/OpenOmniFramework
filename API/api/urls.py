@@ -41,6 +41,7 @@ urlpatterns = [
     path("authenticate/", include("authenticate.urls")),
     path("queue_task/", include("worker.urls")),
     path("llm/", include("llm.urls")),
+    path("chat/", include("chat.urls")),
     path(
         "swagger/",
         login_required(schema_view.with_ui("swagger", cache_timeout=0)),

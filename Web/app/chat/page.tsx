@@ -189,11 +189,13 @@ const ChatGPTApp = () => {
         if (res.data) {
             setCurrentChatId(res.data.insert_chat_chat_one.id);
         }
+        return res;
     };
 
     const changeCurrentChat = (chatId: number) => {
         setCurrentChatId(chatId)
     }
+
     const handleSendMessage = async () => {
         if (!inputMessage.trim()) return;
 
@@ -206,9 +208,20 @@ const ChatGPTApp = () => {
                 }
             });
         }
+
+        let addedChatId = null;
+
+        if (!currentChatId) {
+            const res = await handleAddChat();
+            if (res.data) {
+                setCurrentChatId(res.data.insert_chat_chat_one.id);
+            }
+            addedChatId = res.data.insert_chat_chat_one.id;
+        }
+
         await addChatMessage({
             variables: {
-                chatId: currentChatId,
+                chatId: currentChatId || addedChatId,
                 message: inputMessage,
                 role: 'user'
             }
@@ -279,7 +292,7 @@ const ChatGPTApp = () => {
                         </Typography>
                         <Box
                             sx={{
-                                height: '73vh',
+                                height: isMobile ? 'calc(100vh - 252px)' : 'calc(100vh - 308px)',
                                 overflow: 'auto',
                                 mb: 2,
                                 border: '1px solid #e0e0e0',
@@ -349,11 +362,11 @@ const ChatGPTApp = () => {
             </Container>
             {!isMobile &&
                 <Box component="footer" sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    p: 0,
+                    // position: 'absolute',
+                    // bottom: 0,
+                    // left: 0,
+                    // right: 0,
+                    // p: 0,
                     backgroundColor: 'background.paper',
                     width: '100%'
                 }}>

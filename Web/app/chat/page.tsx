@@ -287,7 +287,13 @@ const ChatGPTApp = () => {
                                     {chatHistory.map((history: ChatProps) => (
                                         <ListItemButton key={history.id} selected={currentChatId === history.id}
                                                         onClick={() => changeCurrentChat(history.id)}>
-                                            <ListItemText primary={history.summary || "..."}/>
+                                            <ListItemText
+                                                primary={
+                                                    history.summary
+                                                        ? history.summary.split(" ").slice(0, 10).join(" ") + (history.summary.split(" ").length > 10 ? "..." : "")
+                                                        : "..."
+                                                }
+                                            />
                                         </ListItemButton>
                                     ))}
                                 </List>

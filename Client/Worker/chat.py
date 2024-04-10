@@ -54,6 +54,7 @@ if __name__ == "__main__":
             messages = task.get("messages", None)
             llm_model_name = task.get("llm_model_name", None)
             logger.info(f"Model Name: {llm_model_name}")
+            task_uuid = logger.info(f"Task UUID: {task['uuid']}")
             llm_model = avail_model_objs.get(llm_model_name, None)
             if llm_model is None:
                 logger.error(f"Model {llm_model_name} not found")

@@ -4,6 +4,7 @@ from django.db import models
 
 from authenticate.models import User
 
+
 # Create your models here.
 
 
@@ -67,3 +68,7 @@ class ChatRecord(models.Model):
 
     def __str__(self):
         return self.message
+
+    @property
+    def uuid(self):
+        return self.chat.uuid

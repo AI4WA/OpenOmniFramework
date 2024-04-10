@@ -48,7 +48,7 @@ class Chat(models.Model):
 
         """
         chat_records = ChatRecord.objects.filter(chat=self).order_by("created_at")
-        needed = len(chat_records) > 0 and not self.summary
+        needed = len(chat_records) > 1 and not self.summary
         prompt = "Summarize the conversation below with 3-10 words: \n"
         for record in chat_records:
             prompt += f"{record.role}: {record.message}\n"

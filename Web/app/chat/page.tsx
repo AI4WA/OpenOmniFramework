@@ -260,13 +260,14 @@ const ChatGPTApp = () => {
                         <Grid item xs={12} md={3} lg={3}>
                             <Box sx={{
                                 overflowY: 'auto',
-                                height: isMobile ? 'calc(100vh - 252px)' : 'calc(100vh - 308px)',
+                                height: "100%",
                                 pr: 2, borderRight: '1px solid #e0e0e0'
                             }}>
                                 <Box sx={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
+                                    overflowY: 'auto',
                                     pr: 2
                                 }}>
                                     {/* Use a Box to wrap Typography if alignment needs adjustment */}
@@ -279,7 +280,10 @@ const ChatGPTApp = () => {
                                         <AddIcon fontSize="inherit"/>
                                     </IconButton>
                                 </Box>
-                                <List>
+                                <List sx={{
+                                    height: 'calc(100vh - 228px)',
+                                    overflowY: 'auto',
+                                }}>
                                     {chatHistory.map((history: ChatProps) => (
                                         <ListItemButton key={history.id} selected={currentChatId === history.id}
                                                         onClick={() => changeCurrentChat(history.id)}>

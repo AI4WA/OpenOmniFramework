@@ -12,6 +12,7 @@ import {
     Divider,
     InputBase,
     ListItemText,
+    ListItemButton,
     MenuItem,
     Select,
     InputLabel,
@@ -215,7 +216,7 @@ const ChatGPTApp = () => {
         setInputMessage('')
     };
 
-    const handleModelChange = (event: SelectChangeEvent<string>) => {
+    const handleModelChange = (event: SelectChangeEvent) => {
         setSelectedModel(event.target.value);
     };
 
@@ -263,10 +264,10 @@ const ChatGPTApp = () => {
                                 </Box>
                                 <List>
                                     {chatHistory.map((history: ChatProps) => (
-                                        <ListItem key={history.id} selected={currentChatId === history.id}
-                                                  onClick={() => changeCurrentChat(history.id)}>
+                                        <ListItemButton key={history.id} selected={currentChatId === history.id}
+                                                        onClick={() => changeCurrentChat(history.id)}>
                                             <ListItemText primary={history.summary || "..."}/>
-                                        </ListItem>
+                                        </ListItemButton>
                                     ))}
                                 </List>
                             </Box>

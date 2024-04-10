@@ -83,6 +83,8 @@ class ChatViewSet(viewsets.ViewSet):
     def get_summary_chat(self, request):
         # get all chats without summary or summary is ""
         chats = Chat.objects.filter(summary__isnull=True).order_by("-created_at")
+        chats_empty = Chat.objects.filter(summary="").order_by("-created_at")
+        chats = chats.union(chats_empty)
         for chat in chats:
             needed, prompt = chat.summary_required()
             if needed:
@@ -108,10 +110,10 @@ class ChatViewSet(viewsets.ViewSet):
     @action(
         detail=False,
         methods=["post"],
-        url_path="summarize_chat",
-        url_name="summarize_chat",
+        url_path="update_summarize_chat",
+        url_name="post_summarize_chat",
     )
-    def summarize_chat(self, request):
+    def post_summarize_chat(self, request):
         serializer = RespondToChatSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(
@@ -128,7 +130,18 @@ class ChatViewSet(viewsets.ViewSet):
             )
 
         chat = chat.first()
-        chat.summary = message
+        if message is None:
+            # chat summary will be the first three words in the prompt
+            record = (
+                ChatRecord.objects.filter(chat=chat, role="user")
+                .order_by("-created_at")
+                .first()
+            )
+            chat.summary = " ".join(record.message.split()[:3])
+        else:
+            # if the message is too long, get the first 10 words
+            chat.summary = " ".join(message.split()[:10])
+            chat.summary = message
         chat.save()
         return Response(
             {"message": "Chat summarized successfully"},

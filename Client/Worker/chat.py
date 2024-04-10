@@ -66,7 +66,9 @@ if __name__ == "__main__":
             with timer(logger=logger, message="run_chat_task"):
                 llm_adaptor = LLMAdaptor(llm_model)
                 # if prompt is not None, then we are responding
-                res = llm_adaptor.create_chat_completion(prompt=prompt, messages=messages)
+                res = llm_adaptor.create_chat_completion(
+                    prompt=prompt, messages=messages
+                )
                 logger.info(res)
                 if prompt is not None:
                     api.post_chat_summary(

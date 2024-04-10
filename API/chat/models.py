@@ -4,7 +4,6 @@ from django.db import models
 
 from authenticate.models import User
 
-
 # Create your models here.
 
 
@@ -21,16 +20,21 @@ class Chat(models.Model):
 
     def action_required(self):
         # get all chat records
-        chat_records = ChatRecord.objects.filter(chat=self).order_by("created_at")
+        chat_records = ChatRecord.objects.filter(chat=self).order_by("-created_at")
         # so if the first record is from the user, then we need to respond
         needed = chat_records.first().role == "user"
-        messages = [
-            {
-                "role": record.role,
-                "content": record.message,
-            }
-            for record in chat_records
-        ]
+        total_count = 0
+        messages = []
+        for record in chat_records:
+            if total_count + len(record.message) + 10 > 4096:
+                break
+            total_count += len(record.message) + 10
+            messages.append(
+                {
+                    "role": record.role,
+                    "content": record.message,
+                }
+            )
         return needed, messages
 
     def respond(self, message):
@@ -45,9 +49,13 @@ class Chat(models.Model):
         """
         chat_records = ChatRecord.objects.filter(chat=self).order_by("created_at")
         needed = len(chat_records) > 0 and not self.summary
-        prompt = "Summarize the conversation below: \n"
+        prompt = "Summarize the conversation below with 3-10 words: \n"
         for record in chat_records:
             prompt += f"{record.role}: {record.message}\n"
+
+        # TODO: fix this later
+        # if prompt is larger 4096, get it shorter
+        prompt = prompt[:4096]
         return needed, prompt
 
 

@@ -74,5 +74,8 @@ class LLMModelConfig:
 
     def init_llm(self):
         self.llm = Llama(
-            model_path=self.model_path().as_posix(), n_gpu_layers=-1, embedding=True, n_ctx=4096
+            model_path=self.model_path().as_posix(),
+            n_gpu_layers=-1,
+            embedding=True,
+            n_ctx=4096,
         )

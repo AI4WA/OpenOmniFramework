@@ -236,7 +236,6 @@ const ChatGPTApp = () => {
         }
     }, [currentChatId, setSelectedModel, chatData]);
 
-
     return (
         <div>
             <Header/>
@@ -373,7 +372,7 @@ const ChatGPTApp = () => {
                 </Box>
             }
         </div>
-    );
-};
+    )
+}
 
 export default ChatGPTApp;

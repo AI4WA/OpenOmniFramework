@@ -4,6 +4,7 @@ from django.db import models
 
 from authenticate.models import User
 
+
 # Create your models here.
 
 
@@ -75,7 +76,7 @@ class ChatRecord(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.message
+        return self.role
 
     @property
     def uuid(self):

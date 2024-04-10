@@ -45,8 +45,8 @@ const refreshAccessToken = async () => {
         }
 
     } catch (error) {
-        localStorage.removeItem("access")
-        localStorage.removeItem("refresh")
+        // localStorage.removeItem("access")
+        // localStorage.removeItem("refresh")
         // Handle refresh token error (e.g., log out the user or redirect to the login page)
         console.error('Failed to refresh access token:', error);
         return null

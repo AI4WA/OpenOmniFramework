@@ -54,6 +54,7 @@ if __name__ == "__main__":
             messages = task.get("messages", None)
             llm_model_name = task.get("llm_model_name", None)
             logger.info(f"Model Name: {llm_model_name}")
+            task_uuid = logger.info(f"Task UUID: {task['uuid']}")
             llm_model = avail_model_objs.get(llm_model_name, None)
             if llm_model is None:
                 logger.error(f"Model {llm_model_name} not found")
@@ -65,7 +66,9 @@ if __name__ == "__main__":
             with timer(logger=logger, message="run_chat_task"):
                 llm_adaptor = LLMAdaptor(llm_model)
                 # if prompt is not None, then we are responding
-                res = llm_adaptor.create_chat_completion(prompt=prompt, messages=messages)
+                res = llm_adaptor.create_chat_completion(
+                    prompt=prompt, messages=messages
+                )
                 logger.info(res)
                 if prompt is not None:
                     api.post_chat_summary(

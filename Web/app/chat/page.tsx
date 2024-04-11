@@ -19,6 +19,7 @@ import {
     FormControl,
     Fab
 } from '@mui/material';
+import isAuth from "@/app/isAuth";
 import SendIcon from '@mui/icons-material/Send';
 import Header from "@/components/Header";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -418,4 +419,4 @@ const ChatGPTApp = () => {
     )
 }
 
-export default ChatGPTApp;
+export default isAuth(ChatGPTApp);

@@ -2,6 +2,7 @@
 
 import React from "react";
 import Header from "@/components/Header";
+import isAuth from "@/app/isAuth";
 
 const Jarv5 = () => {
     return (
@@ -28,4 +29,4 @@ const Jarv5 = () => {
     )
 }
 
-export default Jarv5;
+export default isAuth(Jarv5);

@@ -28,7 +28,7 @@ import apiClient from "@/cloud/apiClient";
 import VpnKeyIcon from '@mui/icons-material/VpnKey'; // For token actions
 import PasswordIcon from '@mui/icons-material/Password'; // For password reset
 
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'; // For the user icon
+import isAuth from "@/app/isAuth";
 import PersonIcon from '@mui/icons-material/Person'; // For the name
 import EmailIcon from '@mui/icons-material/Email'; // Example if y
 
@@ -209,4 +209,4 @@ const ProfilePage = () => {
     }
 ;
 
-export default ProfilePage;
+export default isAuth(ProfilePage);

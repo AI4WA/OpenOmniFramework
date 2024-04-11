@@ -2,18 +2,29 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
 from hardware.models import (
-    AudioData,
+    DataAudio,
+    DataText,
+    DataVideo,
+    EmotionDetection,
     HardWareDevice,
-    ReactionToAudio,
+    Home,
+    LLMResponse,
     Text2Speech,
-    VideoData,
 )
+
+
+@admin.register(Home)
+class HomeAdmin(ImportExportModelAdmin):
+    list_display = ("id", "user", "name")
+    search_fields = ("name", "address")
+    list_filter = ("user",)
 
 
 @admin.register(HardWareDevice)
 class HardWareDeviceAdmin(ImportExportModelAdmin):
     list_display = (
         "id",
+        "home",
         "mac_address",
         "device_name",
         "device_type",
@@ -24,15 +35,14 @@ class HardWareDeviceAdmin(ImportExportModelAdmin):
     list_filter = ("device_type",)
 
 
-@admin.register(AudioData)
-class AudioDataAdmin(ImportExportModelAdmin):
+@admin.register(DataAudio)
+class DataAudioAdmin(ImportExportModelAdmin):
     list_display = (
         "id",
+        "home",
         "sequence_index",
-        "text",
         "audio_file",
         "start_time",
-        "translation_in_seconds",
     )
     search_fields = ("uid", "text")
 
@@ -47,23 +57,38 @@ class AudioDataAdmin(ImportExportModelAdmin):
     readonly_fields = ("created_at_seconds", "updated_at_seconds")
 
 
-@admin.register(VideoData)
-class VideoDataAdmin(ImportExportModelAdmin):
-    list_display = ("id", "video_file", "video_record_minute")
+@admin.register(DataVideo)
+class DataVideoAdmin(ImportExportModelAdmin):
+    list_display = ("id", "home", "video_file", "video_record_minute")
     search_fields = ("uid", "video_file")
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(DataText)
+class DataTextAdmin(ImportExportModelAdmin):
+    list_display = ("id", "home", "audio", "text", "pipeline_triggered")
+    search_fields = ("text",)
+    readonly_fields = ("created_at", "updated_at")
+    list_filter = ("pipeline_triggered",)
+
+
+@admin.register(EmotionDetection)
+class EmotionDetectionAdmin(ImportExportModelAdmin):
+    list_display = ("id", "home", "data_text", "result")
+    search_fields = ("result", "logs")
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(LLMResponse)
+class LLMResponseAdmin(ImportExportModelAdmin):
+    list_display = ("id", "home", "data_text", "result")
+    search_fields = ("result", "logs", "messages")
     readonly_fields = ("created_at", "updated_at")
 
 
 @admin.register(Text2Speech)
 class Text2SpeechAdmin(ImportExportModelAdmin):
-    list_display = ("id", "text", "audio_file")
+    list_display = ("id", "data_text", "text")
     search_fields = ("text", "audio_file")
     filter_fields = ("hardware_device_mac_address",)
-    readonly_fields = ("created_at", "updated_at")
-
-
-@admin.register(ReactionToAudio)
-class ReactionToAudioAdmin(ImportExportModelAdmin):
-    list_display = ("id", "react_already", "failed")
-    filter_fields = ("react_already", "failed")
     readonly_fields = ("created_at", "updated_at")

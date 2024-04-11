@@ -28,15 +28,7 @@ def main():
     :return:
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--model",
-        default="medium",
-        help="Model to use",
-        choices=["tiny", "base", "small", "medium", "large"],
-    )
-    parser.add_argument(
-        "--non_english", action="store_false", help="Don't use the english model."
-    )
+
     parser.add_argument(
         "--energy_threshold",
         default=5000,
@@ -49,27 +41,12 @@ def main():
         help="How real time the recording is in seconds.",
         type=float,
     )
-    parser.add_argument(
-        "--text_num",
-        default=1,
-        help="How real time the recording is in seconds.",
-        type=int,
-    )
 
-    parser.add_argument(
-        "--phrase_timeout",
-        default=300000,
-        help="How much empty space between recordings before we "
-        "consider it a new line in the transcription.",
-        type=float,
-    )
     parser.add_argument(
         "--api_domain", default="http://localhost:8000", help="API domain", type=str
     )
     parser.add_argument("--token", default="", help="API token", type=str)
-    parser.add_argument(
-        "--translate", action="store_true", help="Run translation locally."
-    )
+    parser.add_argument("--home_id", default=None, help="which home it is", type=str)
 
     if "linux" in platform:
         parser.add_argument(
@@ -81,14 +58,11 @@ def main():
         )
     args = parser.parse_args()
 
-    # uid = str(uuid.uuid4())
-    api = API(domain=args.api_domain, token=args.token)
+    api = API(domain=args.api_domain, token=args.token, home_id=args.home_id)
     api.register_device()
     logger.info(f"session uid: {uid}")
     logger.info(f"starting timestamp {datetime.now()}")
-    logger.info(args.translate)
-    # The last time a recording was retrieved from the queue.
-    phrase_time = None
+
     # Thread safe Queue for passing data from the threaded recording callback.
     data_queue = Queue()
     sample_time_queue = Queue()
@@ -125,22 +99,7 @@ def main():
 
     logger.info(f"Using microphone {source}")
 
-    if args.translate:
-        logger.info("Translating locally.")
-        # Load / Download model
-        model = args.model
-        if args.model != "large" and not args.non_english:
-            model = model + ".en"
-        logger.info(f"Loading model {model}...")
-        audio_model = whisper.load_model(model)
-    else:
-        logger.info("Translating remotely.")
-        audio_model = None
-
     record_timeout = args.record_timeout
-    phrase_timeout = args.phrase_timeout
-
-    transcription = [""]
 
     args.audio_index = 0
 
@@ -187,96 +146,32 @@ def main():
     logger.info("Listening for audio...")
     while True:
         try:
-            now = datetime.utcnow()
             # Pull raw recorded audio from the queue.
             if not data_queue.empty():  # 当听不到声音后，开始transform
                 logger.info("no more sound, start transform...")
-                phrase_complete = False
-                # If enough time has passed between recordings, consider the phrase complete.
-                # Clear the current working audio buffer to start over with the new data.
-                if phrase_time and now - phrase_time > timedelta(
-                    seconds=phrase_timeout
-                ):
-                    phrase_complete = True
-                # This is the last time we received new audio data from the queue.
-                phrase_time = now
 
-                # the data in the queue should be a tuple of (data, time)
-                audio_data = b"".join(data_queue.queue)
                 data_queue.queue.clear()
                 last_sample_time = sample_time_queue.queue[-1]
                 sample_time_queue.queue.clear()
 
-                # Convert in-ram buffer to something the model can use directly without needing a temp file.
-                # Convert data from 16-bit wide integers to floating point with a width of 32 bits.
-                # Clamp the audio stream frequency to a PCM wavelength compatible default of 32768 hz max.
-                audio_np = (
-                    np.frombuffer(audio_data, dtype=np.int16).astype(np.float32)
-                    / 32768.0
+                api.queue_speech_to_text(
+                    uid,
+                    audio_index=str(args.audio_index),
+                    start_time=last_sample_start_time,
+                    end_time=last_sample_time,
                 )
-                # rather than translate, we should call the API to make it running on cloud
+                api.post_audio(
+                    uid,
+                    args.audio_index,
+                    f"{args.audio_index}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.wav",
+                    last_sample_start_time,
+                    last_sample_time,
+                )
+                last_sample_start_time = last_sample_time
 
-                if not args.translate:
-                    api.queue_speech_to_text(
-                        uid,
-                        audio_index=str(args.audio_index),
-                        start_time=last_sample_start_time,
-                        end_time=last_sample_time,
-                    )
-                    last_sample_start_time = last_sample_time
-                """
-                The following sections are trying to transcribe the audio data within the edge device
-                With raspberry pi, the delay time is 30 seconds, which is not acceptable
-                """
-
-                if args.translate:
-                    # Read the transcription.
-                    with timer(logger, f"Transcribing {args.audio_index}"):
-                        result = audio_model.transcribe(
-                            audio_np, fp16=torch.cuda.is_available()
-                        )
-                    logger.info(f"Model output: {result}")
-                    # get current time, this is the delay time for the audio to text data
-                    text = result["text"].strip()
-                    logger.info(f"delay time: {datetime.now() - last_sample_time}")
-
-                    # If we detected a pause between recordings, add a new item to our transcription.
-                    # Otherwise, edit the existing one.
-                    if phrase_complete:
-                        transcription.append(text)
-                    else:
-                        transcription[-1] = text
-                    logger.critical(f"Transcription: {text}")
-                    # TODO: call API to push 1. text 2. text time range 3. related audio file
-
-                    api.post_audio(
-                        uid,
-                        args.audio_index,
-                        text,
-                        f"{args.audio_index}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.wav",
-                        last_sample_start_time,
-                        last_sample_time,
-                    )
-                    last_sample_start_time = last_sample_time
-                    text_dir = DATA_DIR / "audio" / uid / "text"
-                    text_dir.mkdir(parents=True, exist_ok=True)
-
-                    with open(
-                        text_dir
-                        / f"{args.text_num}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.txt",
-                        "w",
-                        encoding="utf-8",
-                    ) as f:
-                        f.write(transcription[-1])  # 写入文本
-                        args.text_num = args.text_num + 1
-                # Infinite loops are bad for processors, must-sleep.
                 sleep(0.25)
         except KeyboardInterrupt:
             break
-
-    logger.info("\n\nTranscription:")
-    for line in transcription:
-        logger.info(line)
 
 
 if __name__ == "__main__":

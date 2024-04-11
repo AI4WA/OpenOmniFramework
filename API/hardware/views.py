@@ -7,7 +7,7 @@ import pytz
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
-from hardware.models import AudioData, HardWareDevice, Text2Speech, VideoData
+from hardware.models import DataAudio, DataVideo, HardWareDevice, Text2Speech
 from hardware.serializers import (
     AudioDataSerializer,
     HardWareDeviceSerializer,
@@ -24,12 +24,12 @@ class HardWareDeviceViewSet(viewsets.ModelViewSet):
 
 
 class AudioDataViewSet(viewsets.ModelViewSet):
-    queryset = AudioData.objects.all()
+    queryset = DataAudio.objects.all()
     serializer_class = AudioDataSerializer
 
 
 class VideoDataViewSet(viewsets.ModelViewSet):
-    queryset = VideoData.objects.all()
+    queryset = DataVideo.objects.all()
     serializer_class = VideoDataSerializer
 
     # overwrite the create method

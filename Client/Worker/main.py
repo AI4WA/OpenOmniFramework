@@ -7,6 +7,7 @@ from utils import get_logger, timer
 import time
 import uuid
 from llm_models import LLMModelConfig
+import json
 
 logger = get_logger("GPU-Worker")
 
@@ -103,6 +104,8 @@ if __name__ == "__main__":
                 start_time = time.time()
                 try:
                     result = llm_task.run(llm_model)
+                    # dump the json to string
+                    result = json.dumps(result)
                     result_status = "completed"
                 except Exception as e:
                     logger.exception(e)

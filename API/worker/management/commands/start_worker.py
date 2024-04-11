@@ -13,15 +13,7 @@ LISTEN_TO_TASKS = ["stt", "cmc"]
 
 
 class Command(BaseCommand):
-    help = "Run the worker to finish the llm or stt tasks."
-
-    def add_arguments(self, parser):
-        """
-        Add arguments to the command
-        """
-        parser.add_argument(
-            "--task_type", type=str, help="The type of task to run", default="stt"
-        )
+    help = "Run the worker to finish the cmc or stt tasks."
 
     def handle(self, *args, **options):
         """
@@ -29,12 +21,10 @@ class Command(BaseCommand):
         Loop through all tasks and check if they are completed
 
         """
-        task_type = options["task_type"]
-        if task_type == "stt":
-            logger.info("Running STT worker...")
-            translator = Translator()
-        else:
-            translator = None
+
+        logger.info("Running worker for stt and cmc")
+        translator = Translator()
+
         while True:
             tasks = Task.objects.filter(
                 result_status="pending", work_type__in=LISTEN_TO_TASKS

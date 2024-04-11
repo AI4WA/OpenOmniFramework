@@ -200,6 +200,9 @@ class TaskSTTRequestSerializer(serializers.Serializer):
     uid = serializers.CharField(
         required=True, help_text="The uid of the audio file to transcribe"
     )
+    home_id = serializers.IntegerField(
+        required=False, help_text="The home id of the audio file to transcribe"
+    )
     audio_index = serializers.CharField(
         required=True, help_text="The index of the audio file to transcribe"
     )

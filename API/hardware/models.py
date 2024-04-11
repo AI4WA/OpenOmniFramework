@@ -2,8 +2,32 @@ from datetime import datetime
 
 from django.db import models
 
+from authenticate.models import User
+
+
+class Home(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(
+        max_length=100, help_text="The name of the home", default="Blue Boat House"
+    )
+    address = models.CharField(
+        max_length=100,
+        help_text="The address of the home",
+        default="1 Kings Park Ave, Crawley WA 6009",
+    )
+
+    def __str__(self):
+        return f"{self.name}"
+
 
 class HardWareDevice(models.Model):
+    home = models.ForeignKey(
+        Home,
+        on_delete=models.CASCADE,
+        related_name="hardware_devices",
+        null=True,
+        blank=True,
+    )
     mac_address = models.CharField(
         max_length=100, help_text="The mac address of the hardware device", unique=True
     )
@@ -30,8 +54,13 @@ class HardWareDevice(models.Model):
     )
 
 
-class AudioData(models.Model):
-    uid = models.CharField(max_length=100)
+class DataAudio(models.Model):
+    home = models.ForeignKey(
+        Home, on_delete=models.CASCADE, related_name="audio", null=True, blank=True
+    )
+    uid = models.CharField(
+        max_length=100, help_text="the uid of the audio acquire session"
+    )
     hardware_device_mac_address = models.CharField(
         max_length=100,
         help_text="The mac address of the hardware device",
@@ -39,13 +68,10 @@ class AudioData(models.Model):
         blank=True,
     )
     sequence_index = models.IntegerField(help_text="The sequence index of the audio")
-    text = models.TextField(help_text="The text of the audio")
     audio_file = models.CharField(max_length=100, help_text="The audio file")
     start_time = models.DateTimeField(help_text="The start time of the audio")
     end_time = models.DateTimeField(help_text="The end time of the audio")
-    translation_in_seconds = models.FloatField(
-        help_text="The time taken to translate the audio"
-    )
+
     created_at = models.DateTimeField(
         auto_now_add=True, help_text="The created time of the audio"
     )
@@ -53,22 +79,14 @@ class AudioData(models.Model):
         auto_now=True, help_text="The updated time of the audio"
     )
 
-    class Meta:
-        db_table = "audio_data"
-        unique_together = ("uid", "sequence_index")
-
-    def __str__(self):
-        return f"{self.uid} {self.sequence_index} {self.text}"
-
     @classmethod
     def create_obj(
         cls,
+        home: Home,
         uid: str,
         hardware_device_mac_address: str,
         sequence_index: int,
-        text: str,
         audio_file: str,
-        translation_in_seconds: float,
         start_time: datetime,
         end_time: datetime,
     ):
@@ -76,25 +94,34 @@ class AudioData(models.Model):
         Create an audio data object
         """
         return cls.objects.create(
+            home=home,
             uid=uid,
             hardware_device_mac_address=hardware_device_mac_address,
             sequence_index=sequence_index,
-            text=text,
             audio_file=audio_file,
-            translation_in_seconds=translation_in_seconds,
             start_time=start_time,
             end_time=end_time,
         )
 
+    def __str__(self):
+        return f"{self.uid} - {self.audio_file}"
 
-class VideoData(models.Model):
-    uid = models.CharField(max_length=100)
+
+class DataVideo(models.Model):
+    home = models.ForeignKey(
+        Home, on_delete=models.CASCADE, related_name="video", null=True, blank=True
+    )
+    uid = models.CharField(
+        max_length=100,
+        help_text="the uid of the video acquire session, link back to client logs",
+    )
     hardware_device_mac_address = models.CharField(
         max_length=100,
         help_text="The mac address of the hardware device",
         null=True,
         blank=True,
     )
+    # TODO: add start and end time?
     video_file = models.CharField(max_length=100, help_text="The video file")
     video_record_minute = models.DateTimeField(
         help_text="The minute of the video", null=True, blank=True
@@ -106,56 +133,136 @@ class VideoData(models.Model):
         auto_now=True, help_text="The updated time of the video"
     )
 
-    class Meta:
-        db_table = "video_data"
-
     def __str__(self):
-        return f"{self.uid} {self.video_file}"
+        return f"{self.uid} - {self.video_file}"
 
 
-class ReactionToAudio(models.Model):
-    audio = models.OneToOneField(
-        AudioData,
-        on_delete=models.SET_NULL,
-        related_name="reaction",
-        null=True,
-        blank=True,
+class DataText(models.Model):
+    home = models.ForeignKey(
+        Home, on_delete=models.CASCADE, related_name="text", null=True, blank=True
+    )
+    # foreign key to the audio
+    audio = models.ForeignKey(
+        DataAudio,
+        on_delete=models.CASCADE,
+        related_name="text",
         help_text="The audio data",
     )
-    react_already = models.BooleanField(
-        help_text="The audio data has been reacted or not", default=False
+    text = models.TextField(help_text="The text of the audio")
+    logs = models.JSONField(
+        help_text="The logs of the text", null=True, blank=True, default=dict
     )
-    emotion_result = models.JSONField(
-        help_text="The emotion result of the audio", null=True, blank=True
-    )
-    failed = models.BooleanField(help_text="The reaction failed or not", default=False)
-    failed_reason = models.TextField(
-        help_text="The reason of the reaction failed", null=True, blank=True
-    )
-    llm_response = models.JSONField(
-        help_text="The llm response of the audio", null=True, blank=True
+    translation_in_seconds = models.FloatField(
+        help_text="The time taken to translate the audio", null=True, blank=True
     )
     created_at = models.DateTimeField(
-        auto_now_add=True, help_text="The created time of the reaction"
+        auto_now_add=True, help_text="The created time of the text"
     )
     updated_at = models.DateTimeField(
-        auto_now=True, help_text="The updated time of the reaction"
+        auto_now=True, help_text="The updated time of the text"
+    )
+    model_name = models.CharField(
+        max_length=100,
+        help_text="The name of the model",
+        null=True,
+        blank=True,
+        default="whisper",
+    )
+    pipeline_triggered = models.BooleanField(
+        help_text="The pipeline is triggered or not", default=False
+    )
+
+    def __str__(self):
+        return f"{self.home} - {self.text}"
+
+
+class EmotionDetection(models.Model):
+    home = models.ForeignKey(
+        Home,
+        on_delete=models.CASCADE,
+        related_name="emotion_detection",
+        null=True,
+        blank=True,
+    )
+    data_text = models.ForeignKey(
+        DataText,
+        on_delete=models.CASCADE,
+        related_name="emotion_detection",
+        help_text="The text data",
+    )
+    result = models.JSONField(
+        help_text="The emotion result of the text", null=True, blank=True, default=dict
+    )
+    logs = models.JSONField(
+        help_text="The logs of the emotion detection",
+        null=True,
+        blank=True,
+        default=dict,
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True, help_text="The created time of the emotion detection"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True, help_text="The updated time of the emotion detection"
+    )
+
+
+class LLMResponse(models.Model):
+    home = models.ForeignKey(
+        Home,
+        on_delete=models.CASCADE,
+        related_name="llm_response",
+        null=True,
+        blank=True,
+    )
+    data_text = models.ForeignKey(
+        DataText,
+        on_delete=models.CASCADE,
+        related_name="llm_response",
+        help_text="The text data",
+    )
+    messages = models.JSONField(
+        help_text="The messages of the llm response",
+        null=True,
+        blank=True,
+        default=list,
+    )
+    result = models.JSONField(
+        help_text="The llm result of the text", null=True, blank=True, default=dict
+    )
+    logs = models.JSONField(
+        help_text="The logs of the llm response", null=True, blank=True, default=dict
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True, help_text="The created time of the llm response"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True, help_text="The updated time of the llm response"
     )
 
 
 class Text2Speech(models.Model):
-    hardware_device_mac_address = models.CharField(
-        max_length=100,
-        help_text="The mac address of the hardware device",
+    home = models.ForeignKey(
+        Home,
+        on_delete=models.CASCADE,
+        related_name="text2speech",
+        null=True,
+        blank=True,
+    )
+    data_text = models.ForeignKey(
+        DataText,
+        on_delete=models.SET_NULL,
+        related_name="text2speech",
+        help_text="The text data",
         null=True,
         blank=True,
     )
     text = models.TextField(help_text="The text of the audio", null=True, blank=True)
-    audio_file = models.CharField(
+    text2speech_file = models.CharField(
         max_length=100, help_text="The audio file", null=True, blank=True
     )
-    spoken = models.BooleanField(
-        help_text="The audio file is spoken or not", default=False
+    played = models.BooleanField(
+        help_text="The audio file is played or not", default=False
     )
     created_at = models.DateTimeField(
         auto_now_add=True, help_text="The created time of the audio"
@@ -163,9 +270,3 @@ class Text2Speech(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True, help_text="The updated time of the audio"
     )
-
-    class Meta:
-        db_table = "text2speech"
-
-    def __str__(self):
-        return f"{self.text} {self.hardware_device_mac_address}"

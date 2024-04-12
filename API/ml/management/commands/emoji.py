@@ -115,11 +115,22 @@ class Command(BaseCommand):
                 )
                 llm_response_obj.save()
 
-                Text2Speech.objects.create(
+                text2speech_obj = Text2Speech.objects.create(
                     home=data_text.home,
                     data_text=data_text,
                     text=llm_response_text,
                 )
+                # queue a task to tts
+                tts_task = Task(
+                    user=user,
+                    name="Jarv5 TTS",
+                    work_type="tts",
+                    parameters={
+                        "text": llm_response_text,
+                        "tts_obj_id": text2speech_obj.id,
+                    },
+                )
+                tts_task.save()
 
             except Exception as e:
                 logger.error(f"Error: {e}")

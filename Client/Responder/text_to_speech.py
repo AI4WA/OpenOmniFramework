@@ -3,7 +3,6 @@ import io
 import os
 import time
 
-from gtts import gTTS
 from pydub import AudioSegment
 from pydub.playback import play
 
@@ -12,7 +11,6 @@ from constants import DATA_DIR
 from utils import get_logger, get_mac_address, timer
 
 logger = get_logger("Responder")
-api_key = os.environ.get("OPENAI_API_KEY")
 
 
 class Text2Speech:
@@ -35,57 +33,10 @@ class Text2Speech:
             # Play the audio
             play(audio)
 
-    #
-    # @staticmethod
-    # def text_to_speech_openai(content: str,
-    #                           model: str = "tts-1",
-    #                           voice: str = "alloy"):
-    #     # API endpoint URL
-    #     url = "https://api.openai.com/v1/audio/speech"
-    #
-    #     # Headers with authorization
-    #     headers = {
-    #         "Authorization": f"Bearer {api_key}"
-    #     }
-    #
-    #     # Request payload
-    #     data = {
-    #         "model": model,
-    #         "input": content,
-    #         "voice": voice,
-    #         "response_format": "mp3"
-    #     }
-    #
-    #     try:
-    #         with timer(logger, "Request to OpenAI"):
-    #             # Make a POST request to the OpenAI audio API
-    #             response = requests.post(url, headers=headers, json=data, stream=True)
-    #
-    #         # Check if the request was successful
-    #         if response.status_code == 200:
-    #             # Use ffmpeg to convert the MP3 audio to WAV format in memory
-    #             process = subprocess.Popen(['ffmpeg', '-i', '-', '-f', 'wav', '-'], stdin=subprocess.PIPE,
-    #                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    #             wav_audio, ffmpeg_error = process.communicate(input=response.content)
-    #             process.wait()
-    #
-    #             if process.returncode == 0:
-    #                 # Convert the WAV audio bytes to AudioSegment
-    #                 audio_content = AudioSegment.from_wav(io.BytesIO(wav_audio))
-    #
-    #                 # Play the audio
-    #                 play(audio_content)
-    #             else:
-    #                 logger.info(f"FFmpeg error: {ffmpeg_error.decode()}")
-    #         else:
-    #             logger.error(f"Error: {response.status_code}\n{response.text}")
-    #     except Exception as error:
-    #         logger.error(f"Error in streamed_audio: {str(error)}")
-
     @staticmethod
-    def play_audio_file(audio_file: str):
+    def play_audio_file(text2speech_file: str):
         # Load the audio into pydub
-        audio = AudioSegment.from_file(audio_file, format="mp3")
+        audio = AudioSegment.from_file(text2speech_file, format="mp3")
 
         # Play the audio
         play(audio)
@@ -98,10 +49,10 @@ if __name__ == "__main__":
     )
     parser.add_argument("--token", default="", help="API token", type=str)
     parser.add_argument(
-        "--listen_mac_address",
-        help="Listen for which device output",
+        "--home_id",
+        help="Listen to which home",
         type=str,
-        default=get_mac_address(),
+        default=None,
     )
     args = parser.parse_args()
 
@@ -109,7 +60,7 @@ if __name__ == "__main__":
     api = API(
         domain=args.api_domain,
         token=args.token,
-        listen_mac_address=args.listen_mac_address,
+        home_id=args.home_id,
     )
     while True:
         # Convert text to speech and play
@@ -119,17 +70,14 @@ if __name__ == "__main__":
             time.sleep(0.25)
             logger.info("No speech content")
             continue
-        # Text2Speech.text_to_speech_and_play(text)
+
         item = speech_content[0]
         text = item["text"]
-        audio_file = item["audio_file"]
-        if audio_file:
-            audio_file = DATA_DIR / audio_file
-        if audio_file and audio_file.exists():
-            Text2Speech.play_audio_file(audio_file)
-
+        text2speech_file = item["text2speech_file"]
+        if text2speech_file:
+            text2speech_file = DATA_DIR / text2speech_file
+        if text2speech_file and text2speech_file.exists():
+            Text2Speech.play_audio_file(text2speech_file)
         else:
             logger.info(f"No audio file for {text}")
             logger.info(f"Text to speech: {text}")
-            with timer(logger, "Text to speech"):
-                Text2Speech.text_to_speech_and_play(text)

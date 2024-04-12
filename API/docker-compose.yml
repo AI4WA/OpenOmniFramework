@@ -42,6 +42,7 @@ services:
     volumes:
       - .:/usr/src/app
       - ../Client/Listener/data:/usr/src/Client/Listener/data
+      - ../Client/Responder/data:/usr/src/Client/Responder/data
       - whisper_cache:/root/.cache
       - .aws:/root/.aws
     environment:

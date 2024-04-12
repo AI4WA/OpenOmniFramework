@@ -21,6 +21,7 @@ class Task(models.Model):
         choices=[
             ("llm", "LLM"),
             ("stt", "Speech2Text"),
+            ("tts", "Text2Speech"),
             ("gpu", "GPU"),
             ("cpu", "CPU"),
             ("cmc", "Call Management Command"),

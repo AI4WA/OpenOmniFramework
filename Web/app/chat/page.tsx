@@ -395,6 +395,8 @@ const ChatGPTApp = () => {
                                className="text-blue-400 hover:text-blue-300 mx-1">
                                 UWA NLP-TLP GROUP
                             </a>
+                            and
+                            UWA HPC Centre
                         </p>
                     </footer>
                 </Box>

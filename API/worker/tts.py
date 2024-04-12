@@ -48,6 +48,7 @@ class TTS:
         text2speech_obj.text2speech_file = f"{tts_obj_id}.wav"
         text2speech_obj.save()
         return True
+
     #
     # @staticmethod
     # def text_to_speech_openai(content: str,

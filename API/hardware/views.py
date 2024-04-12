@@ -69,7 +69,9 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
 
     # retrieve it based on the mac address
     def get_queryset(self):
-        queryset = Text2Speech.objects.filter(played=False, text2speech_file__isnull=False)
+        queryset = Text2Speech.objects.filter(
+            played=False, text2speech_file__isnull=False
+        )
         home_id = self.request.query_params.get("home_id", None)
         logger.info(f"Home id: {home_id}")
         if home_id is not None:

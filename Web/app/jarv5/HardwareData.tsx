@@ -62,17 +62,17 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
 
 
     return (
-        <Box sx={{padding: 2}}>
-            <Typography variant="h5" gutterBottom>
+        <Box sx={{padding: 0}}>
+            <Typography variant="h6" gutterBottom>
                 Hardware Data
             </Typography>
-            <Grid container spacing={2}>
+            <Grid container spacing={1}>
                 {/* Upper section */}
-                <Grid item xs={12} container spacing={2}>
+                <Grid item xs={12} container spacing={1}>
                     {/* Audio Data */}
                     <Grid item xs={12} md={6}>
-                        <Paper elevation={2} sx={{height: '100%', padding: 2, overflow: "auto"}}>
-                            <Typography variant="h6" gutterBottom>
+                        <Paper elevation={1} sx={{height: '100%', padding: 1, overflow: "auto"}}>
+                            <Typography variant="body2" gutterBottom>
                                 Data Audio
                             </Typography>
                             {/* Insert audio data content here */}
@@ -93,8 +93,8 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                     </Grid>
                     {/* Speech to Text Results */}
                     <Grid item xs={12} md={6}>
-                        <Paper elevation={2} sx={{height: '100%', padding: 2, overflow: "auto"}}>
-                            <Typography variant="h6" gutterBottom>
+                        <Paper elevation={1} sx={{height: '100%', padding: 1, overflow: "auto"}}>
+                            <Typography variant="body2" gutterBottom>
                                 Speech to Text
                             </Typography>
                             <List>
@@ -115,8 +115,8 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                 </Grid>
                 {/* Lower section */}
                 <Grid item xs={12}>
-                    <Paper elevation={2} sx={{padding: 2, height: '100%', overflow: "auto"}}>
-                        <Typography variant="h6" gutterBottom>
+                    <Paper elevation={1} sx={{padding: 1, height: '100%', overflow: "auto"}}>
+                        <Typography variant="body2" gutterBottom>
                             Data Video
                         </Typography>
                         <List>

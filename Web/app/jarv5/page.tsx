@@ -7,6 +7,7 @@ import {useQuery, gql} from "@apollo/client";
 import {useAppSelector} from "@/store";
 import Home from "./Home"
 import HardwareData from "@/app/jarv5/HardwareData";
+import Text2Speech from "@/app/jarv5/Text2Speech";
 
 const GET_HOME = gql`
 query GetHome($userId: bigint!) {
@@ -37,7 +38,7 @@ const Jarv5 = () => {
                   sx={{flexGrow: 1, p: 1}}>
                 {/* Vertical Navigation Bar */}
                 <Grid item xs={2}>
-                    <Paper sx={{height: '100%', p: 2, border: '1px solid black'}}>
+                    <Paper sx={{height: '100%', p: 1, border: '1px solid black'}}>
                         <Home homeId={homeId} homeData={data?.hardware_home}/>
                     </Paper>
                 </Grid>
@@ -46,25 +47,22 @@ const Jarv5 = () => {
                 <Grid item xs={10} container>
                     {/* Top Section - divided into two */}
                     <Grid item xs={12} container>
-                        <Grid item xs={9}>
+                        <Grid item xs={8}>
                             <Paper sx={{
                                 height: '100%',
-                                p: 2,
+                                p: 1,
                                 border: '1px solid black'
                             }}>
-
                                 <HardwareData homeId={homeId}/>
                             </Paper>
                         </Grid>
-                        <Grid item xs={3}>
+                        <Grid item xs={4}>
                             <Paper sx={{
                                 height: '100%',
-                                p: 2,
+                                p: 1,
                                 border: '1px solid black'
                             }}>
-                                <Typography variant="h5" component="h2" gutterBottom>
-                                    Response Data
-                                </Typography>
+                                <Text2Speech homeId={homeId}/>
                             </Paper>
                         </Grid>
                     </Grid>
@@ -73,8 +71,7 @@ const Jarv5 = () => {
                     <Grid item xs={12} container>
                         <Grid item xs={12}>
                             <Paper sx={{
-                                p: 2,
-
+                                p: 1,
                                 height: "100%",
                                 border: '1px solid black'
                             }}>
@@ -90,17 +87,18 @@ const Jarv5 = () => {
                         <Grid item xs={4}>
                             <Paper sx={{
                                 height: '100%',
-                                p: 2,
+                                p: 1,
                                 border: '1px solid black',
 
                             }}> <Typography variant="h5" component="h2" gutterBottom>
                                 Emotion Detection
-                            </Typography></Paper>
+                            </Typography>
+                            </Paper>
                         </Grid>
                         <Grid item xs={4}>
                             <Paper sx={{
                                 height: '100%',
-                                p: 2,
+                                p: 1,
                                 border: '1px solid black',
 
                             }}>
@@ -112,7 +110,7 @@ const Jarv5 = () => {
                         <Grid item xs={4}>
                             <Paper sx={{
                                 height: '100%',
-                                p: 2,
+                                p: 1,
                                 border: '1px solid black',
                             }}>
                                 <Typography variant="h5" component="h2" gutterBottom>

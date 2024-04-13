@@ -74,7 +74,7 @@ def gather_data():
 
     # trigger the model
     logger.info(f"Text: {text}, Audio: {audio_file}, Images: {len(image_np_list)}")
-    trigger_model(text, [audio_file], image_np_list)
+    # trigger_model(text, [audio_file], image_np_list)
     return text, [audio_file], image_np_list, audio_data
 
 
@@ -100,7 +100,7 @@ def trigger_model(text, audio, images) -> Optional[str]:
     feature_audio = (
         get_features_obj.get_audio_embedding(audio) if audio is not None else None
     )  # (94,33)
-    #input raw text into the model 
+    # input raw text into the model
     # feature_text = (
     #     get_features_obj.get_text_embeddings(text) if text is not None else None
     # )  # (n+2,768)

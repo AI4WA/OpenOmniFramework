@@ -20,7 +20,6 @@ FPS = 24.0
 
 
 class VideoAcquire:
-
     def __init__(
         self,
         width=WIDTH,
@@ -59,13 +58,13 @@ class VideoAcquire:
         # set the frame per second
         cap.set(cv2.CAP_PROP_FPS, 24.0)
         # use the XVID codec
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")  # noqa
+        fourcc = cv2.VideoWriter_fourcc(*"avc1")  # noqa
 
         cap_fps = cap.get(5)  # 获取摄像头帧率   帧率为30
         logger.info(f"the fps of the camera is {cap_fps}")
 
         start_time = datetime.now()
-        filename = self.data_dir / (start_time.strftime("%Y-%m-%d_%H-%M-%S") + ".avi")
+        filename = self.data_dir / (start_time.strftime("%Y-%m-%d_%H-%M-%S") + ".mp4")
         out = cv2.VideoWriter(
             filename.as_posix(), fourcc, self.fps, (self.width, self.height)
         )  # noqa
@@ -82,7 +81,7 @@ class VideoAcquire:
                     # 重新开始新的视频录制
                     start_time = datetime.now()
                     filename = self.data_dir / (
-                        start_time.strftime("%Y-%m-%d_%H-%M-%S") + ".avi"
+                        start_time.strftime("%Y-%m-%d_%H-%M-%S") + ".mp4"
                     )
                     out = cv2.VideoWriter(
                         filename.as_posix(), fourcc, FPS, (self.width, self.height)

@@ -25,10 +25,12 @@ class SyncHandler(FileSystemEventHandler):
         if event.is_directory:
             return None
 
-        elif event.event_type in ('created', 'modified', 'moved', 'deleted'):
+        elif event.event_type in ("created", "modified", "moved", "deleted"):
             # print(f"Event type: {event.event_type} - Path: {event.src_path}")
             # only process .avi and .wav files
-            if not event.src_path.endswith(".avi") and not event.src_path.endswith(".wav"):
+            if not event.src_path.endswith(".mp4") and not event.src_path.endswith(
+                ".wav"
+            ):
                 return None
             try:
                 s3_client.upload_file(
@@ -43,20 +45,17 @@ class SyncHandler(FileSystemEventHandler):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--home_id",
         required=True,
         help="The home id to sync, this is normally the folder from the client end,"
-             "we can work it out",
+        "we can work it out",
         type=int,
     )
     args = parser.parse_args()
 
-    event_handler = SyncHandler(
-        home_id=args.home_id
-    )
+    event_handler = SyncHandler(home_id=args.home_id)
     observer = Observer()
     observer.schedule(event_handler, DATA_DIR.as_posix(), recursive=True)
     observer.start()

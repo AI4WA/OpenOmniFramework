@@ -110,6 +110,50 @@ class VideoDataViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(
+        operation_summary="Get a video data s3 url",
+        operation_description="Get a video data",
+        responses={200: "The video data"},
+        tags=["hardware"],
+    )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="get_video_data",
+        url_name="get_video_data",
+    )
+    def get_video_data(self, request):
+        video_id = request.data.get("video_id", None)
+        if video_id is None:
+            return Response(
+                {"message": "video_id is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        video_obj = DataVideo.objects.filter(id=video_id).first()
+        if video_obj is None:
+            return Response(
+                {"message": "No video data found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        try:
+            response = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.CSV_BUCKET,
+                    "Key": f"Listener/videos/{video_obj.uid}/{video_obj.video_file}",
+                },
+                ExpiresIn=3600,
+            )
+
+            return Response({"video_url": response}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            return Response(
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class Text2SpeechViewSet(viewsets.ModelViewSet):
     queryset = Text2Speech.objects.all()

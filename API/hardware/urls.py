@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from hardware.views import (
@@ -11,6 +11,7 @@ from hardware.views import (
 router = DefaultRouter()
 
 router.register(r"audio", AudioDataViewSet, basename="")
+router.register(r"video", VideoDataViewSet, basename="")
 
 urlpatterns = [
     path(
@@ -19,16 +20,6 @@ urlpatterns = [
             {"get": "list", "post": "create", "put": "update"}
         ),
         name="hardware",
-    ),
-    # path(
-    #     "audio/",
-    #     AudioDataViewSet.as_view({"get": "retrieve", "post": "create"}),
-    #     name="audio_data",
-    # ),
-    path(
-        "video/",
-        VideoDataViewSet.as_view({"get": "retrieve", "post": "create"}),
-        name="video_data",
     ),
     path(
         "speech/",

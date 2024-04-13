@@ -95,7 +95,7 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({
     // if the processMonitorData is updated, then update the selectedTextId to the latest one
     useEffect(() => {
         if (processMonitorData) {
-            setSelectedTextId(processMonitorData.hardware_dataaudio[0].hardware_datatexts[0].id);
+            setSelectedTextId(processMonitorData.hardware_dataaudio[0]?.hardware_datatexts?.[0].id);
         }
     }, [processMonitorData, setSelectedTextId]);
 

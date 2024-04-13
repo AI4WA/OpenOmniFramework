@@ -12,8 +12,8 @@ import ProcessMonitor from "@/app/jarv5/ProcessMonitor";
 import BrainView from "@/app/jarv5/BrainView";
 
 const GET_HOME = gql`
-query GetHome($userId: bigint!) {
-    hardware_home(where: {user_id: {_eq: $userId}}) {
+query GetHome {
+    hardware_home{
         id
         name
         address

@@ -2,7 +2,7 @@
 import React, {useEffect, useState} from "react";
 import Header from "@/components/Header";
 import isAuth from "@/app/isAuth";
-import {Grid, Paper, Typography} from '@mui/material';
+import {Grid, Paper} from '@mui/material';
 import {useQuery, gql} from "@apollo/client";
 import {useAppSelector} from "@/store";
 import Home from "./Home"
@@ -37,6 +37,7 @@ const Jarv5 = () => {
     return (
         <div style={{display: 'flex', flexDirection: 'column', height: '100vh'}}> {/* Step 1 & 2 */}
             <Header/>
+
             <Grid container spacing={2} sx={{flexGrow: 1, overflow: 'hidden'}}>
                 {/* Vertical Navigation Bar */}
                 <Grid item xs={2} sx={{

@@ -100,9 +100,10 @@ def trigger_model(text, audio, images) -> Optional[str]:
     feature_audio = (
         get_features_obj.get_audio_embedding(audio) if audio is not None else None
     )  # (94,33)
-    feature_text = (
-        get_features_obj.get_text_embeddings(text) if text is not None else None
-    )  # (n+2,768)
+    #input raw text into the model 
+    # feature_text = (
+    #     get_features_obj.get_text_embeddings(text) if text is not None else None
+    # )  # (n+2,768)
     # logger.info( f"feature_video: {feature_video.shape}, feature_audio: {feature_audio.shape}, feature_text: {
     # feature_text[1].shape}" )
 
@@ -121,7 +122,7 @@ def trigger_model(text, audio, images) -> Optional[str]:
 
     logger.info(feature_text)
     # run model
-    output = model(feature_text[1], feature_audio, feature_video)
+    output = model(text, feature_audio, feature_video)
     logger.critical(f"output: {output}")
     # loop the output dict, get all of them into float
     for k, v in output.items():

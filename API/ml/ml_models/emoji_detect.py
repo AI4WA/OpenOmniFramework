@@ -120,7 +120,6 @@ def trigger_model(text, audio, images) -> Optional[str]:
     )
     model.eval()
 
-    logger.info(feature_text)
     # run model
     output = model(text, feature_audio, feature_video)
     logger.critical(f"output: {output}")

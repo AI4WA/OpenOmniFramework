@@ -93,7 +93,7 @@ class SentimentAnalysis(nn.Module):
         flag = [0, 0, 0]
         res = {}
         if text_x is not None:
-            # text_x = self.text_model(text_x)[:, 0, :]
+            text_x = self.text_model(text_x)[:, 0, :]
             text_x = torch.mean(text_x, dim=0, keepdim=True)
             text_h = self.tliner(text_x)
             # text

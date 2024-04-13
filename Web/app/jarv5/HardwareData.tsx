@@ -5,6 +5,8 @@ import {
     List, ListItem, ListItemText, Divider
 } from "@mui/material";
 import {useSubscription, gql} from "@apollo/client";
+import moment from "moment";
+
 
 interface HardwareDataProps {
     homeId: number | null;
@@ -103,8 +105,8 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                                     <React.Fragment key={index}>
                                         <ListItem>
                                             <ListItemText
-                                                primary={`Audio File: ${audio.audio_file}/${audio.uid}`}
-                                                secondary={`Created at: ${audio.created_at}`}
+                                                primary={`Audio File: ${audio.audio_file}`}
+                                                secondary={`Created at: ${moment(audio.created_at).format('MMMM Do hh:mm:ss a')}`}
                                             />
                                         </ListItem>
                                         <Divider component="li"/>
@@ -115,17 +117,17 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                     </Grid>
                     {/* Speech to Text Results */}
                     <Grid item xs={12} md={6}>
-                        <Paper elevation={1} sx={{padding: 1}}>
+                        <Paper elevation={1} sx={{padding: 1, overflow: "auto"}}>
                             <Typography variant="body2" gutterBottom>
-                                Speech to Text
+                                Data Video
                             </Typography>
                             <List sx={{overflow: "auto", height: "13vh"}}>
-                                {textData?.hardware_datatext.map((textObj: TextData, index: number) => (
+                                {videoData?.hardware_datavideo.map((videoObj: VideoData, index: number) => (
                                     <React.Fragment key={index}>
                                         <ListItem>
                                             <ListItemText
-                                                primary={`STT: ${textObj.text}`}
-                                                secondary={`Created at: ${textObj.created_at}`}
+                                                primary={`Video: ${videoObj.video_file}`}
+                                                secondary={`Created at: ${moment(videoObj.created_at).format('MMMM Do hh:mm:ss a')}`}
                                             />
                                         </ListItem>
                                         <Divider component="li"/>
@@ -133,21 +135,22 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                                 ))}
                             </List>
                         </Paper>
+
                     </Grid>
                 </Grid>
                 {/* Lower section for video data */}
                 <Grid item xs={12}>
-                    <Paper elevation={1} sx={{padding: 1, overflow: "auto"}}>
+                    <Paper elevation={1} sx={{padding: 1}}>
                         <Typography variant="body2" gutterBottom>
-                            Data Video
+                            Speech to Text
                         </Typography>
                         <List sx={{overflow: "auto", height: "13vh"}}>
-                            {videoData?.hardware_datavideo.map((videoObj: VideoData, index: number) => (
+                            {textData?.hardware_datatext.map((textObj: TextData, index: number) => (
                                 <React.Fragment key={index}>
                                     <ListItem>
                                         <ListItemText
-                                            primary={`Video: ${videoObj.video_file}/${videoObj.video_record_minute} min`}
-                                            secondary={`Created at: ${videoObj.created_at}`}
+                                            primary={`${textObj.text}`}
+                                            secondary={`Created at: ${moment(textObj.created_at).format('MMMM Do hh:mm:ss a')}`}
                                         />
                                     </ListItem>
                                     <Divider component="li"/>

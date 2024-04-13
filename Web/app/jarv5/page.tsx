@@ -30,7 +30,7 @@ const Jarv5 = () => {
 
     useEffect(() => {
         if (data) {
-            setHomeId(data.hardware_home[0].id)
+            setHomeId(data.hardware_home[0]?.id)
         }
     }, [data])
 
@@ -43,7 +43,9 @@ const Jarv5 = () => {
                     height: "calc(100vh - 124px)",
                 }}>
                     <Paper sx={{
-                        height: '100%', p: 1, border: '1px solid black',
+                        height: '100%',
+                        width: '100%',
+                        p: 1, border: '1px solid black',
                         display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center'
                     }}>
                         <Home homeId={homeId} homeData={data?.hardware_home}/>

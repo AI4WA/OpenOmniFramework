@@ -22,7 +22,7 @@ const Home: React.FC<HomeProps> = ({homeId, homeData}) => {
     const selectedHome = homeData?.find(home => home.id === homeId);
 
     return (
-        <Card raised sx={{height: "100%"}}>
+        <Card raised sx={{height: "100%", width: "100%"}}>
             <CardContent sx={{height: "100%"}}>
                 <Box sx={{
                     height: "50%",

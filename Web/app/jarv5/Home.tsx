@@ -5,7 +5,6 @@ import {
     Card,
     CardContent,
     Box,
-    // Grid
 } from "@mui/material";
 import Image from 'next/image';
 
@@ -38,13 +37,6 @@ const Home: React.FC<HomeProps> = ({homeId, homeData}) => {
                             <Typography variant="h5" component="h2" gutterBottom>
                                 {selectedHome.name}
                             </Typography>
-                            {/*<Grid container spacing={1} justifyContent="center">*/}
-                            {/*    <Grid item xs={12}>*/}
-                            {/*        <Typography variant="body2" color="text.secondary" align="left">*/}
-                            {/*            {selectedHome.address}*/}
-                            {/*        </Typography>*/}
-                            {/*    </Grid>*/}
-                            {/*</Grid>*/}
                         </>
                     ) : (
                         <Typography color="text.secondary" align="center">
@@ -64,6 +56,12 @@ const Home: React.FC<HomeProps> = ({homeId, homeData}) => {
                                height={64}/>
                         <Typography variant="h5" component="h2" gutterBottom>
                             Jarv5
+                        </Typography>
+                        <Typography color="text.secondary" align="center">
+                            Aged Care AI Robot
+                        </Typography>
+                        <Typography color="text.secondary" align="center" variant="body2">
+                            Health monitoring and Emotion support
                         </Typography>
                     </>
 

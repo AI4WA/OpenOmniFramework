@@ -28,11 +28,13 @@
     "react": "^18",
     "react-dom": "^18",
     "react-redux": "^9.1.0",
+    "react-wavesurfer.js": "^0.0.8",
     "recharts": "2",
     "redux-persist": "^6.0.0",
     "styled-components": "^6.1.8",
     "subscriptions-transport-ws": "^0.11.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "wavesurfer.js": "^7.7.10"
   },
   "devDependencies": {
     "@types/node": "^20",

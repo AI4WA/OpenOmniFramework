@@ -1,5 +1,6 @@
 import torchaudio
 from django.conf import settings
+from openai import OpenAI
 from tortoise import api
 
 from authenticate.utils.get_logger import get_logger
@@ -7,17 +8,16 @@ from hardware.models import Text2Speech
 
 logger = get_logger(__name__)
 
-tts_model = api.TextToSpeech(use_deepspeed=True, kv_cache=True)
-
 
 class TTS:
     SUPPORTED_MODELS = ["tortoise-tts"]
 
-    def __init__(self):
+    def __init__(self, model_name: str = "openai"):
         """
         Initialize the STT object
         """
-        self.tts = tts_model
+        self.tts = api.TextToSpeech(use_deepspeed=True, kv_cache=True)
+        self.model_name = model_name
 
     def handle_task(self, task):
         """
@@ -34,64 +34,58 @@ class TTS:
             logger.error(f"Text2Speech object not found with id {tts_obj_id}")
             return
 
-        text2speech_audio = self.tts.tts_with_preset(
-            text=text2speech_obj.text, preset="ultra_fast"
-        )
-        logger.info(f"Text2Speech audio: {text2speech_audio}")
-        torchaudio.save(
-            (
-                settings.CLIENT_DATA_FOLDER / "Responder" / "data" / f"{tts_obj_id}.wav"
-            ).as_posix(),
-            text2speech_audio.squeeze(0).cpu(),
-            24000,
-        )
-        text2speech_obj.text2speech_file = f"{tts_obj_id}.wav"
-        text2speech_obj.save()
+        if self.model_name == "tortoise-tts":
+            text2speech_audio = self.tts.tts_with_preset(
+                text=text2speech_obj.text, preset="ultra_fast"
+            )
+            logger.info(f"Text2Speech audio: {text2speech_audio}")
+            torchaudio.save(
+                (
+                    settings.CLIENT_DATA_FOLDER
+                    / "Responder"
+                    / "data"
+                    / f"{tts_obj_id}.wav"
+                ).as_posix(),
+                text2speech_audio.squeeze(0).cpu(),
+                24000,
+            )
+            text2speech_obj.text2speech_file = f"{tts_obj_id}.wav"
+            text2speech_obj.save()
+        elif self.model_name == "openai":
+            self.text_to_speech_openai(text2speech_obj)
         return True
 
-    #
-    # @staticmethod
-    # def text_to_speech_openai(content: str,
-    #                           model: str = "tts-1",
-    #                           voice: str = "alloy"):
-    #     # API endpoint URL
-    #     url = "https://api.openai.com/v1/audio/speech"
-    #
-    #     # Headers with authorization
-    #     headers = {
-    #         "Authorization": f"Bearer {api_key}"
-    #     }
-    #
-    #     # Request payload
-    #     data = {
-    #         "model": model,
-    #         "input": content,
-    #         "voice": voice,
-    #         "response_format": "mp3"
-    #     }
-    #
-    #     try:
-    #         with timer(logger, "Request to OpenAI"):
-    #             # Make a POST request to the OpenAI audio API
-    #             response = requests.post(url, headers=headers, json=data, stream=True)
-    #
-    #         # Check if the request was successful
-    #         if response.status_code == 200:
-    #             # Use ffmpeg to convert the MP3 audio to WAV format in memory
-    #             process = subprocess.Popen(['ffmpeg', '-i', '-', '-f', 'wav', '-'], stdin=subprocess.PIPE,
-    #                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    #             wav_audio, ffmpeg_error = process.communicate(input=response.content)
-    #             process.wait()
-    #
-    #             if process.returncode == 0:
-    #                 # Convert the WAV audio bytes to AudioSegment
-    #                 audio_content = AudioSegment.from_wav(io.BytesIO(wav_audio))
-    #
-    #                 # Play the audio
-    #                 play(audio_content)
-    #             else:
-    #                 logger.info(f"FFmpeg error: {ffmpeg_error.decode()}")
-    #         else:
-    #             logger.error(f"Error: {response.status_code}\n{response.text}")
-    #     except Exception as error:
-    #         logger.error(f"Error in streamed_audio: {str(error)}")
+    def text_to_speech_openai(self, text2speech_obj: Text2Speech):
+        audio_file_path = (
+            settings.CLIENT_DATA_FOLDER
+            / "Responder"
+            / "data"
+            / f"{text2speech_obj.id}.mp3"
+        ).as_posix()
+
+        client = OpenAI()
+
+        response = client.audio.speech.create(
+            model="tts-1",
+            voice="alloy",
+            input=text2speech_obj.text,
+        )
+        response.stream_to_file(audio_file_path)
+        text2speech_obj.text2speech_file = f"{text2speech_obj.id}.mp3"
+        text2speech_obj.save()
+        self.upload_to_s3(audio_file_path, f"tts/{text2speech_obj.id}.mp3")
+
+    @staticmethod
+    def upload_to_s3(file_path: str, s3_key: str):
+        """
+        Upload the file to S3
+        :param file_path: The file path
+        :param s3_key: The S3 key
+        :return: The S3 URL
+        """
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        s3_client.upload_file(
+            file_path,
+            settings.CSV_BUCKET,
+            s3_key,
+        )

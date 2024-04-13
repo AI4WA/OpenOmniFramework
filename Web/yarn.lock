@@ -3068,6 +3068,11 @@ react-transition-group@^4.4.5:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
+react-wavesurfer.js@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/react-wavesurfer.js/-/react-wavesurfer.js-0.0.8.tgz#89de500f0e8179f9e4e556b33bce02d868aeed13"
+  integrity sha512-73UDCIbHolcKsT8mVKiMxsgBwNvjOtq1eVisLV/d7W7+1W/y0cpBsEfSHfEIS63au9bXpepC+pGiN5kepWrUuw==
+
 react@^18:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.2.0.tgz#555bd98592883255fa00de14f1151a917b5d77d5"
@@ -3742,6 +3747,11 @@ victory-vendor@^36.6.8:
     d3-shape "^3.1.0"
     d3-time "^3.0.0"
     d3-timer "^3.0.1"
+
+wavesurfer.js@^7.7.10:
+  version "7.7.10"
+  resolved "https://registry.yarnpkg.com/wavesurfer.js/-/wavesurfer.js-7.7.10.tgz#b33abea4dc153b5302117c22ebaab7f38e8ad931"
+  integrity sha512-fpQ/OiHGkFxD6cJRuU/VQ+iuYM4ipMvMyD5fp0ENPPHYwiZeb01nqXYdXPemK70vAxNDHkVqAsFqLZEchxySJg==
 
 which-boxed-primitive@^1.0.2:
   version "1.0.2"

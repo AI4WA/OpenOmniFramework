@@ -68,16 +68,18 @@ class Command(BaseCommand):
             try:
                 # the next step is to trigger the llm model
                 if emotion_output is None:
-                    emotion_signal = "未知的"
+                    emotion_signal = " You customer emotion is unknown."
                 else:
-                    emotion_signal = (
-                        "积极的" if emotion_output.get("M", 0) > 0 else "消极的"
-                    )
+                    emotion_signal = f"""
+                    For emotion, we have value to measure it, 0 is neutral, -1 is negative, 1 is positive.
+                    It scales from -1 to 1,
+                    You customer emotion is {emotion_output}
+                    """
                 # Here we can load chat history
-                prompt = (
-                    f"You are an aged care robot, ：{emotion_signal}。他说了句话：{text}。 "
-                    f"你的回答是："
-                )
+                prompt = f"""You are an aged care robot, {emotion_signal}.
+                        He just said：{text}.
+                        You reply will be? It will directly play back to the user.
+                    """
 
                 # create a task for the llm model, and then check for result
                 user = data_text.home.user if data_text.home else None

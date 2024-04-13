@@ -1,7 +1,6 @@
 import logging
 
 from django.conf import settings
-from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets

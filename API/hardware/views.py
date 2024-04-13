@@ -2,9 +2,12 @@ import logging
 from datetime import datetime
 
 import pytz
+from django.conf import settings
+from drf_yasg.utils import swagger_auto_schema
 
 # Create your views here.
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from hardware.models import DataAudio, DataVideo, HardWareDevice, Home, Text2Speech
@@ -26,6 +29,51 @@ class HardWareDeviceViewSet(viewsets.ModelViewSet):
 class AudioDataViewSet(viewsets.ModelViewSet):
     queryset = DataAudio.objects.all()
     serializer_class = AudioDataSerializer
+
+    @swagger_auto_schema(
+        operation_summary="Get an audio data s3 url",
+        operation_description="Get an audio data",
+        responses={200: "The audio data"},
+        tags=["hardware"],
+    )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="get_audio_data",
+        url_name="get_audio_data",
+    )
+    def get_audio_data(self, request):
+        """Override the post method to add custom swagger documentation."""
+        audio_id = request.data.get("audio_id", None)
+        if audio_id is None:
+            return Response(
+                {"message": "audio_id is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        audio_obj = DataAudio.objects.filter(id=audio_id).first()
+        if audio_obj is None:
+            return Response(
+                {"message": "No audio data found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        try:
+            response = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.CSV_BUCKET,
+                    "Key": f"Listener/audio/{audio_obj.uid}/audio/{audio_obj.audio_file}",
+                },
+                ExpiresIn=3600,
+            )
+
+            return Response({"audio_url": response}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            return Response(
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class VideoDataViewSet(viewsets.ModelViewSet):
@@ -62,6 +110,50 @@ class VideoDataViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(
+        operation_summary="Get a video data s3 url",
+        operation_description="Get a video data",
+        responses={200: "The video data"},
+        tags=["hardware"],
+    )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="get_video_data",
+        url_name="get_video_data",
+    )
+    def get_video_data(self, request):
+        video_id = request.data.get("video_id", None)
+        if video_id is None:
+            return Response(
+                {"message": "video_id is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        video_obj = DataVideo.objects.filter(id=video_id).first()
+        if video_obj is None:
+            return Response(
+                {"message": "No video data found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        try:
+            response = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.CSV_BUCKET,
+                    "Key": f"Listener/videos/{video_obj.uid}/{video_obj.video_file}",
+                },
+                ExpiresIn=3600,
+            )
+
+            return Response({"video_url": response}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            return Response(
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class Text2SpeechViewSet(viewsets.ModelViewSet):
     queryset = Text2Speech.objects.all()
@@ -91,3 +183,48 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
             return [item]
         else:
             return None
+
+    @swagger_auto_schema(
+        operation_summary="Get speech audio s3 url",
+        operation_description="Get the text to speech audio s3 url",
+        responses={200: "The text to speech"},
+        tags=["hardware"],
+    )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="get_text_to_speech",
+        url_name="get_text_to_speech",
+    )
+    def get_text_to_speech(self, request):
+        """Override the post method to add custom swagger documentation."""
+        text2speech_id = request.data.get("text2speech_id", None)
+        if text2speech_id is None:
+            return Response(
+                {"message": "text2speech_id is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        text2speech_obj = Text2Speech.objects.filter(id=text2speech_id).first()
+        if text2speech_obj is None:
+            return Response(
+                {"message": "No text to speech found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        try:
+            response = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.CSV_BUCKET,
+                    "Key": f"tts/{text2speech_obj.text2speech_file}",
+                },
+                ExpiresIn=3600,
+            )
+
+            return Response({"tts_url": response}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            return Response(
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

@@ -3,10 +3,11 @@
 import argparse
 import subprocess
 import time
-from constants import DATA_DIR
+
+import boto3
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-import boto3
+
 from constants import DATA_DIR, S3_BUCKET
 from utils import get_logger
 

@@ -2,9 +2,12 @@ import logging
 from datetime import datetime
 
 import pytz
+from django.conf import settings
+from drf_yasg.utils import swagger_auto_schema
 
 # Create your views here.
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from hardware.models import DataAudio, DataVideo, HardWareDevice, Home, Text2Speech
@@ -91,3 +94,48 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
             return [item]
         else:
             return None
+
+    @swagger_auto_schema(
+        operation_summary="Get the text to speech audio s3 url",
+        operation_description="Get the text to speech audio s3 url",
+        responses={200: "The text to speech"},
+        tags=["hardware"],
+    )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="get_text_to_speech",
+        url_name="get_text_to_speech",
+    )
+    def get_text_to_speech(self, request):
+        """Override the post method to add custom swagger documentation."""
+        text2speech_id = request.data.get("text2speech_id", None)
+        if text2speech_id is None:
+            return Response(
+                {"message": "text2speech_id is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        text2speech_obj = Text2Speech.objects.filter(id=text2speech_id).first()
+        if text2speech_obj is None:
+            return Response(
+                {"message": "No text to speech found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        try:
+            response = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.CSV_BUCKET,
+                    "Key": f"tts/{text2speech_obj.text2speech_file}",
+                },
+                ExpiresIn=3600,
+            )
+
+            return Response({"tts_url": response}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            return Response(
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

@@ -25,5 +25,9 @@ urlpatterns = [
         VideoDataViewSet.as_view({"get": "retrieve", "post": "create"}),
         name="video_data",
     ),
-    path("speech/", Text2SpeechViewSet.as_view({"get": "list"}), name="text2speech"),
+    path(
+        "speech/",
+        Text2SpeechViewSet.as_view({"get": "list", "post": "get_text_to_speech"}),
+        name="text2speech",
+    ),
 ]

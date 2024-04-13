@@ -37,7 +37,7 @@ interface TextData {
 
 const DATA_AUDIO_SUBSCRIPTION = gql`
 subscription DataAudioSubscription($homeId: bigint!) {
-  hardware_dataaudio(where: {home_id: {_eq: $homeId}}) {
+  hardware_dataaudio(where: {home_id: {_eq: $homeId}}, order_by: {created_at: desc}) {
     audio_file
     created_at
     start_time
@@ -51,7 +51,7 @@ subscription DataAudioSubscription($homeId: bigint!) {
 
 const DATA_VIDEO_SUBSCRIPTION = gql`
 subscription DataVideoSubscription($homeId: bigint!) {
-  hardware_datavideo(where: {home_id: {_eq: $homeId}}) {
+  hardware_datavideo(where: {home_id: {_eq: $homeId}}, order_by: {created_at: desc}) {
     video_file
     created_at
     uid
@@ -63,7 +63,7 @@ subscription DataVideoSubscription($homeId: bigint!) {
 
 const DATA_TEXT_SUBSCRIPTION = gql`
 subscription DataTextSubscription($homeId: bigint!) {
-  hardware_datatext(where: {home_id: {_eq: $homeId}}) {
+  hardware_datatext(where: {home_id: {_eq: $homeId}}, order_by: {created_at: desc}) {
     text
     created_at
   }
@@ -83,7 +83,6 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
     const {data: textData} = useSubscription(DATA_TEXT_SUBSCRIPTION, {
         variables: {homeId}
     })
-
 
     return (
         <Box sx={{padding: 0, height: '100%'}}>

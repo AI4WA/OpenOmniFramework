@@ -4,7 +4,6 @@ from django.db import models
 
 from authenticate.models import User
 
-
 # Create your models here.
 
 

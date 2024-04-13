@@ -7,7 +7,7 @@ import pytz
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
-from hardware.models import AudioData, HardWareDevice, Text2Speech, VideoData
+from hardware.models import DataAudio, DataVideo, HardWareDevice, Home, Text2Speech
 from hardware.serializers import (
     AudioDataSerializer,
     HardWareDeviceSerializer,
@@ -24,12 +24,12 @@ class HardWareDeviceViewSet(viewsets.ModelViewSet):
 
 
 class AudioDataViewSet(viewsets.ModelViewSet):
-    queryset = AudioData.objects.all()
+    queryset = DataAudio.objects.all()
     serializer_class = AudioDataSerializer
 
 
 class VideoDataViewSet(viewsets.ModelViewSet):
-    queryset = VideoData.objects.all()
+    queryset = DataVideo.objects.all()
     serializer_class = VideoDataSerializer
 
     # overwrite the create method
@@ -69,18 +69,23 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
 
     # retrieve it based on the mac address
     def get_queryset(self):
-        queryset = Text2Speech.objects.all()
-        mac_address = self.request.query_params.get("mac_address", None)
-        if mac_address is not None:
-            # order by created_at, the oldest one will be the first one
+        queryset = Text2Speech.objects.filter(
+            played=False, text2speech_file__isnull=False
+        )
+        home_id = self.request.query_params.get("home_id", None)
+        logger.info(f"Home id: {home_id}")
+        if home_id is not None:
+            home = Home.objects.filter(id=home_id).first()
+            if not home:
+                return None
             queryset = queryset.filter(
-                hardware_device_mac_address=mac_address, spoken=False
+                home=home, played=False, text2speech_file__isnull=False
             )
 
         queryset = queryset.order_by("created_at")
         item = queryset.first()
         if item:
-            item.spoken = True
+            item.played = True
             item.save()
         if item:
             return [item]

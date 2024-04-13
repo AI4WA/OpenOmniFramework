@@ -42,6 +42,7 @@ services:
     volumes:
       - .:/usr/src/app
       - ../Client/Listener/data:/usr/src/Client/Listener/data
+      - ../Client/Responder/data:/usr/src/Client/Responder/data
       - whisper_cache:/root/.cache
       - .aws:/root/.aws
     environment:
@@ -50,7 +51,6 @@ services:
       - DB_PASS=yourpassword
       - DB_SERVICE=pgdb
       - DB_PORT=5432
-      - TASK_TYPE=llm
       - LLM_MODEL_NAME=llama2-7b-chat
     depends_on:
       - db

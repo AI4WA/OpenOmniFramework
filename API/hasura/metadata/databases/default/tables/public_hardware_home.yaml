@@ -1,0 +1,34 @@
+table:
+  name: hardware_home
+  schema: public
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - id
+        - user_id
+        - address
+        - name
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - user_id
+        - address
+        - name
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - user_id
+        - address
+        - name
+      filter: {}
+      allow_aggregations: true
+    comment: ""

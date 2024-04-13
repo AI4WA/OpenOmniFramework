@@ -1,8 +1,6 @@
-from datetime import datetime
-
 from rest_framework import serializers
 
-from hardware.models import AudioData, HardWareDevice, Text2Speech, VideoData
+from hardware.models import DataAudio, DataVideo, HardWareDevice, Text2Speech
 
 
 class HardWareDeviceSerializer(serializers.ModelSerializer):
@@ -13,7 +11,7 @@ class HardWareDeviceSerializer(serializers.ModelSerializer):
 
 class AudioDataSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AudioData
+        model = DataAudio
         fields = "__all__"
 
 
@@ -23,7 +21,7 @@ class VideoDataSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = VideoData
+        model = DataVideo
         fields = "__all__"
 
 

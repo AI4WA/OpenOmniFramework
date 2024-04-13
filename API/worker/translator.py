@@ -3,11 +3,10 @@ from datetime import datetime
 import torch
 import whisper
 from django.conf import settings
-from django.utils.timezone import make_aware
 
 from authenticate.utils.get_logger import get_logger
 from authenticate.utils.timer import timer
-from hardware.models import AudioData
+from hardware.models import DataAudio, DataText, Home
 
 logger = get_logger(__name__)
 
@@ -94,22 +93,45 @@ class Translator:
             task.save()
             logger.info(f"Task {task.id} completed")
             logger.info(task.__dict__)
-            AudioData.create_obj(
-                hardware_device_mac_address=task.parameters.get(
-                    "hardware_device_mac_address", ""
-                ),
+            # create data text object
+            data_audio = DataAudio.objects.filter(
                 uid=task.parameters["uid"],
                 sequence_index=int(task.parameters["audio_index"]),
+            ).first()
+            if data_audio is None:
+                logger.error(f"Data audio not found")
+                try:
+                    home = Home.objects.get(id=task.parameters.get("home_id", None))
+                except Home.DoesNotExist:
+                    logger.error(f"Home not found")
+                    home = None
+                data_audio = DataAudio.create_obj(
+                    home=home,
+                    uid=task.parameters["uid"],
+                    hardware_device_mac_address=task.parameters.get(
+                        "hardware_device_mac_address", ""
+                    ),
+                    sequence_index=int(task.parameters["audio_index"]),
+                    audio_file=audio_file.as_posix().split("/")[-1],
+                    start_time=datetime.strptime(
+                        task.parameters["start_time"], "%Y-%m-%dT%H:%M:%S.%f%z"
+                    ),
+                    end_time=datetime.strptime(
+                        task.parameters["end_time"], "%Y-%m-%dT%H:%M:%S.%f%z"
+                    ),
+                )
+            else:
+                home = data_audio.home
+            data_text = DataText(
+                home=home,
+                audio=data_audio,
                 text=result["text"],
-                audio_file=audio_file.as_posix().split("/")[-1],
+                logs=result,
                 translation_in_seconds=translation_in_seconds,
-                start_time=datetime.strptime(
-                    task.parameters["start_time"], "%Y-%m-%dT%H:%M:%S.%f%z"
-                ),
-                end_time=datetime.strptime(
-                    task.parameters["end_time"], "%Y-%m-%dT%H:%M:%S.%f%z"
-                ),
+                pipeline_triggered=False,
             )
+            data_text.save()
+
         except FileNotFoundError:
             # then we need to try later as the sync is not done yet
             logger.error(f"Audio file not found, will try later")

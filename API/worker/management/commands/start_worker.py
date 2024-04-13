@@ -6,22 +6,15 @@ from django.core.management.base import BaseCommand
 from authenticate.utils.get_logger import get_logger
 from worker.models import Task
 from worker.translator import Translator
+from worker.tts import TTS
 
 logger = get_logger(__name__)
 
-LISTEN_TO_TASKS = ["stt", "cmc"]
+LISTEN_TO_TASKS = ["stt", "cmc", "tts"]
 
 
 class Command(BaseCommand):
-    help = "Run the worker to finish the llm or stt tasks."
-
-    def add_arguments(self, parser):
-        """
-        Add arguments to the command
-        """
-        parser.add_argument(
-            "--task_type", type=str, help="The type of task to run", default="stt"
-        )
+    help = "Run the worker to finish the cmc or stt tasks."
 
     def handle(self, *args, **options):
         """
@@ -29,12 +22,10 @@ class Command(BaseCommand):
         Loop through all tasks and check if they are completed
 
         """
-        task_type = options["task_type"]
-        if task_type == "stt":
-            logger.info("Running STT worker...")
-            translator = Translator()
-        else:
-            translator = None
+
+        logger.info("Running worker for stt and cmc")
+        translator = Translator()
+
         while True:
             tasks = Task.objects.filter(
                 result_status="pending", work_type__in=LISTEN_TO_TASKS
@@ -46,6 +37,8 @@ class Command(BaseCommand):
                     self.run_stt_task(translator, task)
                 elif task.work_type == "cmc":
                     self.run_cmc_task(task)
+                elif task.work_type == "tts":
+                    self.run_tts_task(task)
                 else:
                     logger.error(f"Unknown task type: {task.work_type}")
             logger.info("Worker running...")
@@ -73,6 +66,22 @@ class Command(BaseCommand):
             options = params.get("options", {})
             command = params.get("command", "")
             call_command(command, **options)
+            task.result_status = "completed"
+            task.save()
+        except Exception as e:
+            logger.error(f"Error completing task: {e}")
+            task.result_status = "failed"
+            task.description = str(e)
+            task.save()
+
+    @staticmethod
+    def run_tts_task(task):
+        """
+        Run a text to speech task
+        """
+        try:
+            tts = TTS()
+            tts.handle_task(task)
             task.result_status = "completed"
             task.save()
         except Exception as e:

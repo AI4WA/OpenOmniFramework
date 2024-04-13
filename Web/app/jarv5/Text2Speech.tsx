@@ -36,8 +36,8 @@ const Text2Speech: React.FC<Text2SpeechProps> = ({homeId}) => {
             <Typography variant="h6" gutterBottom>
                 Jarv5 Response
             </Typography>
-            <Paper elevation={1} sx={{height: '100%', padding: 1, overflow: "auto"}}>
-                <List>
+            <Paper elevation={1} sx={{padding: 1, border: 'none', boxShadow: 'none'}}>
+                <List sx={{overflow: "auto", height: "32vh"}}>
                     {speech2textData?.hardware_text2speech.map((speech2text: any) => (
                         <div key={speech2text.created_at}>
                             <ListItem>

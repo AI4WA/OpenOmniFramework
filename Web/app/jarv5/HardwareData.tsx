@@ -11,6 +11,30 @@ interface HardwareDataProps {
 }
 
 
+interface AudioData {
+    audio_file: string;
+    created_at: string;
+    start_time: string;
+    hardware_device_mac_address: string;
+    sequence_index: number;
+    uid: string;
+    end_time: string;
+}
+
+interface VideoData {
+    video_file: string;
+    created_at: string;
+    uid: string;
+    hardware_device_mac_address: string;
+    video_record_minute: number;
+}
+
+interface TextData {
+    text: string;
+    created_at: string;
+}
+
+
 const DATA_AUDIO_SUBSCRIPTION = gql`
 subscription DataAudioSubscription($homeId: bigint!) {
   hardware_dataaudio(where: {home_id: {_eq: $homeId}}) {
@@ -62,22 +86,21 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
 
 
     return (
-        <Box sx={{padding: 0}}>
+        <Box sx={{padding: 0, height: '100%'}}>
             <Typography variant="h6" gutterBottom>
                 Hardware Data
             </Typography>
             <Grid container spacing={1}>
-                {/* Upper section */}
+                {/* Upper section for audio data and speech to text results */}
                 <Grid item xs={12} container spacing={1}>
                     {/* Audio Data */}
                     <Grid item xs={12} md={6}>
-                        <Paper elevation={1} sx={{height: '100%', padding: 1, overflow: "auto"}}>
+                        <Paper elevation={1} sx={{padding: 1}}>
                             <Typography variant="body2" gutterBottom>
                                 Data Audio
                             </Typography>
-                            {/* Insert audio data content here */}
-                            <List>
-                                {audioData?.hardware_dataaudio.map((audio, index) => (
+                            <List sx={{overflow: "auto", height: "13vh"}}>
+                                {audioData?.hardware_dataaudio.map((audio: AudioData, index: number) => (
                                     <React.Fragment key={index}>
                                         <ListItem>
                                             <ListItemText
@@ -93,12 +116,12 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                     </Grid>
                     {/* Speech to Text Results */}
                     <Grid item xs={12} md={6}>
-                        <Paper elevation={1} sx={{height: '100%', padding: 1, overflow: "auto"}}>
+                        <Paper elevation={1} sx={{padding: 1}}>
                             <Typography variant="body2" gutterBottom>
                                 Speech to Text
                             </Typography>
-                            <List>
-                                {textData?.hardware_datatext.map((textObj, index) => (
+                            <List sx={{overflow: "auto", height: "13vh"}}>
+                                {textData?.hardware_datatext.map((textObj: TextData, index: number) => (
                                     <React.Fragment key={index}>
                                         <ListItem>
                                             <ListItemText
@@ -113,18 +136,18 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                         </Paper>
                     </Grid>
                 </Grid>
-                {/* Lower section */}
+                {/* Lower section for video data */}
                 <Grid item xs={12}>
-                    <Paper elevation={1} sx={{padding: 1, height: '100%', overflow: "auto"}}>
+                    <Paper elevation={1} sx={{padding: 1, overflow: "auto"}}>
                         <Typography variant="body2" gutterBottom>
                             Data Video
                         </Typography>
-                        <List>
-                            {videoData?.hardware_datavideo.map((videoObj, index) => (
+                        <List sx={{overflow: "auto", height: "13vh"}}>
+                            {videoData?.hardware_datavideo.map((videoObj: VideoData, index: number) => (
                                 <React.Fragment key={index}>
                                     <ListItem>
                                         <ListItemText
-                                            primary={`STT: ${videoObj.video_file}/${videoObj.video_record_minute}`}
+                                            primary={`Video: ${videoObj.video_file}/${videoObj.video_record_minute} min`}
                                             secondary={`Created at: ${videoObj.created_at}`}
                                         />
                                     </ListItem>
@@ -136,7 +159,7 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                 </Grid>
             </Grid>
         </Box>
-    );
+    )
 };
 
 export default HardwareData;

@@ -75,7 +75,7 @@ class Command(BaseCommand):
                     )
                 # Here we can load chat history
                 prompt = (
-                    f"你是个情感陪伴机器人，用相同的语言回答下面的问题。你发现你的主人的情绪是：{emotion_signal}。他说了句话：{text}。你会怎么回答？ "
+                    f"You are an aged care robot, ：{emotion_signal}。他说了句话：{text}。 "
                     f"你的回答是："
                 )
 
@@ -109,7 +109,7 @@ class Command(BaseCommand):
                 llm_response_obj = LLMResponse(
                     home=data_text.home,
                     data_text=data_text,
-                    messages=llm_response,
+                    messages=prompt,
                     result=llm_response_text,
                     logs={"llm_response": llm_response},
                 )

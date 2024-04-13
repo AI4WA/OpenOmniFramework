@@ -1,6 +1,28 @@
 table:
   name: hardware_datatext
   schema: public
+array_relationships:
+  - name: hardware_emotiondetections
+    using:
+      foreign_key_constraint_on:
+        column: data_text_id
+        table:
+          name: hardware_emotiondetection
+          schema: public
+  - name: hardware_llmresponses
+    using:
+      foreign_key_constraint_on:
+        column: data_text_id
+        table:
+          name: hardware_llmresponse
+          schema: public
+  - name: hardware_text2speeches
+    using:
+      foreign_key_constraint_on:
+        column: data_text_id
+        table:
+          name: hardware_text2speech
+          schema: public
 select_permissions:
   - role: org_admin
     permission:

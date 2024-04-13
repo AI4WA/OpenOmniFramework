@@ -1,6 +1,14 @@
 table:
   name: hardware_dataaudio
   schema: public
+array_relationships:
+  - name: hardware_datatexts
+    using:
+      foreign_key_constraint_on:
+        column: audio_id
+        table:
+          name: hardware_datatext
+          schema: public
 select_permissions:
   - role: org_admin
     permission:

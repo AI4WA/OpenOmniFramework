@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import {useSubscription, gql} from "@apollo/client";
 import moment from "moment";
+import Waveform from "@/app/jarv5/Waveform";
 
 
 interface HardwareDataProps {
@@ -14,6 +15,7 @@ interface HardwareDataProps {
 
 
 interface AudioData {
+    id: number,
     audio_file: string;
     created_at: string;
     start_time: string;
@@ -24,6 +26,7 @@ interface AudioData {
 }
 
 interface VideoData {
+    id: number;
     video_file: string;
     created_at: string;
     uid: string;
@@ -32,6 +35,7 @@ interface VideoData {
 }
 
 interface TextData {
+    id: number;
     text: string;
     created_at: string;
 }
@@ -45,6 +49,7 @@ subscription DataAudioSubscription($homeId: bigint!) {
     start_time
     hardware_device_mac_address
     sequence_index
+    id
     uid
     end_time
   }
@@ -59,6 +64,7 @@ subscription DataVideoSubscription($homeId: bigint!) {
     uid
     hardware_device_mac_address
     video_record_minute
+    id
   }
 }
 `
@@ -66,6 +72,7 @@ subscription DataVideoSubscription($homeId: bigint!) {
 const DATA_TEXT_SUBSCRIPTION = gql`
 subscription DataTextSubscription($homeId: bigint!) {
   hardware_datatext(where: {home_id: {_eq: $homeId}}, order_by: {created_at: desc}) {
+      id
     text
     created_at
   }
@@ -105,7 +112,7 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                                     <React.Fragment key={index}>
                                         <ListItem>
                                             <ListItemText
-                                                primary={`Audio File: ${audio.audio_file}`}
+                                                primary={<Waveform speechId={audio.id} modelName="data_audio"/>}
                                                 secondary={`Created at: ${moment(audio.created_at).format('MMMM Do hh:mm:ss a')}`}
                                             />
                                         </ListItem>

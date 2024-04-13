@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
 from hardware.views import (
     AudioDataViewSet,
@@ -6,6 +7,10 @@ from hardware.views import (
     Text2SpeechViewSet,
     VideoDataViewSet,
 )
+
+router = DefaultRouter()
+
+router.register(r"audio", AudioDataViewSet, basename="")
 
 urlpatterns = [
     path(
@@ -15,11 +20,11 @@ urlpatterns = [
         ),
         name="hardware",
     ),
-    path(
-        "audio/",
-        AudioDataViewSet.as_view({"get": "retrieve", "post": "create"}),
-        name="audio_data",
-    ),
+    # path(
+    #     "audio/",
+    #     AudioDataViewSet.as_view({"get": "retrieve", "post": "create"}),
+    #     name="audio_data",
+    # ),
     path(
         "video/",
         VideoDataViewSet.as_view({"get": "retrieve", "post": "create"}),
@@ -30,4 +35,5 @@ urlpatterns = [
         Text2SpeechViewSet.as_view({"get": "list", "post": "get_text_to_speech"}),
         name="text2speech",
     ),
+    path("", include(router.urls)),
 ]

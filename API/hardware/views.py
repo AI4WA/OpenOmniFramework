@@ -30,6 +30,51 @@ class AudioDataViewSet(viewsets.ModelViewSet):
     queryset = DataAudio.objects.all()
     serializer_class = AudioDataSerializer
 
+    @swagger_auto_schema(
+        operation_summary="Get an audio data s3 url",
+        operation_description="Get an audio data",
+        responses={200: "The audio data"},
+        tags=["hardware"],
+    )
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="get_audio_data",
+        url_name="get_audio_data",
+    )
+    def get_audio_data(self, request):
+        """Override the post method to add custom swagger documentation."""
+        audio_id = request.data.get("audio_id", None)
+        if audio_id is None:
+            return Response(
+                {"message": "audio_id is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        audio_obj = DataAudio.objects.filter(id=audio_id).first()
+        if audio_obj is None:
+            return Response(
+                {"message": "No audio data found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        try:
+            response = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.CSV_BUCKET,
+                    "Key": f"Listener/audio/{audio_obj.uid}/audio/{audio_obj.audio_file}",
+                },
+                ExpiresIn=3600,
+            )
+
+            return Response({"audio_url": response}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            return Response(
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class VideoDataViewSet(viewsets.ModelViewSet):
     queryset = DataVideo.objects.all()
@@ -96,7 +141,7 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
             return None
 
     @swagger_auto_schema(
-        operation_summary="Get the text to speech audio s3 url",
+        operation_summary="Get speech audio s3 url",
         operation_description="Get the text to speech audio s3 url",
         responses={200: "The text to speech"},
         tags=["hardware"],

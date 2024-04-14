@@ -33,6 +33,53 @@ services:
     depends_on:
       - db
 
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: worker
+    command: /usr/src/app/entrypoint_worker.sh
+    volumes:
+      - .:/usr/src/app
+      - ../Client/Listener/data:/usr/src/Client/Listener/data
+      - ../Client/Responder/data:/usr/src/Client/Responder/data
+      - whisper_cache:/root/.cache
+      - .aws:/root/.aws
+    environment:
+      - DB_NAME=yourdbname
+      - DB_USER=youruser
+      - DB_PASS=yourpassword
+      - DB_SERVICE=pgdb
+      - DB_PORT=5432
+      - LLM_MODEL_NAME=llama2-7b-chat
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - db
+
+  emoji:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: emoji
+    command: /usr/src/app/entrypoint_emoji.sh
+    volumes:
+      - .:/usr/src/app
+      - ../Client/Listener/data:/usr/src/Client/Listener/data
+      - ../Client/Responder/data:/usr/src/Client/Responder/data
+      - whisper_cache:/root/.cache
+      - .aws:/root/.aws
+    environment:
+      - DB_NAME=yourdbname
+      - DB_USER=youruser
+      - DB_PASS=yourpassword
+      - DB_SERVICE=pgdb
+      - DB_PORT=5432
+      - LLM_MODEL_NAME=llama2-7b-chat
+      - DEEPFACE_HOME=./ml/ml_models/model_data/deepface
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - db
+
   hasura:
     image: hasura/graphql-engine:v2.38.0.cli-migrations-v3
     container_name: hasura

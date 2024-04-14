@@ -24,7 +24,7 @@ jobs:
             cd ./API
             export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             docker compose down
-            docker compose up -d
+            docker compose -f docker-compose-jarv5-demo.yml up -d
       - name: Restart Worker CPU
         uses: appleboy/ssh-action@master
         with:

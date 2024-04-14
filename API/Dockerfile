@@ -25,7 +25,9 @@ COPY . /usr/src/app/
 
 COPY ./entrypoint.sh /usr/src/app/entrypoint.sh
 COPY ./entrypoint_worker.sh /usr/src/app/entrypoint_worker.sh
+COPY ./entrypoint_emoji.sh /usr/src/app/entrypoint_emoji.sh
 
 # Make sure the script is executable
 RUN chmod +x /usr/src/app/entrypoint.sh
 RUN chmod +x /usr/src/app/entrypoint_worker.sh
+RUN chmod +x /usr/src/app/entrypoint_emoji.sh

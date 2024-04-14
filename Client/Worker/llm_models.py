@@ -1,9 +1,10 @@
-from utils import get_logger
-from huggingface_hub import hf_hub_url
-from tqdm import tqdm
 import requests
+from huggingface_hub import hf_hub_url
 from llama_cpp import Llama
+from tqdm import tqdm
+
 from constants import LLM_MODEL_DIR
+from utils import get_logger
 
 logger = get_logger("GPU-Worker-LLM-MODEL-CONFIG")
 
@@ -78,5 +79,5 @@ class LLMModelConfig:
             n_gpu_layers=-1,
             embedding=True,
             n_ctx=4096,
-            chat_format="chatml-function-calling"
+            chat_format="chatml-function-calling",
         )

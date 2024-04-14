@@ -1,5 +1,6 @@
-from constants import NORMAL_MODELS, BERT
 from sentence_transformers import SentenceTransformer
+
+from constants import BERT, NORMAL_MODELS
 
 
 class MLModelConfig:

@@ -1,13 +1,13 @@
-from datetime import datetime
 import json
+import socket
+from datetime import datetime
 from typing import Optional
 
+import getmac
 import requests
 
 from constants import API_DOMAIN
 from utils import get_logger
-import getmac
-import socket
 
 logger = get_logger("GPU-Worker-API")
 

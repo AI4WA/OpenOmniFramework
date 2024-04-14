@@ -1,7 +1,9 @@
+from typing import List
+
+from pydantic import BaseModel
+
 from llm_adaptor_worker import LLMAdaptor
 from utils import get_logger
-from pydantic import BaseModel
-from typing import List
 
 logger = get_logger(__name__)
 

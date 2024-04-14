@@ -78,4 +78,5 @@ class LLMModelConfig:
             n_gpu_layers=-1,
             embedding=True,
             n_ctx=4096,
+            chat_format="chatml-function-calling"
         )

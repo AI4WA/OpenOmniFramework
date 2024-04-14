@@ -48,7 +48,7 @@ const Text2Speech: React.FC<Text2SpeechProps> = ({homeId}) => {
             <Typography variant="h6" gutterBottom>
                 Jarv5 Response
             </Typography>
-            <Paper elevation={1} sx={{padding: 1, border: 'none', boxShadow: 'none'}}>
+            <Paper elevation={1} sx={{padding: 1, border: 'none', boxShadow: 'none', overflow: "auto", height: "32vh"}}>
                 {speech2textData?.hardware_text2speech.map((speech: Text2SpeechData) => (
                     <div key={speech.id}>
                         <List>

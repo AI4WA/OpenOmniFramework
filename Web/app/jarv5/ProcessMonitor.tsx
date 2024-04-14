@@ -104,7 +104,9 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({
             <Typography variant="h4" gutterBottom>
                 Process Monitor
             </Typography>
-            <TableContainer component={Paper} sx={{overflow: "auto"}}>
+            <TableContainer component={Paper} sx={{overflow: "auto",
+                height: "22vh"
+            }}>
                 <Table aria-label="process monitor table">
                     <TableHead>
                         <TableRow>

@@ -91,7 +91,15 @@ def handle_task(task: dict, api: API):
     # confirm model exists
     if llm_model.llm is None:
         # we will hold the model in memory, this potentially can cause error
-        llm_model.init_llm()
+        try:
+            llm_model.init_llm()
+        except Exception as llm_err:
+            logger.exception(llm_err)
+            # release all other llm models
+            for avail_model_obj in AVAIL_MODEL_OBJS.values():
+                if (avail_model_obj.llm is not None) and (avail_model_obj.model_name != llm_model.model_name):
+                    del avail_model_obj.llm
+            llm_model.init_llm()
     logger.info(f"Running task {llm_task.task_id}")
     logger.info(f"LLM Model: {llm_task.llm_model_name}")
     logger.info(f"LLM Model Path: {llm_model.model_path()}")

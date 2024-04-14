@@ -1,22 +1,22 @@
 # Jarv5
 
-**J**: Junction
+Jarv5 is an end-to-end conversational AI system framework that aims to surpass the capabilities of J.A.R.V.I.S.
+Here's what each component of "Jarv5" stands for:
 
-**A**: Artificial
+| Symbol | Stands for                    |
+|--------|-------------------------------|
+| **J**  | Junction                      |
+| **A**  | Artificial                    |
+| **R**  | Responsibility                | 
+| **V**  | Versatile                     |
+| **5**  | To be Better than J.A.R.V.I.S |
 
-**R**: Responsibility
+## System Operation Overview
 
-**V**: Versatile
-
-**5**: To be Better than J.A.R.V.I.S
-
-This is an end to end conversational AI system framework.
-
-Video and Audio input are collected from hardware devices, then send to the API for the downstream processing.
-
-The output in the end will be text and then transformed to speech.
-
-Client side then will be notified to play the speech.
+1. **Data Collection:** Video and audio inputs are collected from hardware devices.
+2. **Processing:** Data is sent to the API for downstream processing.
+3. **AI and ML models:** The API uses AI and ML models to process the data, generate responses.
+4. **Notification:** The client side is notified to play the speech.
 
 ## Main Components
 

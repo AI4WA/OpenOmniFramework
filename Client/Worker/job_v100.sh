@@ -4,8 +4,8 @@
 #SBATCH --nodes=1
 #SBATCH --time=03:00:00
 #SBATCH --partition=gpu
-#SBATCH --gres=gpu:v100:1
-#SBATCH --mem=64G
+#SBATCH --gres=gpu:v100:2
+#SBATCH --mem=128G
 module load cuda/11.6
 
 cd $MYGROUP/Jarv5/Client/Worker/

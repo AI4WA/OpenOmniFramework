@@ -1,2 +1,3 @@
 llm/llm_call/models/
 tmp/
+ml/ml_models/model_data/deepface

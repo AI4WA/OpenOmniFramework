@@ -31,6 +31,10 @@ def work_manager(api: API):
         chat = api.get_chat()
         if chat:
             return chat, "chat"
+    with timer(logger=logger, message="get_summary_task"):
+        chat_summary = api.get_chat_summary()
+        if chat_summary:
+            return chat_summary, "chat"
     with timer(logger=logger, message="get_task"):
         task = api.get_task()
         return task, "task"

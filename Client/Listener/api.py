@@ -17,10 +17,10 @@ class API:
         self.home_id = home_id
 
     def register_device(
-            self,
-            device_name: Optional[str] = None,
-            device_type: Optional[str] = None,
-            description: Optional[str] = None,
+        self,
+        device_name: Optional[str] = None,
+        device_type: Optional[str] = None,
+        description: Optional[str] = None,
     ):
         url = f"{self.domain}/hardware/register/"
 
@@ -41,12 +41,12 @@ class API:
         logger.info(r.json())
 
     def post_audio(
-            self,
-            uid: str,
-            sequence_index: int,
-            audio_file: str,
-            start_time: datetime,
-            end_time: datetime,
+        self,
+        uid: str,
+        sequence_index: int,
+        audio_file: str,
+        start_time: datetime,
+        end_time: datetime,
     ):
         url = f"{self.domain}/hardware/audio/"
         r = requests.post(
@@ -84,7 +84,7 @@ class API:
         return r.json()
 
     def queue_speech_to_text(
-            self, uid: str, audio_index: str, start_time: datetime, end_time: datetime
+        self, uid: str, audio_index: str, start_time: datetime, end_time: datetime
     ):
         url = f"{self.domain}/queue_task/stt/"
         data = {

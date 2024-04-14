@@ -20,7 +20,7 @@ import moment from "moment";
 import Waveform from "@/app/jarv5/Waveform";
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';  // Or PlayCircleFilledIcon
 import apiClient from "@/cloud/apiClient";
-
+import {Refresh} from '@mui/icons-material';
 
 interface HardwareDataProps {
     homeId: number | null;
@@ -95,7 +95,7 @@ subscription DataTextSubscription($homeId: bigint!) {
 const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
     const [open, setOpen] = useState(false);
     const [selectedVideo, setSelectedVideo] = useState(undefined);
-
+    const [refreshDataAudioKey, setRefreshDataAudioKey] = useState<number>(0);
     const handleClickOpen = async (videoId: number) => {
         const res = await apiClient.post('/hardware/video/get_video_data/',
             {
@@ -113,6 +113,11 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
 
     const handleClose = () => {
         setOpen(false);
+    };
+
+    const handleDataAudioRefresh = () => {
+        // This increments the key causing the component to re-render
+        setRefreshDataAudioKey(oldKey => oldKey + 1);
     };
 
 
@@ -138,10 +143,24 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                 <Grid item xs={12} container spacing={1}>
                     {/* Audio Data */}
                     <Grid item xs={12} md={6}>
-                        <Paper elevation={1} sx={{padding: 1}}>
-                            <Typography variant="body2" gutterBottom>
-                                Data Audio
-                            </Typography>
+                        <Paper elevation={1} sx={{padding: 1}} key={refreshDataAudioKey}>
+                            <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                width: '100%',
+                                padding: 0
+                            }}>
+                                <Typography variant="body2" gutterBottom>
+                                    Data Audio
+                                </Typography>
+                                <IconButton onClick={handleDataAudioRefresh} aria-label="refresh"
+                                            size="small"
+                                            sx={{padding: 0}}
+                                >
+                                    <Refresh/>
+                                </IconButton>
+                            </Box>
                             <List sx={{overflow: "auto", height: "13vh"}}>
                                 {audioData?.hardware_dataaudio.map((audio: AudioData, index: number) => (
                                     <React.Fragment key={index}>

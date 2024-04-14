@@ -61,6 +61,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: emoji
+    restart: always
     command: /usr/src/app/entrypoint_emoji.sh
     volumes:
       - .:/usr/src/app

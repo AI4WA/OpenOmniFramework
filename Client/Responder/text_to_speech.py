@@ -2,7 +2,9 @@ import argparse
 import io
 import os
 import time
+from tempfile import NamedTemporaryFile
 
+import requests
 from pydub import AudioSegment
 from pydub.playback import play
 
@@ -34,12 +36,18 @@ class Text2Speech:
             play(audio)
 
     @staticmethod
-    def play_audio_file(text2speech_file: str):
-        # Load the audio into pydub
-        audio = AudioSegment.from_file(text2speech_file, format="mp3")
+    def play_audio_file(url: str):
+        response = requests.get(url)
+        response.raise_for_status()  # This will raise an exception for HTTP errors
+        with NamedTemporaryFile(delete=True, suffix=".mp3") as temp_file:
+            temp_file.write(response.content)
+            temp_file.flush()  # Make sure all data is written to the file
 
-        # Play the audio
-        play(audio)
+            # Load the audio into pydub
+            audio = AudioSegment.from_file(temp_file.name, format="mp3")
+
+            # Play the audio
+            play(audio)
 
 
 if __name__ == "__main__":
@@ -71,13 +79,10 @@ if __name__ == "__main__":
             logger.info("No speech content")
             continue
 
-        item = speech_content[0]
+        item = speech_content
         text = item["text"]
-        text2speech_file = item["text2speech_file"]
-        if text2speech_file:
-            text2speech_file = DATA_DIR / text2speech_file
-        if text2speech_file and text2speech_file.exists():
-            Text2Speech.play_audio_file(text2speech_file)
-        else:
-            logger.info(f"No audio file for {text}")
-            logger.info(f"Text to speech: {text}")
+        tts_url = item["tts_url"]
+        if tts_url is None:
+            logger.info(f"No tts_url for {text}")
+            continue
+        Text2Speech.play_audio_file(tts_url)

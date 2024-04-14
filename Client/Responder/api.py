@@ -52,4 +52,6 @@ class API:
         logger.info(f"get {url} {r.status_code}")
         logger.info(r.text)
         logger.info(r.json())
+        if r.status_code != 200:
+            return []
         return r.json()

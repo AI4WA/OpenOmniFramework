@@ -184,6 +184,37 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
         else:
             return None
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if queryset is None:
+            return Response(
+                {"message": "No text to speech found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        item = queryset[0]
+
+        s3_url = None
+        if item.text2speech_file is not None:
+            try:
+                s3_client = settings.BOTO3_SESSION.client("s3")
+                response = s3_client.generate_presigned_url(
+                    "get_object",
+                    Params={
+                        "Bucket": settings.CSV_BUCKET,
+                        "Key": f"tts/{item.text2speech_file}",
+                    },
+                    ExpiresIn=3600,
+                )
+                s3_url = response
+
+            except Exception as e:
+                logger.error(e)
+        data = Text2SpeechSerializer(item).data
+        data["tts_url"] = s3_url
+        logger.info(s3_url)
+        return Response(data, status=status.HTTP_200_OK)
+
     @swagger_auto_schema(
         operation_summary="Get speech audio s3 url",
         operation_description="Get the text to speech audio s3 url",

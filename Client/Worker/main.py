@@ -152,7 +152,15 @@ def handle_chat(task: dict, api: API):
         return
     if llm_model.llm is None:
         logger.error(f"Model {llm_model_name} not loaded")
-        llm_model.init_llm()
+        try:
+            llm_model.init_llm()
+        except Exception as llm_err:
+            logger.exception(llm_err)
+            # release all other llm models
+            for avail_model_obj in AVAIL_MODEL_OBJS.values():
+                if (avail_model_obj.llm is not None) and (avail_model_obj.model_name != llm_model.model_name):
+                    del avail_model_obj.llm
+            llm_model.init_llm()
 
     with timer(logger=logger, message="run_chat_task"):
         llm_adaptor = LLMAdaptor(llm_model)
@@ -219,4 +227,5 @@ if __name__ == "__main__":
 
         except Exception as e:
             logger.exception(e)
+
         time.sleep(0.25)

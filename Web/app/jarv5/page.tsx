@@ -78,7 +78,7 @@ const Jarv5 = () => {
                     </Grid>
 
                     {/* Middle Thin Section */}
-                    <Grid item xs={12} container style={{flex: 1, overflow: "auto"}}>
+                    <Grid item xs={12} container style={{flex: 1}}>
                         <Grid item xs={12}>
                             <Paper sx={{
                                 p: 1,

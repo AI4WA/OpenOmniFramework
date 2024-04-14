@@ -8,10 +8,10 @@ We have three part components
     - Sync file to Central Brain
 - Central Brain
     - API
-    - STT
+    - STT (Perform better in host machine)
+    - TTS (Perform better in host machine)
     - EMOJI
-    - LLM
-    - TTS
+    - LLM (This should in client end)
 - Data Output
     - Play Audio
 
@@ -40,6 +40,8 @@ python3 audios_acquire.py --token 3915a50a381a07d77d7b695bbdb0524c6e4004f8 --hom
 cd ./Client/Listener
 source venv/bin/activate
 python3 sync_files.py
+# python3 sync_files.py --dest_ip 146.118.70.154 --dest_directory /home/pascal/Assistant/Client/Listener/data --dest_username pascal
+# python3 sync_to_s3.py --home_id 1 
 ```
 
 ## Central Brain

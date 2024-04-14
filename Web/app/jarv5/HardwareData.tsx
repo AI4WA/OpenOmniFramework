@@ -127,7 +127,6 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
     const {data: textData} = useSubscription(DATA_TEXT_SUBSCRIPTION, {
         variables: {homeId}
     })
-    console.log(selectedVideo)
 
     return (
         <Box sx={{padding: 0, height: '100%'}}>

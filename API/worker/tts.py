@@ -16,7 +16,9 @@ class TTS:
         """
         Initialize the STT object
         """
-        self.tts = api.TextToSpeech(use_deepspeed=True, kv_cache=True)
+        # self.tts = api.TextToSpeech(use_deepspeed=True, kv_cache=True)
+        # TODO: get this comment out for now
+        self.tts = None
         self.model_name = model_name
 
     def handle_task(self, task):

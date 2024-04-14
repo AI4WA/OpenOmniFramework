@@ -5,13 +5,14 @@ We have three part components
 - Data Collection
     - Video
     - Audio
-    - Sync file to Central Brain
+    - Sync files to Central Brain
+    - Sync files to S3
 - Central Brain
     - API
-    - STT (Perform better in host machine)
-    - TTS (Perform better in host machine)
-    - EMOJI
-    - LLM (This should in client end)
+    - STT (Better Perform locally in Central Brain / Performance Concern)
+    - TTS (Better Perform locally in Central Brain)
+    - EMOJI (Perform locally in Central Brain)
+    - LLM (This is in client end)
 - Data Output
     - Play Audio
 

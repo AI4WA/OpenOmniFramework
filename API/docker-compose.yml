@@ -52,6 +52,7 @@ services:
       - DB_SERVICE=pgdb
       - DB_PORT=5432
       - LLM_MODEL_NAME=llama2-7b-chat
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       - db
 

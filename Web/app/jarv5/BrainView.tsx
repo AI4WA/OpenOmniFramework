@@ -50,7 +50,7 @@ const BrainView: React.FC<BrainViewProps> = (
                     p: 1,
                     border: '1px solid black',
                 }}>
-                    <Typography variant="h5" component="h2" gutterBottom>
+                    <Typography variant="h6" component="h6" gutterBottom>
                         Emotion Detection
                     </Typography>
                     {/*    result will be in json {M: 0.2, V: 0.1 XXX}, SHOW THEN IN A LIST*/}
@@ -73,7 +73,7 @@ const BrainView: React.FC<BrainViewProps> = (
                     p: 1,
                     border: '1px solid black',
                 }}>
-                    <Typography variant="h5" component="h2" gutterBottom>
+                    <Typography variant="h6" component="h6" gutterBottom>
                         RAG
                     </Typography>
                     {/*    present the messages field here, will be quite long*/}
@@ -88,7 +88,7 @@ const BrainView: React.FC<BrainViewProps> = (
                     p: 1,
                     border: '1px solid black',
                 }}>
-                    <Typography variant="h5" component="h2" gutterBottom>
+                    <Typography variant="h6" component="h6" gutterBottom>
                         LLM
                     </Typography>
                     <Typography variant="body2" gutterBottom>

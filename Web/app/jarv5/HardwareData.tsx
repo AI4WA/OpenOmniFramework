@@ -161,7 +161,7 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                                     <Refresh/>
                                 </IconButton>
                             </Box>
-                            <List sx={{overflow: "auto", height: "13vh"}}>
+                            <List sx={{overflow: "auto", height: "11vh"}}>
                                 {audioData?.hardware_dataaudio.map((audio: AudioData, index: number) => (
                                     <React.Fragment key={index}>
                                         <ListItem>
@@ -182,7 +182,7 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                             <Typography variant="body2" gutterBottom>
                                 Data Video
                             </Typography>
-                            <List sx={{overflow: "auto", height: "13vh"}}>
+                            <List sx={{overflow: "auto", height: "11vh"}}>
                                 {videoData?.hardware_datavideo.map((videoObj: VideoData, index: number) => (
                                     <React.Fragment key={index}>
                                         <ListItem>
@@ -209,7 +209,7 @@ const HardwareData: React.FC<HardwareDataProps> = ({homeId}) => {
                         <Typography variant="body2" gutterBottom>
                             Speech to Text
                         </Typography>
-                        <List sx={{overflow: "auto", height: "13vh"}}>
+                        <List sx={{overflow: "auto", height: "12vh"}}>
                             {textData?.hardware_datatext.map((textObj: TextData, index: number) => (
                                 <React.Fragment key={index}>
                                     <ListItem>

@@ -101,7 +101,7 @@ const ProcessMonitor: React.FC<ProcessMonitorProps> = ({
 
     return (
         <Box>
-            <Typography variant="h4" gutterBottom>
+            <Typography variant="h6" gutterBottom>
                 Process Monitor
             </Typography>
             <TableContainer component={Paper} sx={{overflow: "auto",

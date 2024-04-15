@@ -17,7 +17,8 @@ import {
     Select,
     InputLabel,
     FormControl,
-    Fab
+    Fab,
+    Tooltip
 } from '@mui/material';
 import isAuth from "@/app/isAuth";
 import SendIcon from '@mui/icons-material/Send';
@@ -29,6 +30,8 @@ import {useAppSelector} from "@/store";
 import AddIcon from '@mui/icons-material/Add';
 import {v4 as uuidv4} from 'uuid';
 import {SelectChangeEvent} from '@mui/material/Select';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'; // Icon for the dot
+
 
 const CHAT_QUERY = gql`
 subscription Chat($userId: bigint!) {
@@ -101,6 +104,15 @@ mutation UpdateChat($chatId: bigint!, $llmModelName: String!) {
 }
 `
 
+const GPU_WORKER = gql`
+subscription GpuWorker {
+  view_live_worker(where: {task_type: {_eq: "gpu"}}) {
+    task_type
+    recent_update_count
+  }
+}
+`
+
 interface MessagesProp {
     chatId: number | null
 }
@@ -130,6 +142,7 @@ const Messages: React.FC<MessagesProp> = ({chatId}) => {
         variables: {chatId}
     });
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
 
     useEffect(() => {
         // Auto-scroll to the latest message
@@ -167,6 +180,10 @@ const ChatGPTApp = () => {
     const [selectedModel, setSelectedModel] = useState('llama2-13b-chat');
     const [currentChatId, setCurrentChatId] = useState<number | null>(null);
     const [chatHistory, setChatHistory] = useState([]);
+
+    const {
+        data: gpuWorkerData
+    } = useSubscription(GPU_WORKER);
 
     const [addChat] = useMutation(ADD_CHAT);
     const [addChatMessage] = useMutation(ADD_CHAT_MESSAGE);
@@ -262,7 +279,8 @@ const ChatGPTApp = () => {
                             <Box sx={{
                                 overflowY: 'auto',
                                 height: "100%",
-                                pr: 2, borderRight: '1px solid #e0e0e0'
+                                pr: 2,
+                                borderRight: '1px solid #e0e0e0'
                             }}>
                                 <Box sx={{
                                     display: 'flex',
@@ -302,12 +320,19 @@ const ChatGPTApp = () => {
                         </Grid>
                     }
                     <Grid item xs={12} md={8} lg={9}>
-                        <Typography variant="h4" gutterBottom align="center">
-                            Open Source LLM Chat
-                        </Typography>
+                        <Box display="flex" justifyContent="center" alignItems="center">
+                            <Typography variant="h4" gutterBottom sx={{margin: "auto"}}>
+                                Open Source LLM Chat
+                            </Typography>
+                            <Tooltip title={(gpuWorkerData?.view_live_worker?.[0]?.recent_update_count > 0) ? 'Chatbot ONLINE' : 'Chatbot OFFLINE'} placement="right">
+                                <IconButton size="small">
+                                    <FiberManualRecordIcon style={{ color: (gpuWorkerData?.view_live_worker?.[0]?.recent_update_count > 0) ? '#4caf50' : '#f44336' }} />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
                         <Box
                             sx={{
-                                height: isMobile ? 'calc(100vh - 252px)' : 'calc(100vh - 308px)',
+                                height: isMobile ? 'calc(100vh - 252px)' : 'calc(100vh - 296px)',
                                 overflow: 'auto',
                                 mb: 2,
                                 border: '1px solid #e0e0e0',

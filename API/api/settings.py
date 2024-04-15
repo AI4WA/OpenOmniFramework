@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
+
+import boto3
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,6 +50,8 @@ INSTALLED_APPS = [
     "worker",
     "ml",
     "rag",
+    "hasura_management",
+    "chat",
 ]
 
 MIDDLEWARE = [
@@ -199,3 +204,13 @@ CORS_ALLOWED_ORIGINS = [
     "https://jarv5.vercel.app",
     "https://llm.nlp-tlp.org",
 ]
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),  # 5 minutes for an access token
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),  # 1 day for a refresh token
+    # Add any other simplejwt settings here as needed
+}
+
+BOTO3_SESSION = boto3.Session(region_name=os.environ.get("AWS_REGION", "us-west-2"))
+
+CSV_BUCKET = "wa-data-and-llm-platform"

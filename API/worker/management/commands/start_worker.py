@@ -1,26 +1,20 @@
 import time
 
+from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
 from authenticate.utils.get_logger import get_logger
-from llm.llm_call.llm_adaptor import LLMAdaptor
-from llm.models import LLMRequestRecord
 from worker.models import Task
 from worker.translator import Translator
+from worker.tts import TTS
 
 logger = get_logger(__name__)
 
+LISTEN_TO_TASKS = ["stt", "cmc", "tts"]
+
 
 class Command(BaseCommand):
-    help = "Run the worker to finish the llm or stt tasks."
-
-    def add_arguments(self, parser):
-        """
-        Add arguments to the command
-        """
-        parser.add_argument(
-            "--task_type", type=str, help="The type of task to run", default="llm"
-        )
+    help = "Run the worker to finish the cmc or stt tasks."
 
     def handle(self, *args, **options):
         """
@@ -28,81 +22,27 @@ class Command(BaseCommand):
         Loop through all tasks and check if they are completed
 
         """
-        task_type = options["task_type"]
-        if task_type == "stt":
-            logger.info("Running STT worker...")
-            translator = Translator()
-        else:
-            translator = None
+
+        logger.info("Running worker for stt and cmc")
+        translator = Translator()
+
         while True:
-            tasks = Task.objects.filter(result_status="pending", work_type=task_type)
+            tasks = Task.objects.filter(
+                result_status="pending", work_type__in=LISTEN_TO_TASKS
+            )
             for task in tasks:
                 task.result_status = "started"
                 task.save()
-                if task.work_type == "llm":
-                    self.run_llm_task(task)
-                elif task.work_type == "stt":
+                if task.work_type == "stt":
                     self.run_stt_task(translator, task)
+                elif task.work_type == "cmc":
+                    self.run_cmc_task(task)
+                elif task.work_type == "tts":
+                    self.run_tts_task(task)
                 else:
                     logger.error(f"Unknown task type: {task.work_type}")
             logger.info("Worker running...")
             time.sleep(5)
-
-    @staticmethod
-    def run_llm_task(task):
-        """
-        Run a LLM task
-        """
-        params = task.parameters
-        model_name = params.get("model_name", None)
-        if model_name is None:
-            task.result_status = "failed"
-            task.save()
-            logger.error(f"Task {task.id} failed because model_name is not provided")
-            return
-
-        prompt = params.get("prompt", None)
-        if prompt is None:
-            task.result_status = "failed"
-            task.save()
-            logger.error(f"Task {task.id} failed because prompt is not provided")
-            return
-        llm_task_type = params.get("llm_task_type", "chat_completion")
-        start_time = time.time()
-        try:
-            adaptor = LLMAdaptor(model_name)
-            if llm_task_type == "chat_completion":
-                response = adaptor.create_chat_completion(prompt)
-            elif llm_task_type == "completion":
-                response = adaptor.create_completion(prompt)
-            elif llm_task_type == "create_embedding":
-                response = adaptor.create_embedding(prompt)
-            else:
-                raise Exception(f"Unknown llm task type: {llm_task_type}")
-            end_time = time.time()
-            record = LLMRequestRecord(
-                user=task.user,
-                name=task.name,
-                model_name=model_name,
-                prompt=prompt,
-                response=response,
-                task="chat-completion",
-                completed_in_seconds=end_time - start_time,
-            )
-            record.save()
-            task.result_status = "completed"
-            task.description = str(response)
-            task.save()
-            logger.info(response)
-            logger.info(f"Task {task.id} completed in {end_time - start_time} seconds")
-        except Exception as e:
-            logger.error(e)
-            end_time = time.time()
-            task.result_status = "failed"
-            task.description = str(e)
-            task.save()
-            logger.error(f"Task {task.id} failed in {end_time - start_time} seconds")
-            logger.error(e)
 
     @staticmethod
     def run_stt_task(translator, task):
@@ -113,5 +53,39 @@ class Command(BaseCommand):
         3. And then triggered by a signal to do the detection (normally by the client end API call)
         4. Write it to the database
         """
-
         translator.handle_task(task)
+
+    @staticmethod
+    def run_cmc_task(task):
+        logger.info("Running call management command task")
+        """
+        Run a call management command task
+        """
+        try:
+            params = task.parameters
+            options = params.get("options", {})
+            command = params.get("command", "")
+            call_command(command, **options)
+            task.result_status = "completed"
+            task.save()
+        except Exception as e:
+            logger.error(f"Error completing task: {e}")
+            task.result_status = "failed"
+            task.description = str(e)
+            task.save()
+
+    @staticmethod
+    def run_tts_task(task):
+        """
+        Run a text to speech task
+        """
+        try:
+            tts = TTS()
+            tts.handle_task(task)
+            task.result_status = "completed"
+            task.save()
+        except Exception as e:
+            logger.error(f"Error completing task: {e}")
+            task.result_status = "failed"
+            task.description = str(e)
+            task.save()

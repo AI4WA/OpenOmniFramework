@@ -1,14 +1,14 @@
+import json
 import os
 import time
 
 from django.core.management.base import BaseCommand
 
 from authenticate.utils.get_logger import get_logger
-from hardware.models import AudioData, ReactionToAudio, Text2Speech, VideoData
-from llm.llm_call.config import MT_CHATGLM, MT_LLAMA
-from llm.llm_call.llm_adaptor import LLMAdaptor
+from hardware.models import EmotionDetection, LLMResponse, Text2Speech
 from llm.models import LLMConfigRecords
 from ml.ml_models.emoji_detect import gather_data, trigger_model
+from worker.models import Task
 
 logger = get_logger(__name__)
 
@@ -42,60 +42,107 @@ class Command(BaseCommand):
             logger.error(f"Model {llm_model_name} not found in the database")
             return
         while True:
-            text, audio_file, image_np_list, audio_obj = gather_data()
+            text, audio_file, image_np_list, data_text = gather_data()
+            if data_text is None:
+                logger.info("No text to act on found")
+                time.sleep(1)
+                continue
+            # mark this one as triggered
+            data_text.pipeline_triggered = True
+            data_text.save()
             try:
-                if audio_obj is None:
-                    logger.info("No audio data found")
-                    time.sleep(1)
-                    continue
                 emotion_output = trigger_model(text, audio_file, image_np_list)
                 logger.info(f"Emotion output: {emotion_output}")
+                emotion_detection = EmotionDetection(
+                    home=data_text.home, data_text=data_text, result=emotion_output
+                )
+                emotion_detection.save()
+
             except Exception as e:
                 logger.error(f"Error: {e}")
-                ReactionToAudio.objects.create(
-                    audio=audio_obj, failed=True, failed_reason=str(e)
+                emotion_detection = EmotionDetection(
+                    home=data_text.home, data_text=data_text, logs={"error": str(e)}
                 )
+                emotion_detection.save()
                 continue
             try:
                 # the next step is to trigger the llm model
-                adaptor = LLMAdaptor(llm_model_record.model_name)
                 if emotion_output is None:
-                    emotion_signal = "未知的"
+                    emotion_signal = " You customer emotion is unknown."
                 else:
-                    emotion_signal = (
-                        "积极的" if emotion_output.get("M", 0) > 0 else "消极的"
-                    )
-                prompt = (
-                    f"你是个情感陪伴机器人，用相同的语言回答下面的问题。你发现你的主人的情绪是：{emotion_signal}。他说了句话：{text}。你会怎么回答？ "
-                    f"你的回答是："
+                    emotion_signal = f"""
+                    For emotion, we have value to measure it, 0 is neutral, -1 is negative, 1 is positive.
+                    It scales from -1 to 1,
+                    You customer emotion is {emotion_output}
+                    """
+                # Here we can load chat history
+                prompt = f"""You are an aged care robot, {emotion_signal}.
+                        He just said：{text}.
+                        You reply will be? It will directly play back to the user.
+                    """
+
+                # create a task for the llm model, and then check for result
+                user = data_text.home.user if data_text.home else None
+                task = Task(
+                    user=user,
+                    name=f"Jarv5",
+                    work_type="gpu",
+                    parameters={
+                        "model_name": llm_model_name,
+                        "prompt": prompt,
+                        "llm_task_type": "chat_completion",
+                    },
                 )
-                llm_response = adaptor.create_chat_completion(prompt)
+                task.save()
+                # wait for the result
+                while True:
+                    task.refresh_from_db()
+                    if task.result_status == "completed":
+                        break
+                    time.sleep(1)
+
+                # get the result
+                llm_response = task.description
+
                 logger.info(f"LLM response: {llm_response}")
-                ReactionToAudio.objects.create(
-                    audio=audio_obj,
-                    react_already=True,
-                    emotion_result=emotion_output,
-                    llm_response=llm_response,
+                llm_response_text = json.loads(llm_response)["choices"][0]["message"][
+                    "content"
+                ]
+                llm_response_obj = LLMResponse(
+                    home=data_text.home,
+                    data_text=data_text,
+                    messages=prompt,
+                    result=llm_response_text,
+                    logs={"llm_response": llm_response},
                 )
-                if llm_model_record.model_type == MT_LLAMA:
-                    llm_res_text = llm_response["choices"][0]["message"]["content"]
-                elif llm_model_record.model_type == MT_CHATGLM:
-                    llm_res_text = llm_response["content"]
-                else:
-                    raise ValueError(
-                        f"Model type {llm_model_record.model_type} not supported"
-                    )
-                Text2Speech.objects.create(
-                    hardware_device_mac_address=audio_obj.hardware_device_mac_address,
-                    text=llm_res_text,
+                llm_response_obj.save()
+
+                text2speech_obj = Text2Speech.objects.create(
+                    home=data_text.home,
+                    data_text=data_text,
+                    text=llm_response_text,
                 )
+                # queue a task to tts
+                tts_task = Task(
+                    user=user,
+                    name="Jarv5 TTS",
+                    work_type="tts",
+                    parameters={
+                        "text": llm_response_text,
+                        "tts_obj_id": text2speech_obj.id,
+                    },
+                )
+                tts_task.save()
 
             except Exception as e:
                 logger.error(f"Error: {e}")
                 logger.exception(e)
-                ReactionToAudio.objects.create(
-                    audio=audio_obj, failed=True, failed_reason=str(e)
+                llm_response_obj = LLMResponse(
+                    home=data_text.home,
+                    data_text=data_text,
+                    logs={"error": str(e)},
                 )
+                llm_response_obj.save()
                 return
 
             time.sleep(1)

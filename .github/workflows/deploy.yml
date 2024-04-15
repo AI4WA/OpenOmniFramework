@@ -11,11 +11,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Restart server
+      - name: Restart Server
         uses: appleboy/ssh-action@master
         with:
           host: "146.118.70.154"
           username: pascal
           password: ${{ secrets.PASWEY_PASSWORD }}
           port: 22
-          script: cd /home/pascal/Assistant && git pull && cd ./API && docker-compose down && docker-compose up --build -d
+          script: |
+            cd /home/pascal/Assistant
+            git pull
+            cd ./API
+            export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            docker compose -f docker-compose-jarv5-demo.yml down
+            docker compose -f docker-compose-jarv5-demo.yml up -d
+      - name: Restart Worker CPU
+        uses: appleboy/ssh-action@master
+        with:
+          host: "146.118.70.154"
+          username: pascal
+          password: ${{ secrets.PASWEY_PASSWORD }}
+          port: 22
+          script: cd /home/pascal/Assistant && git pull && cd ./Client/Worker && docker compose -f docker-compose-prod.yml down && docker compose -f docker-compose-prod.yml up -d

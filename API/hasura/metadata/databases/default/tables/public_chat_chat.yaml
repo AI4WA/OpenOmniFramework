@@ -1,0 +1,128 @@
+table:
+  name: chat_chat
+  schema: public
+array_relationships:
+  - name: chat_chatrecords
+    using:
+      foreign_key_constraint_on:
+        column: chat_id
+        table:
+          name: chat_chatrecord
+          schema: public
+insert_permissions:
+  - role: org_admin
+    permission:
+      check: {}
+      columns:
+        - id
+        - user_id
+        - llm_model_name
+        - summary
+        - created_at
+        - updated_at
+        - uuid
+    comment: ""
+  - role: org_editor
+    permission:
+      check: {}
+      columns:
+        - id
+        - user_id
+        - llm_model_name
+        - summary
+        - created_at
+        - updated_at
+        - uuid
+    comment: ""
+  - role: org_viewer
+    permission:
+      check: {}
+      columns:
+        - id
+        - user_id
+        - llm_model_name
+        - summary
+        - created_at
+        - updated_at
+        - uuid
+    comment: ""
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - id
+        - user_id
+        - llm_model_name
+        - summary
+        - created_at
+        - updated_at
+        - uuid
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - user_id
+        - llm_model_name
+        - summary
+        - created_at
+        - updated_at
+        - uuid
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - user_id
+        - llm_model_name
+        - summary
+        - created_at
+        - updated_at
+        - uuid
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - id
+        - user_id
+        - llm_model_name
+        - summary
+        - created_at
+        - updated_at
+        - uuid
+      filter: {}
+      check: {}
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - user_id
+        - llm_model_name
+        - summary
+        - created_at
+        - updated_at
+        - uuid
+      filter: {}
+      check: {}
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - user_id
+        - llm_model_name
+        - summary
+        - created_at
+        - updated_at
+        - uuid
+      filter: {}
+      check: {}
+    comment: ""

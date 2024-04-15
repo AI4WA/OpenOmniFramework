@@ -1,0 +1,46 @@
+table:
+  name: hardware_hardwaredevice
+  schema: public
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - home_id
+        - id
+        - device_name
+        - device_type
+        - mac_address
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - home_id
+        - id
+        - device_name
+        - device_type
+        - mac_address
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - home_id
+        - id
+        - device_name
+        - device_type
+        - mac_address
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""

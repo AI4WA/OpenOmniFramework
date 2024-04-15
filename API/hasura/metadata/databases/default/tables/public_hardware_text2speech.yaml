@@ -1,0 +1,46 @@
+table:
+  name: hardware_text2speech
+  schema: public
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - data_text_id
+        - home_id
+        - id
+        - played
+        - text2speech_file
+        - text
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - data_text_id
+        - home_id
+        - id
+        - played
+        - text2speech_file
+        - text
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - data_text_id
+        - home_id
+        - id
+        - played
+        - text2speech_file
+        - text
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""

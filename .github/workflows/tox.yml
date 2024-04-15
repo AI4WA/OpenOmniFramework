@@ -1,7 +1,6 @@
 name: Python Tox Testing
 
 on:
-  push:
   pull_request:
 
 jobs:

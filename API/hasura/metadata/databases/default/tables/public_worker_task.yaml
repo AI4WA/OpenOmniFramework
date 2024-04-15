@@ -33,10 +33,8 @@ select_permissions:
         - description
         - created_at
         - updated_at
-      filter:
-        _and:
-          - user_id:
-              _eq: X-Hasura-User-Id
+      filter: {}
+      allow_aggregations: true
     comment: ""
   - role: org_editor
     permission:
@@ -51,6 +49,7 @@ select_permissions:
         - created_at
         - updated_at
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: org_viewer
     permission:
@@ -65,4 +64,51 @@ select_permissions:
         - created_at
         - updated_at
       filter: {}
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+      check: {}
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+      check: {}
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - user_id
+        - name
+        - result_status
+        - work_type
+        - parameters
+        - description
+        - created_at
+        - updated_at
+      filter: {}
+      check: {}
     comment: ""

@@ -11,12 +11,15 @@ logger = get_logger("API")
 
 class API:
     def __init__(
-        self, domain: str = API_DOMAIN, token: str = "", listen_mac_address: str = ""
+        self,
+        domain: str = API_DOMAIN,
+        token: str = "",
+        home_id: int = None,
     ):
         self.domain = domain
         self.token = token
         self.mac_address = get_mac_address()
-        self.listen_mac_address = listen_mac_address
+        self.home_id = home_id
 
     def register_device(
         self,
@@ -29,6 +32,7 @@ class API:
         r = requests.post(
             url,
             data={
+                "home": self.home_id,
                 "mac_address": self.mac_address,
                 "device_name": device_name,
                 "device_type": device_type,
@@ -42,9 +46,12 @@ class API:
         logger.info(r.json())
 
     def get_spoken_speech(self):
-        url = f"{self.domain}/hardware/speech/?mac_address={self.listen_mac_address}"
+        url = f"{self.domain}/hardware/speech/?home_id={self.home_id}"
         r = requests.get(url, headers={"Authorization": f"Token {self.token}"})
 
         logger.info(f"get {url} {r.status_code}")
+        logger.info(r.text)
         logger.info(r.json())
+        if r.status_code != 200:
+            return []
         return r.json()

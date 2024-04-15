@@ -1,6 +1,22 @@
 table:
   name: authenticate_user
   schema: public
+object_relationships:
+  - name: authtoken_token
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: authtoken_token
+          schema: public
+array_relationships:
+  - name: chat_chats
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: chat_chat
+          schema: public
 select_permissions:
   - role: org_admin
     permission:

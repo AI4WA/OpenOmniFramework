@@ -1,7 +1,7 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
-from worker.models import Task
+from worker.models import Task, TaskWorker
 
 
 @admin.register(Task)
@@ -28,3 +28,10 @@ class TaskAdmin(ImportExportModelAdmin):
         return (obj.updated_at - obj.created_at).total_seconds()
 
     readonly_fields = ("created_at", "updated_at", "process_delay_seconds")
+
+
+@admin.register(TaskWorker)
+class TaskWorkerAdmin(ImportExportModelAdmin):
+    list_display = ("uuid", "created_at", "updated_at")
+    search_fields = ("uuid",)
+    readonly_fields = ("created_at", "updated_at")

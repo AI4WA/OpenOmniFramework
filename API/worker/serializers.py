@@ -1,10 +1,13 @@
-from rest_framework import serializers
+import json
 
-from worker.models import Task
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
+from worker.models import Task, TaskWorker
 
 
 class TaskLLMRequestSerializer(serializers.Serializer):
-    task_worker = serializers.ChoiceField(
+    task_type = serializers.ChoiceField(
         help_text="The worker to assign the task to",
         choices=[
             ("cpu", "cpu"),
@@ -36,14 +39,130 @@ class TaskLLMRequestSerializer(serializers.Serializer):
     )
 
 
-class TaskCustomLLMRequestSerializer(TaskLLMRequestSerializer):
-    prompt = serializers.JSONField(
-        required=True, help_text="The custom prompt to use for chat completion"
+# custom a serializer field to handle the prompt
+class LiteralChoiceField(serializers.ChoiceField):
+    def __init__(self, choices, **kwargs):
+        # In DRF, choices are expected to be a list of tuples (value, human-readable name),
+        # but for a Literal field, you can simplify this by providing the choices directly.
+        super().__init__(choices=[(choice, choice) for choice in choices], **kwargs)
+
+
+class ChatCompletionRequestMessageSerializer(serializers.Serializer):
+    role = LiteralChoiceField(
+        choices=["system", "user", "assistant", "function"],
+        default="user",
+        help_text="The role of the message.",
+    )
+    # Add the content field
+    content = serializers.CharField(
+        allow_blank=True, default="", help_text="The content of the message."
+    )
+
+
+class ChatCompletionToolFunctionSerializer(serializers.Serializer):
+    name = serializers.CharField(
+        required=True,
+        help_text="The name of the function to call",
+    )
+    description = serializers.CharField(
+        required=False,
+        help_text="The description of the function",
+    )
+    parameters = serializers.JSONField(
+        required=False,
+        help_text="""The parameters of the function
+                  Example:
+                  {
+                      "type": "object",
+                      "properties": {
+                          "loc_origin": {
+                              "type": "string",
+                              "description": "The departure airport, e.g. DUS"
+                          },
+                          "loc_destination": {
+                              "type": "string",
+                              "description": "The destination airport, e.g. HAM"
+                          }
+                      },
+                  "required": ["loc_origin", "loc_destination"]
+                  }
+                  """,
+    )
+
+
+class ChatCompletionToolSerializer(serializers.Serializer):
+    type = serializers.ChoiceField(required=True, choices=[("function", "function")])
+    function = ChatCompletionToolFunctionSerializer()
+
+
+class ToolChoiceField(serializers.Field):
+    def to_internal_value(self, data):
+        if data == "none" or data == "auto":
+            return data
+        else:
+            try:
+                parsed_data = json.loads(data)
+                if not isinstance(parsed_data, dict):
+                    raise ValueError("Invalid JSON data. Must be an object.")
+                if "name" not in parsed_data:
+                    raise ValueError("Missing 'name' key in JSON object.")
+                return parsed_data
+            except ValueError as e:
+                raise ValidationError(str(e))
+
+    def to_representation(self, value):
+        return value
+
+
+class TaskCustomLLMRequestSerializer(serializers.Serializer):
+    task_type = serializers.ChoiceField(
+        help_text="The worker to assign the task to",
+        choices=[
+            ("cpu", "cpu"),
+            ("gpu", "GPU"),
+        ],
+        default="cpu",
+    )
+    name = serializers.CharField(
+        required=False,
+        help_text="The name of the task to run, which can help you track a list of tasks",
+        default="default_name",
+    )
+    model_name = serializers.CharField(
+        required=True,
+        help_text="The model name to use for chat completion, "
+        "it can be found in the llm_config_list endpoint",
+    )
+    llm_task_type = serializers.ChoiceField(
+        required=True,
+        help_text="The type of task to run, it can be either llm or stt",
+        choices=[
+            ("chat_completion", "Chat Completion"),
+            ("completion", "Completion"),
+            ("create_embedding", "Create Embedding"),
+        ],
+    )
+    # message is a list of ChatCompletionRequestMessageSerializer
+    messages = serializers.ListField(
+        child=ChatCompletionRequestMessageSerializer(),
+        required=True,
+        help_text="The messages to use for chat completion",
+    )
+    tools = serializers.ListField(
+        child=ChatCompletionToolSerializer(),
+        required=False,
+        help_text="The functions to use for chat completion",
+    )
+    tool_choice = ToolChoiceField(
+        required=False,
+        help_text="The function call to use for chat completion, can be none or auto, "
+        "or a function you mentioned in functions",
+        default="auto",
     )
 
 
 class TaskLLMRequestsSerializer(serializers.Serializer):
-    task_worker = serializers.ChoiceField(
+    task_type = serializers.ChoiceField(
         help_text="The worker to assign the task to",
         choices=[
             ("cpu", "cpu"),
@@ -80,6 +199,9 @@ class TaskLLMRequestsSerializer(serializers.Serializer):
 class TaskSTTRequestSerializer(serializers.Serializer):
     uid = serializers.CharField(
         required=True, help_text="The uid of the audio file to transcribe"
+    )
+    home_id = serializers.IntegerField(
+        required=False, help_text="The home id of the audio file to transcribe"
     )
     audio_index = serializers.CharField(
         required=True, help_text="The index of the audio file to transcribe"
@@ -121,3 +243,9 @@ class TaskReportSerializer(serializers.Serializer):
     success = serializers.BooleanField(
         required=False, help_text="The success status of the task"
     )
+
+
+class TaskWorkerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskWorker
+        fields = "__all__"

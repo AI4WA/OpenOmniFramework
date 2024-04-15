@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 from authenticate.models import User
@@ -16,8 +18,15 @@ class Task(models.Model):
     name = models.CharField(max_length=100)
     work_type = models.CharField(
         max_length=100,
-        choices=[("llm", "LLM"), ("stt", "Speech2Text"), ("gpu", "GPU")],
-        help_text="Select the type of work",
+        choices=[
+            ("llm", "LLM"),
+            ("stt", "Speech2Text"),
+            ("tts", "Text2Speech"),
+            ("gpu", "GPU"),
+            ("cpu", "CPU"),
+            ("cmc", "Call Management Command"),
+        ],
+        help_text="Select the type of work, GPU and CPU are for LLM, STT is for Speech2Text, llm is Legacy",
     )
     parameters = models.JSONField(
         default=dict,
@@ -54,3 +63,20 @@ class Task(models.Model):
         )
         task.save()
         return task
+
+
+class TaskWorker(models.Model):
+    uuid = models.CharField(max_length=100, unique=True)
+    task_type = models.CharField(
+        max_length=100,
+        choices=[("cpu", "CPU"), ("stt", "Speech2Text"), ("gpu", "GPU")],
+        help_text="Select the type of work, it can be either CPU, GPU (both for LLM) or STT",
+        default="gpu",
+    )
+    mac_address = models.CharField(max_length=100, blank=True, null=True)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.uuid

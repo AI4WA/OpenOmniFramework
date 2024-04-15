@@ -8,7 +8,7 @@ import torch
 from django.conf import settings
 
 from authenticate.utils.get_logger import get_logger
-from hardware.models import AudioData, VideoData
+from hardware.models import DataAudio, DataText, DataVideo
 from ml.ml_models.get_features import GetFeatures
 from ml.ml_models.sentiment import SentimentAnalysis
 
@@ -19,37 +19,41 @@ logger = get_logger(__name__)
 
 def gather_data():
     # get the audio data, which have not been process and have the text information
-    audio_data: object = (
-        AudioData.objects.filter(reaction__isnull=True).order_by("-created_at").first()
+    data_text = (
+        DataText.objects.filter(pipeline_triggered=False)
+        .order_by("-created_at")
+        .first()
     )
-    if audio_data is None:
-        logger.info("No audio data found")
+    if data_text is None:
+        logger.info("No text to act on found")
         return None, None, None, None
-    text = audio_data.text
+    text = data_text.text
+
+    data_audio = data_text.audio
 
     audio_file = (
         settings.CLIENT_DATA_FOLDER
         / "Listener"
         / "data"
         / "audio"
-        / audio_data.uid
+        / data_audio.uid
         / "audio"
-        / audio_data.audio_file
+        / data_audio.audio_file
     ).as_posix()
 
     # get the image data based on the audio data time range
     # TODO: this will be changed rapidly
-    start_time = audio_data.start_time
-    end_time = audio_data.end_time
+    start_time = data_audio.start_time
+    end_time = data_audio.end_time
     # round the start to the minute level down
     start_time = start_time.replace(second=0, microsecond=0)
     # round the end to the minute level up
     end_time = end_time.replace(second=0, microsecond=0) + timedelta(minutes=1)
     logger.info(f"Start time: {start_time}, End time: {end_time}")
-    logger.info(audio_data)
+    logger.info(data_audio)
     # we will assume it comes from the same device
     # list all videos has overlap with [start_time, end_time]
-    videos_data = VideoData.objects.filter(
+    videos_data = DataVideo.objects.filter(
         video_record_minute__range=[start_time, end_time]
     )
 
@@ -74,25 +78,19 @@ def gather_data():
 
     # trigger the model
     logger.info(f"Text: {text}, Audio: {audio_file}, Images: {len(image_np_list)}")
-    # trigger_model(text, [audio_file], image_np_list)
-    return text, [audio_file], image_np_list, audio_data
+    trigger_model(text, [audio_file], image_np_list)
+    return text, [audio_file], image_np_list, data_text
 
 
-def trigger_model(text, audio, images) -> Optional[str]:
+def trigger_model(text, audio, images) -> Optional[dict]:
     # 1. get the features with bert cn model
     get_features_obj = GetFeatures((models_dir / "bert_cn").as_posix())
-    if (not text) and (not audio) and (not images):
-        logger.error("No text, audio and images provided")
+    if not text or not audio or not images:
+        logger.error("No text, audio or images provided")
         logger.error(
             f"text: {text is None}, audio: {audio is None}, images: {images is None}"
         )
         return
-    if not text:
-        logger.info("No text")
-    if not audio:
-        logger.info("No audio")
-    if not images:
-        logger.info("No image")
 
     feature_video = (
         get_features_obj.get_images_tensor(images) if images is not None else None
@@ -100,12 +98,9 @@ def trigger_model(text, audio, images) -> Optional[str]:
     feature_audio = (
         get_features_obj.get_audio_embedding(audio) if audio is not None else None
     )  # (94,33)
-    # input raw text into the model
-    # feature_text = (
-    #     get_features_obj.get_text_embeddings(text) if text is not None else None
-    # )  # (n+2,768)
-    # logger.info( f"feature_video: {feature_video.shape}, feature_audio: {feature_audio.shape}, feature_text: {
-    # feature_text[1].shape}" )
+    logger.info(
+        f"feature_video: {feature_video.shape}, feature_audio: {feature_audio.shape}"
+    )
 
     # data is ready
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -118,6 +113,7 @@ def trigger_model(text, audio, images) -> Optional[str]:
         },
         strict=False,
     )
+
     model.eval()
 
     # run model
@@ -126,6 +122,8 @@ def trigger_model(text, audio, images) -> Optional[str]:
     # loop the output dict, get all of them into float
     for k, v in output.items():
         output[k] = float(v)
+        # and get it to decimal 2
+        output[k] = round(output[k], 2)
     multi_modal_output = output.get("M", 0)
     logger.critical(f"multi_modal_output: {multi_modal_output}")
     return output

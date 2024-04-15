@@ -1,0 +1,43 @@
+table:
+  name: llm_llmrequestresultdownload
+  schema: public
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - id
+        - user_id
+        - download_link
+        - name
+        - progress
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - user_id
+        - download_link
+        - name
+        - progress
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - user_id
+        - download_link
+        - name
+        - progress
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""

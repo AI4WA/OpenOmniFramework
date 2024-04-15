@@ -1,3 +1,4 @@
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -31,3 +32,12 @@ class APITokenObtainPairSerializer(TokenObtainPairSerializer):
 class APIReturnTokenSerializer(serializers.Serializer):
     access = serializers.CharField()
     refresh = serializers.CharField()
+
+
+class UpdatePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value

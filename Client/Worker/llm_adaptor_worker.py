@@ -1,8 +1,11 @@
-from utils import get_logger
-from constants import MT_LLAMA, MT_CHATGLM
+from typing import Dict, List
+
 import chatglm_cpp
+from llama_cpp.llama_types import ChatCompletionTool, ChatCompletionToolChoiceOption
+
+from constants import MT_CHATGLM, MT_LLAMA
 from llm_models import LLMModelConfig
-from typing import Union, Dict, List
+from utils import get_logger
 
 logger = get_logger(__name__)
 
@@ -41,32 +44,56 @@ class LLMAdaptor:
             return {"content": output}
         raise ValueError(f"Model {self.model_config.model_type} is not supported")
 
-    def create_chat_completion(self, prompt: Union[str, List[Dict]]):
-        if not isinstance(prompt, str) and self.model_config.model_type == MT_LLAMA:
-            return self.llm.create_chat_completion(messages=prompt)
-        if self.model_config.model_type == MT_LLAMA:
-            return self.llm.create_chat_completion(
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an assistant who perfectly understand Western Australia.",
-                    },
-                    {"role": "user", "content": prompt},
-                ]
+    def create_chat_completion(
+        self,
+        prompt: str = None,
+        messages: List[Dict[str, str]] = None,
+        tools: List[ChatCompletionTool] = None,
+        tool_choice: ChatCompletionToolChoiceOption = None,
+        *args,
+        **kwargs,
+    ):
+        if messages:
+            """
+            This is trying to replicate passing all params chat completion provided via llama_cpp
+            """
+
+            if self.model_config.model_type == MT_LLAMA:
+                logger.info(f"Creating chat completion for messages: {messages}")
+                return self.llm.create_chat_completion(
+                    messages=messages, tools=tools, tool_choice=tool_choice
+                )
+            raise ValueError(
+                f"Model {self.model_config.model_type} is not supported when messages are provided"
             )
-        if self.model_config.model_type == MT_CHATGLM:
-            chatglm_pipeline = chatglm_cpp.Pipeline(
-                model_path=self.model_path.as_posix()
-            )
-            output = chatglm_pipeline.chat(
-                [chatglm_cpp.ChatMessage(role="user", content=prompt)]
-            )
-            logger.critical(f"Response: {output}")
-            return {"role": output.role, "content": output.content}
-        raise ValueError(f"Model {self.model_config.model_type} is not supported")
+
+        if prompt:
+            """
+            Simple version of it, without message "role" definition
+            """
+            if self.model_config.model_type == MT_LLAMA:
+                return self.llm.create_chat_completion(
+                    messages=[
+                        {"role": "user", "content": prompt},
+                    ]
+                )
+            if self.model_config.model_type == MT_CHATGLM:
+                chatglm_pipeline = chatglm_cpp.Pipeline(
+                    model_path=self.model_path.as_posix()
+                )
+                output = chatglm_pipeline.chat(
+                    [chatglm_cpp.ChatMessage(role="user", content=prompt)]
+                )
+                logger.critical(f"Response: {output}")
+                return {"role": output.role, "content": output.content}
+            raise ValueError(f"Model {self.model_config.model_type} is not supported")
+        raise ValueError("Prompt or messages are required")
 
     def create_embedding(self, text: str):
+        if text is None:
+            raise ValueError("Text is required")
         if self.model_config.model_type == MT_LLAMA:
+            logger.info(f"Creating embedding for text: {text}")
             return self.llm.create_embedding(text)
         raise ValueError(
             f"Model {self.model_config.model_type} is not supported for embedding"

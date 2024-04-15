@@ -20,7 +20,6 @@ FPS = 24.0
 
 
 class VideoAcquire:
-
     def __init__(
         self,
         width=WIDTH,
@@ -29,6 +28,7 @@ class VideoAcquire:
         per_video_length=PER_LENGTH,
         api_domain="",
         token="",
+        home_id: int = None,
     ):
         self.uid = str(uuid.uuid4())
         self.data_dir = DATA_DIR / "videos" / self.uid  # the data dir
@@ -38,7 +38,7 @@ class VideoAcquire:
         self.fps = fps  # frame per second
         self.per_video_length = per_video_length  # the length of the video
         logger.info(self.per_video_length)
-        self.api = API(domain=api_domain, token=token)
+        self.api = API(domain=api_domain, token=token, home_id=home_id)
         self.api.register_device()
 
     def record(self):
@@ -58,13 +58,13 @@ class VideoAcquire:
         # set the frame per second
         cap.set(cv2.CAP_PROP_FPS, 24.0)
         # use the XVID codec
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")  # noqa
+        fourcc = cv2.VideoWriter_fourcc(*"avc1")  # noqa
 
         cap_fps = cap.get(5)  # 获取摄像头帧率   帧率为30
         logger.info(f"the fps of the camera is {cap_fps}")
 
         start_time = datetime.now()
-        filename = self.data_dir / (start_time.strftime("%Y-%m-%d_%H-%M-%S") + ".avi")
+        filename = self.data_dir / (start_time.strftime("%Y-%m-%d_%H-%M-%S") + ".mp4")
         out = cv2.VideoWriter(
             filename.as_posix(), fourcc, self.fps, (self.width, self.height)
         )  # noqa
@@ -81,7 +81,7 @@ class VideoAcquire:
                     # 重新开始新的视频录制
                     start_time = datetime.now()
                     filename = self.data_dir / (
-                        start_time.strftime("%Y-%m-%d_%H-%M-%S") + ".avi"
+                        start_time.strftime("%Y-%m-%d_%H-%M-%S") + ".mp4"
                     )
                     out = cv2.VideoWriter(
                         filename.as_posix(), fourcc, FPS, (self.width, self.height)
@@ -122,10 +122,15 @@ if __name__ == "__main__":
         "--api_domain", default="http://localhost:8000", help="API domain", type=str
     )
     parser.add_argument("--token", default="", help="API token", type=str)
+    parser.add_argument("--home_id", default=None, help="which home it is", type=str)
+
     args = parser.parse_args()
     logger.info("Initializing video acquisition...")
     # every 1 minute, record the video
     video_acquire = VideoAcquire(
-        per_video_length=10, api_domain=args.api_domain, token=args.token
+        per_video_length=10,
+        api_domain=args.api_domain,
+        token=args.token,
+        home_id=args.home_id,
     )
     video_acquire.record()

@@ -3,11 +3,11 @@ from django.contrib import admin
 # Register your models here.
 from import_export.admin import ImportExportModelAdmin
 
-from rag.models import Patient
+from rag.models import Customer
 
 
-@admin.register(Patient)
-class PatientAdmin(ImportExportModelAdmin):
+@admin.register(Customer)
+class CustomerAdmin(ImportExportModelAdmin):
     list_display = (
         "uid",
         "routine",

@@ -1,9 +1,10 @@
-from utils import get_logger
-from huggingface_hub import hf_hub_url
-from tqdm import tqdm
 import requests
+from huggingface_hub import hf_hub_url
 from llama_cpp import Llama
+from tqdm import tqdm
+
 from constants import LLM_MODEL_DIR
+from utils import get_logger
 
 logger = get_logger("GPU-Worker-LLM-MODEL-CONFIG")
 
@@ -74,5 +75,9 @@ class LLMModelConfig:
 
     def init_llm(self):
         self.llm = Llama(
-            model_path=self.model_path().as_posix(), n_gpu_layers=-1, embedding=True
+            model_path=self.model_path().as_posix(),
+            n_gpu_layers=-1,
+            embedding=True,
+            n_ctx=4096,
+            chat_format="chatml-function-calling",
         )

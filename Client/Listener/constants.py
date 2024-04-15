@@ -11,3 +11,5 @@ DATA_DIR = Path(ROOT_PATH) / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 API_DOMAIN = "http://localhost:8000"
+
+S3_BUCKET = "wa-data-and-llm-platform"

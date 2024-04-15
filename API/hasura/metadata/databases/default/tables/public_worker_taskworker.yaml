@@ -1,0 +1,43 @@
+table:
+  name: worker_taskworker
+  schema: public
+select_permissions:
+  - role: org_admin
+    permission:
+      columns:
+        - id
+        - mac_address
+        - task_type
+        - uuid
+        - ip_address
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_editor
+    permission:
+      columns:
+        - id
+        - mac_address
+        - task_type
+        - uuid
+        - ip_address
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: org_viewer
+    permission:
+      columns:
+        - id
+        - mac_address
+        - task_type
+        - uuid
+        - ip_address
+        - created_at
+        - updated_at
+      filter: {}
+      allow_aggregations: true
+    comment: ""

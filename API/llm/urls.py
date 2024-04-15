@@ -1,12 +1,13 @@
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 
-from llm.views import CallLLMView, LLMConfigViewSet
-
-router = DefaultRouter()
-router.register(r"call-llm", CallLLMView, basename="call-llm")
+from llm.views import LLMConfigViewSet, LLMTaskDownloadViewSet
 
 urlpatterns = [
-    path("", include(router.urls)),
     path("config", LLMConfigViewSet.as_view({"get": "list"}), name="config"),
+    path("download", LLMTaskDownloadViewSet.as_view({"post": "post"}), name="download"),
+    path(
+        "download/<int:task_id>",
+        LLMTaskDownloadViewSet.as_view({"get": "download"}),
+        name="download_s3",
+    ),
 ]

@@ -14,3 +14,6 @@ MODEL_TYPES = [MT_LLAMA, MT_API, MT_CHATGLM]
 # model names
 MN_LLAMA2 = "llama2"
 MN_GEMMA = "gemma"
+
+BERT = "bert"
+NORMAL_MODELS = [BERT]

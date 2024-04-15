@@ -185,8 +185,6 @@ const ChatGPTApp = () => {
         data: gpuWorkerData
     } = useSubscription(GPU_WORKER);
 
-    console.log(gpuWorkerData?.view_live_worker?.[0]?.recent_update_count > 0)
-
     const [addChat] = useMutation(ADD_CHAT);
     const [addChatMessage] = useMutation(ADD_CHAT_MESSAGE);
     const [updateChat] = useMutation(UPDATE_CHAT);

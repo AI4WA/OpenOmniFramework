@@ -89,10 +89,10 @@ class VideoAcquire:
                     )  # noqa
                 else:
                     # 读取一帧视频
-                    logger.info("Try to process the frame")
+                    logger.debug("Try to process the frame")
                     ret, frame = cap.read()
                     if ret:
-                        logger.info("write the frame")
+                        logger.debug("write the frame")
                         out.write(frame)
                         # cv2.imshow("frame", frame)
                         if seconds == segment_images:

@@ -41,17 +41,15 @@ class API:
             headers={"Authorization": f"Token {self.token}"},
         )
         logger.info(url)
-
         logger.info(f"POST {url} {r.status_code}")
-        logger.info(r.json())
+
 
     def get_spoken_speech(self):
         url = f"{self.domain}/hardware/speech/?home_id={self.home_id}"
-        r = requests.get(url, headers={"Authorization": f"Token {self.token}"})
+        r = requests.get(url, headers={"Authorization": f"Token {self.token}"}, timeout=30)
 
         logger.info(f"get {url} {r.status_code}")
         logger.info(r.text)
-        logger.info(r.json())
         if r.status_code != 200:
             return []
         return r.json()

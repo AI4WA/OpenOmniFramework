@@ -1,4 +1,6 @@
 #!/bin/bash
+
+source venv/bin/activate
 export DISPLAY=:0.0
 
 # Sync files process

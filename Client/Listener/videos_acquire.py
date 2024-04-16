@@ -65,11 +65,11 @@ class VideoAcquire:
 
         start_time = datetime.now()
         filename = self.data_dir / (start_time.strftime("%Y-%m-%d_%H-%M-%S") + ".mp4")
-        
+
         out = cv2.VideoWriter(
             filename.as_posix(), fourcc, self.fps, (self.width, self.height)
         )  # noqa
-        logger.info('start flag')
+        logger.info("start flag")
         flag = True
         while flag:
             try:

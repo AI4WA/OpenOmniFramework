@@ -34,7 +34,7 @@ class API:
                 "description": description,
             },
             headers={"Authorization": f"Token {self.token}"},
-            timeout=30
+            timeout=30,
         )
         logger.info(url)
 
@@ -61,7 +61,7 @@ class API:
                 "hardware_device_mac_address": self.mac_address,
             },
             headers={"Authorization": f"Token {self.token}"},
-            timeout=30
+            timeout=30,
         )
         logger.info(f"POST {url} {r.status_code}")
         if r.status_code != 201:

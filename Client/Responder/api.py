@@ -43,10 +43,11 @@ class API:
         logger.info(url)
         logger.info(f"POST {url} {r.status_code}")
 
-
     def get_spoken_speech(self):
         url = f"{self.domain}/hardware/speech/?home_id={self.home_id}"
-        r = requests.get(url, headers={"Authorization": f"Token {self.token}"}, timeout=30)
+        r = requests.get(
+            url, headers={"Authorization": f"Token {self.token}"}, timeout=30
+        )
 
         logger.info(f"get {url} {r.status_code}")
         logger.info(r.text)

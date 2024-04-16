@@ -65,10 +65,11 @@ class VideoAcquire:
 
         start_time = datetime.now()
         filename = self.data_dir / (start_time.strftime("%Y-%m-%d_%H-%M-%S") + ".mp4")
+
         out = cv2.VideoWriter(
             filename.as_posix(), fourcc, self.fps, (self.width, self.height)
         )  # noqa
-
+        logger.info("start flag")
         flag = True
         while flag:
             try:
@@ -93,7 +94,7 @@ class VideoAcquire:
                     if ret:
                         logger.debug("write the frame")
                         out.write(frame)
-                        cv2.imshow("frame", frame)
+                        # cv2.imshow("frame", frame)
                         if seconds == segment_images:
                             logger.info("begin the next frame segment")
                             seconds = 0

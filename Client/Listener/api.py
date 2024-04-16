@@ -34,11 +34,11 @@ class API:
                 "description": description,
             },
             headers={"Authorization": f"Token {self.token}"},
+            timeout=30,
         )
         logger.info(url)
 
         logger.info(f"POST {url} {r.status_code}")
-        logger.info(r.json())
 
     def post_audio(
         self,
@@ -61,9 +61,11 @@ class API:
                 "hardware_device_mac_address": self.mac_address,
             },
             headers={"Authorization": f"Token {self.token}"},
+            timeout=30,
         )
         logger.info(f"POST {url} {r.status_code}")
-        logger.info(r.json())
+        if r.status_code != 201:
+            return None
         return r.json()
 
     def post_video(self, uid: str, video_file: str):
@@ -76,11 +78,11 @@ class API:
         }
         logger.info(data)
         r = requests.post(
-            url, data=data, headers={"Authorization": f"Token {self.token}"}
+            url, data=data, headers={"Authorization": f"Token {self.token}"}, timeout=30
         )
         logger.info(f"POST {url} {r.status_code}")
-
-        logger.info(r.json())
+        if r.status_code != 200:
+            return None
         return r.json()
 
     def queue_speech_to_text(
@@ -91,13 +93,16 @@ class API:
             "uid": uid,
             "home_id": self.home_id,
             "audio_index": audio_index,
-            "start_time": start_time,
-            "end_time": end_time,
+            "start_time": start_time.isoformat(),
+            "end_time": end_time.isoformat(),
             "hardware_device_mac_address": self.mac_address,
         }
         r = requests.post(
-            url, data=data, headers={"Authorization": f"Token {self.token}"}
+            url, data=data, headers={"Authorization": f"Token {self.token}"}, timeout=30
         )
         logger.info(f"POST {url} {r.status_code}")
+        if r.status_code != 200:
+            logger.info(data)
+            return None
         logger.info(r.json())
         return r.json()

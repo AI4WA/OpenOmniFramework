@@ -75,7 +75,7 @@ if __name__ == "__main__":
         speech_content = api.get_spoken_speech()
 
         if len(speech_content) == 0:
-            time.sleep(0.25)
+            time.sleep(1)
             logger.info("No speech content")
             continue
 

@@ -9,29 +9,25 @@ from sklearn.decomposition import PCA
 from torch.nn.parameter import Parameter
 from transformers import BertModel, BertTokenizer
 
-from authenticate.utils.get_logger import get_logger
-
-logger = get_logger(__name__)
-
 models_dir = Path(settings.BASE_DIR) / "ml" / "ml_models" / "model_data"
 
 
 class SentimentAnalysis(nn.Module):
     def __init__(
-            self,
-            feature_dims: Tuple[int, int, int] = (
-                    768,
-                    25,
-                    177,
-            ),  # (text, audio33, video128)
-            language: str = "en",
-            hidden_dims: Tuple[int, int, int] = (64, 64, 64),
-            post_text_dim: int = 32,
-            post_audio_dim: int = 32,
-            post_video_dim: int = 32,
-            post_fusion_out: int = 16,
-            dropouts: tuple[float, float, float] = (0.1, 0.1, 0.1),
-            post_dropouts: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 0.3),
+        self,
+        feature_dims: Tuple[int, int, int] = (
+            768,
+            5,
+            20,
+        ),  # (text, audio33, video128)
+        language: str = "en",
+        hidden_dims: Tuple[int, int, int] = (64, 64, 64),
+        post_text_dim: int = 32,
+        post_audio_dim: int = 32,
+        post_video_dim: int = 32,
+        post_fusion_out: int = 16,
+        dropouts: tuple[float, float, float] = (0.1, 0.1, 0.1),
+        post_dropouts: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 0.3),
     ):
         super(SentimentAnalysis, self).__init__()
 
@@ -93,9 +89,8 @@ class SentimentAnalysis(nn.Module):
         flag = [0, 0, 0]
         res = {}
         if text_x is not None:
-            logger.info(text_x)
-            text_x = self.text_model(text_x)
-            text_x = torch.mean(text_x, dim=1, keepdim=False)
+            text_x = self.text_model(text_x)[:, 0, :]
+            text_x = torch.mean(text_x, dim=0, keepdim=True)
             text_h = self.tliner(text_x)
             # text
             x_t1 = self.post_text_dropout(text_h)
@@ -106,8 +101,8 @@ class SentimentAnalysis(nn.Module):
             res["T"] = output_text
 
         if audio_x is not None:
-            # audio_x = pca(audio_x, 25)  # from 33 to 25
-            audio_x = torch.mean(audio_x[:, :25], dim=0, keepdim=True)
+            audio_x = audio_x[:, :5]
+            audio_x = torch.mean(audio_x, dim=0, keepdim=True)
             audio_h = self.audio_model(audio_x)
             # audio
             x_a1 = self.post_audio_dropout(audio_h)
@@ -118,8 +113,7 @@ class SentimentAnalysis(nn.Module):
             res["A"] = output_audio
 
         if video_x is not None:
-            video_copy = video_x[:, :49]
-            video_x = torch.cat((video_x, video_copy), dim=1)  # from 128 to 177
+            video_x = video_x[:, :20]
             video_x = torch.mean(video_x, dim=0, keepdim=True)
             video_h = self.video_model(video_x)
             # video
@@ -157,7 +151,6 @@ class SentimentAnalysis(nn.Module):
         output_fusion = output_fusion * self.output_range + self.output_shift
 
         res["M"] = output_fusion
-        logger.info(res)
         return res
 
 
@@ -194,7 +187,7 @@ class BertTextEncoder(nn.Module):
         # pretrained_weights = '/home/sharing/disk3/pretrained_embedding/Chinese/bert/pytorch'
         if language == "en":
             self.tokenizer = tokenizer_class.from_pretrained(
-                f"{models_dir}/bert_en"
+                f"{models_dir}/bert_en", do_lower_case=True
             )
             self.model = model_class.from_pretrained(f"{models_dir}/bert_en")
         elif language == "cn":
@@ -220,19 +213,18 @@ class BertTextEncoder(nn.Module):
     def forward(self, text):
         """
         text: (batch_size, 3, seq_len)
-            3: input_ids, input_mask, segment_ids
-            input_ids: input_ids,
-            input_mask: attention_mask,
-            segment_ids: token_type_ids
+        3: input_ids, input_mask, segment_ids
+        input_ids: input_ids,
+        input_mask: attention_mask,
+        segment_ids: token_type_ids
         """
-        # to text ids
-        text_token_ids = self.tokenizer(text)  # 1 dim array
-        input_ids, input_mask, segment_ids = text_token_ids["input_ids"], text_token_ids["attention_mask"], \
-            text_token_ids["token_type_ids"]
-        # get the input_ids, attention_mask, token_type_ids to long tensor
-        input_ids = torch.tensor(input_ids).unsqueeze(0).long()
-        input_mask = torch.tensor(input_mask).unsqueeze(0).long()
-        segment_ids = torch.tensor(segment_ids).unsqueeze(0).long()
+        text = self.tokenizer(text)
+        print(text)
+        input_ids, input_mask, segment_ids = (
+            torch.tensor(text["input_ids"]).long().unsqueeze(0),
+            torch.tensor(text["token_type_ids"]).unsqueeze(0).float(),
+            torch.tensor(text["attention_mask"]).unsqueeze(0).long(),
+        )
         if self.use_finetune:
             last_hidden_states = self.model(
                 input_ids=input_ids,
@@ -254,7 +246,6 @@ class BertTextEncoder(nn.Module):
 
 
 def pca(input_tensor, out_dim=25):
-    logger.info(f"input_tensor: {input_tensor.shape}")
     input_np = input_tensor.detach().numpy()
 
     # use PCA to reduce the dimension to 25

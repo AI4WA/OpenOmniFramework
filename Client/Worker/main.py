@@ -228,4 +228,4 @@ if __name__ == "__main__":
         except Exception as e:
             logger.exception(e)
 
-        time.sleep(0.25)
+        time.sleep(1.5)

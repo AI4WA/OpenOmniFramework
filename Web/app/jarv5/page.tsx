@@ -52,7 +52,7 @@ const Jarv5 = () => {
                         <Home homeId={homeId} homeData={data?.hardware_home}/>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} container
+                <Grid item xs={10} container
                       style={{display: 'flex', flexDirection: 'column', flex: 1, height: "calc(100vh - 124px)"}}>
                     {/* Top Section - divided into two */}
                     <Grid item xs={12} container style={{flex: 1}}>

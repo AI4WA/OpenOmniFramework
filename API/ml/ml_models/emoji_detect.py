@@ -84,7 +84,7 @@ def gather_data():
 
 def trigger_model(text, audio, images) -> Optional[dict]:
     # 1. get the features with bert cn model
-    get_features_obj = GetFeatures((models_dir / "bert_cn").as_posix())
+    get_features_obj = GetFeatures()
     if not text or not audio or not images:
         logger.error("No text, audio or images provided")
         logger.error(

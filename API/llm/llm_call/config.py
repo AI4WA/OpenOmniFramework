@@ -160,48 +160,23 @@ MODELS = [
         "name": HF_LLAMA2,
         "model_type": HF_LLAMA,
         "models": [
-            {
-                "name": "Llama-2-7b-hf",
-                "size": "7b",
-                "repo":"",
-                "filename":""
-            },
-            {
-                "name": "Llama-2-7b-chat-hf",
-                "size": "7b",
-                "repo": "",
-                "filename": ""
-            },
-            {
-                "name": "Llama-2-13b-hf",
-                "size": "13b",
-                "repo": "",
-                "filename": ""
-            },
-            {
-                "name": "Llama-2-13b-chat-hf",
-                "size": "13b",
-                "repo": "",
-                "filename": ""
-            }
-        ]
+            {"name": "Llama-2-7b-hf", "size": "7b", "repo": "", "filename": ""},
+            {"name": "Llama-2-7b-chat-hf", "size": "7b", "repo": "", "filename": ""},
+            {"name": "Llama-2-13b-hf", "size": "13b", "repo": "", "filename": ""},
+            {"name": "Llama-2-13b-chat-hf", "size": "13b", "repo": "", "filename": ""},
+        ],
     },
     {
         "name": HF_LLAMA3,
         "model_type": HF_LLAMA,
         "models": [
+            {"name": "Meta-Llama-3-8B", "size": "8b", "repo": "", "filename": ""},
             {
-                "name": "Meta-Llama-3-8B",
+                "name": "Meta-Llama-3-8B-Instruct",
                 "size": "8b",
                 "repo": "",
-                "filename": ""
+                "filename": "",
             },
-            {
-            "name": "Meta-Llama-3-8B-Instruct",
-            "size": "8b",
-                "repo": "",
-                "filename": ""
-            },
-        ]
+        ],
     },
 ]

@@ -59,12 +59,12 @@ class LLMAdaptor:
             """
             if self.model_config.model_type == HF_LLAMA:
                 logger.info(f"Creating chat completion for messages: {messages}")
-                construct_prompt=self.llm.tokenizer.apply_chat_template(
+                construct_prompt = self.llm.tokenizer.apply_chat_template(
                     conversation=messages, tokenize=False, add_generation_prompt=True
                 )
                 terminators = [
                     self.llm.tokenizer.eos_token_id,
-                    self.llm.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+                    self.llm.tokenizer.convert_tokens_to_ids("<|eot_id|>"),
                 ]
                 outputs = self.llm(
                     construct_prompt,
@@ -74,7 +74,7 @@ class LLMAdaptor:
                     temperature=0.6,
                     top_p=0.9,
                 )
-                return outputs[0]["generated_text"][len(construct_prompt):]
+                return outputs[0]["generated_text"][len(construct_prompt) :]
             if self.model_config.model_type == MT_LLAMA:
                 logger.info(f"Creating chat completion for messages: {messages}")
                 return self.llm.create_chat_completion(

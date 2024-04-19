@@ -80,13 +80,15 @@ class LLMModelConfig:
     def init_llm(self):
         if self.model_type == "HuggingFace":
             self.llm = transformers.pipeline(
-                "text-generation", model=f"meta-llama/{self.model_name}", model_kwargs={"torch_dtype": torch.bfloat16},
-                device_map="cuda"
+                "text-generation",
+                model=f"meta-llama/{self.model_name}",
+                model_kwargs={"torch_dtype": torch.bfloat16},
+                device_map="cuda",
             )
         else:
             self.llm = Llama(
                 model_path=self.model_path().as_posix(),
                 n_gpu_layers=-1,
                 embedding=True,
-                n_ctx=4096
+                n_ctx=4096,
             )

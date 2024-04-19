@@ -97,7 +97,9 @@ def handle_task(task: dict, api: API):
             logger.exception(llm_err)
             # release all other llm models
             for avail_model_obj in AVAIL_MODEL_OBJS.values():
-                if (avail_model_obj.llm is not None) and (avail_model_obj.model_name != llm_model.model_name):
+                if (avail_model_obj.llm is not None) and (
+                    avail_model_obj.model_name != llm_model.model_name
+                ):
                     del avail_model_obj.llm
             llm_model.init_llm()
     logger.info(f"Running task {llm_task.task_id}")
@@ -158,7 +160,9 @@ def handle_chat(task: dict, api: API):
             logger.exception(llm_err)
             # release all other llm models
             for avail_model_obj in AVAIL_MODEL_OBJS.values():
-                if (avail_model_obj.llm is not None) and (avail_model_obj.model_name != llm_model.model_name):
+                if (avail_model_obj.llm is not None) and (
+                    avail_model_obj.model_name != llm_model.model_name
+                ):
                     del avail_model_obj.llm
             llm_model.init_llm()
 

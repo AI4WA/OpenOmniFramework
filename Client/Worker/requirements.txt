@@ -3,3 +3,4 @@ huggingface-hub==0.21.1
 chatglm-cpp==0.3.1
 getmac
 sentence-transformers==2.6.1
+accelerate

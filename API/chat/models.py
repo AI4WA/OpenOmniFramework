@@ -22,6 +22,8 @@ class Chat(models.Model):
         # get all chat records
         chat_records = ChatRecord.objects.filter(chat=self).order_by("-created_at")
         # so if the first record is from the user, then we need to respond
+        if not chat_records.exists():
+            return False, []
         needed = chat_records.first().role == "user"
         total_count = 0
         messages = []

@@ -78,6 +78,5 @@ class LLMModelConfig:
             model_path=self.model_path().as_posix(),
             n_gpu_layers=-1,
             embedding=True,
-            n_ctx=4096,
-            chat_format="chatml-function-calling",
+            n_ctx=4096
         )

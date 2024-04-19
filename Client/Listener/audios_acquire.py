@@ -80,6 +80,9 @@ def main():
     # Prevents permanent application the app froze and crash by using the wrong Microphone
     if "linux" in platform:
         mic_name = args.default_microphone
+        for index, name in enumerate(sr.Microphone.list_microphone_names()):
+            logger.info(index)
+            logger.info(name)
         if not mic_name or mic_name == "list":
             logger.info("Available microphone devices are: ")
             for index, name in enumerate(sr.Microphone.list_microphone_names()):
@@ -88,6 +91,8 @@ def main():
         else:
             for index, name in enumerate(sr.Microphone.list_microphone_names()):
                 if mic_name in name:
+                    logger.info(index)
+                    logger.info(name)
                     source = sr.Microphone(sample_rate=16000, device_index=index)
                     break
     else:

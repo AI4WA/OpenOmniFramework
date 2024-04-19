@@ -11,7 +11,6 @@ from deepface.models.FacialRecognition import FacialRecognition
 from deepface.modules import modeling, preprocessing
 from PIL import Image
 from tensorflow.keras.preprocessing import image
-from transformers import BertModel, BertTokenizer
 
 from authenticate.utils.get_logger import get_logger
 
@@ -19,19 +18,9 @@ logger = get_logger(__name__)
 
 
 class GetFeatures:
-    def __init__(self, pretrained_bert_dir: str) -> None:
+    def __init__(self) -> None:
         self.padding_mode = "zeros"
         self.padding_location = "back"
-        self.pretrained_bert_dir = pretrained_bert_dir
-
-    def get_text_embeddings(self, text: str) -> Tuple[str, torch.Tensor]:
-        """Returns embeddings for the given text using a BERT model."""
-        tokenizer = BertTokenizer.from_pretrained(self.pretrained_bert_dir)
-        model = BertModel.from_pretrained(self.pretrained_bert_dir)
-        input_ids = torch.tensor([tokenizer.encode(text, add_special_tokens=True)])
-        with torch.no_grad():
-            last_hidden_states = model(input_ids)[0]
-        return text, torch.tensor(last_hidden_states.squeeze().numpy()).float()
 
     @staticmethod
     def get_audio_embedding(audios: List[str]) -> torch.Tensor:

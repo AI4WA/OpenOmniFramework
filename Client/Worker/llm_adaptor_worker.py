@@ -3,7 +3,7 @@ from typing import Dict, List
 import chatglm_cpp
 from llama_cpp.llama_types import ChatCompletionTool, ChatCompletionToolChoiceOption
 
-from constants import MT_CHATGLM, MT_LLAMA
+from constants import MT_CHATGLM, MT_LLAMA, HF_LLAMA
 from llm_models import LLMModelConfig
 from utils import get_logger
 
@@ -23,7 +23,7 @@ class LLMAdaptor:
         :return:
         """
 
-        if self.model_config.model_type == MT_LLAMA:
+        if self.model_config.model_type in [MT_LLAMA, HF_LLAMA]:
             output = self.llm(
                 f"Q: {prompt} A: ",
                 max_tokens=500,  # Generate up to 32 tokens, set to None to generate up to the end of the context window
@@ -57,7 +57,24 @@ class LLMAdaptor:
             """
             This is trying to replicate passing all params chat completion provided via llama_cpp
             """
-
+            if self.model_config.model_type == HF_LLAMA:
+                logger.info(f"Creating chat completion for messages: {messages}")
+                construct_prompt=self.llm.tokenizer.apply_chat_template(
+                    conversation=messages, tokenize=False, add_generation_prompt=True
+                )
+                terminators = [
+                    self.llm.tokenizer.eos_token_id,
+                    self.llm.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+                ]
+                outputs = self.llm(
+                    construct_prompt,
+                    max_new_tokens=256,
+                    eos_token_id=terminators,
+                    do_sample=True,
+                    temperature=0.6,
+                    top_p=0.9,
+                )
+                return outputs[0]["generated_text"][len(construct_prompt):]
             if self.model_config.model_type == MT_LLAMA:
                 logger.info(f"Creating chat completion for messages: {messages}")
                 return self.llm.create_chat_completion(
@@ -71,6 +88,8 @@ class LLMAdaptor:
             """
             Simple version of it, without message "role" definition
             """
+            if self.model_config.model_type == HF_LLAMA:
+                return self.llm(prompt)
             if self.model_config.model_type == MT_LLAMA:
                 return self.llm.create_chat_completion(
                     messages=[

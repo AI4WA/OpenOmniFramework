@@ -1,4 +1,5 @@
 # model types
+HF_LLAMA = "HuggingFace"
 MT_LLAMA = "llama.cpp"
 MT_API = "api"
 MT_CHATGLM = "chatglm.cpp"
@@ -6,6 +7,8 @@ MODEL_TYPES = [MT_LLAMA, MT_API, MT_CHATGLM]
 
 # model names
 MN_LLAMA2 = "llama2"
+HF_LLAMA2 = "llama2-hf"
+HF_LLAMA3 = "llama3-hf"
 MN_GEMMA = "gemma"
 
 MODELS = [
@@ -152,5 +155,53 @@ MODELS = [
                 "filename": "mixtral-8x7b-v0.1.Q5_K_M.gguf",
             }
         ],
+    },
+    {
+        "name": HF_LLAMA2,
+        "model_type": HF_LLAMA,
+        "models": [
+            {
+                "name": "Llama-2-7b-hf",
+                "size": "7b",
+                "repo":"",
+                "filename":""
+            },
+            {
+                "name": "Llama-2-7b-chat-hf",
+                "size": "7b",
+                "repo": "",
+                "filename": ""
+            },
+            {
+                "name": "Llama-2-13b-hf",
+                "size": "13b",
+                "repo": "",
+                "filename": ""
+            },
+            {
+                "name": "Llama-2-13b-chat-hf",
+                "size": "13b",
+                "repo": "",
+                "filename": ""
+            }
+        ]
+    },
+    {
+        "name": HF_LLAMA3,
+        "model_type": HF_LLAMA,
+        "models": [
+            {
+                "name": "Meta-Llama-3-8B",
+                "size": "8b",
+                "repo": "",
+                "filename": ""
+            },
+            {
+            "name": "Meta-Llama-3-8B-Instruct",
+            "size": "8b",
+                "repo": "",
+                "filename": ""
+            },
+        ]
     },
 ]

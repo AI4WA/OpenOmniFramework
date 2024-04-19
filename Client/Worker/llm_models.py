@@ -5,6 +5,8 @@ from tqdm import tqdm
 
 from constants import LLM_MODEL_DIR
 from utils import get_logger
+import transformers
+import torch
 
 logger = get_logger("GPU-Worker-LLM-MODEL-CONFIG")
 
@@ -36,6 +38,8 @@ class LLMModelConfig:
         logger.debug(kwargs)
 
     def model_path(self):
+        if self.model_type == "HuggingFace":
+            return None
         model_file = LLM_MODEL_DIR / self.model_family / self.filename
         if model_file.exists():
             return model_file
@@ -74,9 +78,15 @@ class LLMModelConfig:
         return True
 
     def init_llm(self):
-        self.llm = Llama(
-            model_path=self.model_path().as_posix(),
-            n_gpu_layers=-1,
-            embedding=True,
-            n_ctx=4096
-        )
+        if self.model_type == "HuggingFace":
+            self.llm = transformers.pipeline(
+                "text-generation", model=f"meta-llama/{self.model_name}", model_kwargs={"torch_dtype": torch.bfloat16},
+                device_map="cuda"
+            )
+        else:
+            self.llm = Llama(
+                model_path=self.model_path().as_posix(),
+                n_gpu_layers=-1,
+                embedding=True,
+                n_ctx=4096
+            )

@@ -78,6 +78,10 @@ def gather_data():
 
     # trigger the model
     logger.info(f"Text: {text}, Audio: {audio_file}, Images: {len(image_np_list)}")
+
+    # sometimes there are no image information. judge if the image_np_list has zero data
+    image_np_list = None if len(image_np_list) == 0 else image_np_list
+
     trigger_model(text, [audio_file], image_np_list)
     return text, [audio_file], image_np_list, data_text
 
@@ -98,9 +102,11 @@ def trigger_model(text, audio, images) -> Optional[dict]:
     feature_audio = (
         get_features_obj.get_audio_embedding(audio) if audio is not None else None
     )  # (94,33)
-    logger.info(
-        f"feature_video: {feature_video.shape}, feature_audio: {feature_audio.shape}"
-    )
+
+    logger.info(f"feature_video: {feature_video.shape}") if feature_video is not None else\
+        logger.info("feature_video: there are no information about video")
+    logger.info(f"feature_audio: {feature_audio.shape}") if feature_audio is not None else\
+        logger.info("feature_audio: there are no information about audio")
 
     # data is ready
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -111,7 +117,7 @@ def trigger_model(text, audio, images) -> Optional[dict]:
             k.replace("Model.", ""): v
             for k, v in torch.load(models_dir / "sa_sims.pth").items()
         },
-        strict=False,
+        strict=True,
     )
 
     model.eval()

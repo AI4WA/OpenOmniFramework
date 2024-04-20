@@ -95,31 +95,31 @@ class SentimentAnalysis(nn.Module):
             # text
             x_t1 = self.post_text_dropout(text_h)
             x_t2 = F.relu(self.post_text_layer_1(x_t1), inplace=True)
-            x_t3 = F.relu(self.post_text_layer_2(x_t2), inplace=True)
+            x_t3 = torch.sigmoid(self.post_text_layer_2(x_t2))
             output_text = self.post_text_layer_3(x_t3)
             flag[0] = 1
             res["T"] = output_text
 
         if audio_x is not None:
-            audio_x = audio_x[:, :5]
+            audio_x = F.avg_pool1d(audio_x, kernel_size=7, stride=6, count_include_pad=False)
             audio_x = torch.mean(audio_x, dim=0, keepdim=True)
             audio_h = self.audio_model(audio_x)
             # audio
             x_a1 = self.post_audio_dropout(audio_h)
             x_a2 = F.relu(self.post_audio_layer_1(x_a1), inplace=True)
-            x_a3 = F.relu(self.post_audio_layer_2(x_a2), inplace=True)
+            x_a3 = torch.sigmoid(self.post_audio_layer_2(x_a2))
             output_audio = self.post_audio_layer_3(x_a3)
             flag[1] = 1
             res["A"] = output_audio
 
         if video_x is not None:
-            video_x = video_x[:, :20]
+            video_x = F.avg_pool1d(audio_x, kernel_size=7, stride=6, count_include_pad=False)[:, :20]
             video_x = torch.mean(video_x, dim=0, keepdim=True)
             video_h = self.video_model(video_x)
             # video
             x_v1 = self.post_video_dropout(video_h)
             x_v2 = F.relu(self.post_video_layer_1(x_v1), inplace=True)
-            x_v3 = F.relu(self.post_video_layer_2(x_v2), inplace=True)
+            x_v3 = torch.sigmoid(self.post_video_layer_2(x_v2))
             output_video = self.post_video_layer_3(x_v3)
             flag[2] = 1
             res["V"] = output_video

@@ -103,10 +103,16 @@ def trigger_model(text, audio, images) -> Optional[dict]:
         get_features_obj.get_audio_embedding(audio) if audio is not None else None
     )  # (94,33)
 
-    logger.info(f"feature_video: {feature_video.shape}") if feature_video is not None else\
-        logger.info("feature_video: there are no information about video")
-    logger.info(f"feature_audio: {feature_audio.shape}") if feature_audio is not None else\
-        logger.info("feature_audio: there are no information about audio")
+    (
+        logger.info(f"feature_video: {feature_video.shape}")
+        if feature_video is not None
+        else logger.info("feature_video: there are no information about video")
+    )
+    (
+        logger.info(f"feature_audio: {feature_audio.shape}")
+        if feature_audio is not None
+        else logger.info("feature_audio: there are no information about audio")
+    )
 
     # data is ready
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

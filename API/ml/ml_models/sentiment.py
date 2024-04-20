@@ -101,7 +101,9 @@ class SentimentAnalysis(nn.Module):
             res["T"] = output_text
 
         if audio_x is not None:
-            audio_x = F.avg_pool1d(audio_x, kernel_size=7, stride=6, count_include_pad=False)
+            audio_x = F.avg_pool1d(
+                audio_x, kernel_size=7, stride=6, count_include_pad=False
+            )
             audio_x = torch.mean(audio_x, dim=0, keepdim=True)
             audio_h = self.audio_model(audio_x)
             # audio
@@ -113,7 +115,9 @@ class SentimentAnalysis(nn.Module):
             res["A"] = output_audio
 
         if video_x is not None:
-            video_x = F.avg_pool1d(audio_x, kernel_size=7, stride=6, count_include_pad=False)[:, :20]
+            video_x = F.avg_pool1d(
+                audio_x, kernel_size=7, stride=6, count_include_pad=False
+            )[:, :20]
             video_x = torch.mean(video_x, dim=0, keepdim=True)
             video_h = self.video_model(video_x)
             # video

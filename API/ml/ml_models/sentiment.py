@@ -17,17 +17,17 @@ class SentimentAnalysis(nn.Module):
         self,
         feature_dims: Tuple[int, int, int] = (
             768,
-            5,
-            20,
+            74,
+            47,
         ),  # (text, audio33, video128)
         language: str = "en",
-        hidden_dims: Tuple[int, int, int] = (64, 64, 64),
-        post_text_dim: int = 32,
+        hidden_dims: Tuple[int, int, int] = (64, 16, 16),
+        post_text_dim: int = 128,
         post_audio_dim: int = 32,
         post_video_dim: int = 32,
-        post_fusion_out: int = 16,
-        dropouts: tuple[float, float, float] = (0.1, 0.1, 0.1),
-        post_dropouts: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 0.3),
+        post_fusion_out: int = 32,
+        dropouts: tuple[float, float, float] = (0.2, 0.2, 0.2),
+        post_dropouts: tuple[float, float, float, float] = (0.2, 0.2, 0.2, 0.2),
     ):
         super(SentimentAnalysis, self).__init__()
 
@@ -100,31 +100,29 @@ class SentimentAnalysis(nn.Module):
             flag[0] = 1
             res["T"] = output_text
 
-        if audio_x is not None:
-            audio_x = F.avg_pool1d(
-                audio_x, kernel_size=7, stride=6, count_include_pad=False
-            )
+        if audio_x is not None:   # dim: 33
+            audio_x = torch.concat((audio_x, audio_x, audio_x[:,:8]), dim=-1)
             audio_x = torch.mean(audio_x, dim=0, keepdim=True)
             audio_h = self.audio_model(audio_x)
             # audio
             x_a1 = self.post_audio_dropout(audio_h)
             x_a2 = F.relu(self.post_audio_layer_1(x_a1), inplace=True)
             x_a3 = torch.sigmoid(self.post_audio_layer_2(x_a2))
-            output_audio = self.post_audio_layer_3(x_a3)
+            output_audio = torch.sigmoid(self.post_audio_layer_3(x_a3))
             flag[1] = 1
             res["A"] = output_audio
 
         if video_x is not None:
             video_x = F.avg_pool1d(
-                audio_x, kernel_size=7, stride=6, count_include_pad=False
-            )[:, :20]
+                video_x, kernel_size=3, stride=2, count_include_pad=False
+            )[:, :47]
             video_x = torch.mean(video_x, dim=0, keepdim=True)
             video_h = self.video_model(video_x)
             # video
             x_v1 = self.post_video_dropout(video_h)
             x_v2 = F.relu(self.post_video_layer_1(x_v1), inplace=True)
             x_v3 = torch.sigmoid(self.post_video_layer_2(x_v2))
-            output_video = self.post_video_layer_3(x_v3)
+            output_video = torch.sigmoid(self.post_video_layer_3(x_v3))
             flag[2] = 1
             res["V"] = output_video
 

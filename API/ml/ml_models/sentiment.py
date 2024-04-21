@@ -100,8 +100,8 @@ class SentimentAnalysis(nn.Module):
             flag[0] = 1
             res["T"] = output_text
 
-        if audio_x is not None:   # dim: 33
-            audio_x = torch.concat((audio_x, audio_x, audio_x[:,:8]), dim=-1)
+        if audio_x is not None:  # dim: 33
+            audio_x = torch.concat((audio_x, audio_x, audio_x[:, :8]), dim=-1)
             audio_x = torch.mean(audio_x, dim=0, keepdim=True)
             audio_h = self.audio_model(audio_x)
             # audio

@@ -78,13 +78,17 @@ def gather_data():
 
     # trigger the model
     logger.info(f"Text: {text}, Audio: {audio_file}, Images: {len(image_np_list)}")
+
+    # sometimes there are no image information. judge if the image_np_list has zero data
+    image_np_list = None if len(image_np_list) == 0 else image_np_list
+
     trigger_model(text, [audio_file], image_np_list)
     return text, [audio_file], image_np_list, data_text
 
 
 def trigger_model(text, audio, images) -> Optional[dict]:
     # 1. get the features with bert cn model
-    get_features_obj = GetFeatures((models_dir / "bert_cn").as_posix())
+    get_features_obj = GetFeatures()
     if not text or not audio or not images:
         logger.error("No text, audio or images provided")
         logger.error(
@@ -92,11 +96,22 @@ def trigger_model(text, audio, images) -> Optional[dict]:
         )
         return
 
-    feature_video = get_features_obj.get_images_tensor(images)  # (n/5,709)
-    feature_audio = get_features_obj.get_audio_embedding(audio)  # (94,33)
-    feature_text = get_features_obj.get_text_embeddings(text)  # (n+2,768)
-    logger.info(
-        f"feature_video: {feature_video.shape}, feature_audio: {feature_audio.shape}, feature_text: {feature_text[1].shape}"
+    feature_video = (
+        get_features_obj.get_images_tensor(images) if images is not None else None
+    )  # (n/5,709)
+    feature_audio = (
+        get_features_obj.get_audio_embedding(audio) if audio is not None else None
+    )  # (94,33)
+
+    (
+        logger.info(f"feature_video: {feature_video.shape}")
+        if feature_video is not None
+        else logger.info("feature_video: there are no information about video")
+    )
+    (
+        logger.info(f"feature_audio: {feature_audio.shape}")
+        if feature_audio is not None
+        else logger.info("feature_audio: there are no information about audio")
     )
 
     # data is ready
@@ -108,19 +123,19 @@ def trigger_model(text, audio, images) -> Optional[dict]:
             k.replace("Model.", ""): v
             for k, v in torch.load(models_dir / "sa_sims.pth").items()
         },
-        strict=False,
+        strict=True,
     )
 
-    feature_text_in = feature_text[1].unsqueeze(dim=0)
-    feature_video_in = feature_video.unsqueeze(dim=0)
-    feature_audio_in = feature_audio.unsqueeze(dim=0)
-    # run model
-    output = model(feature_text_in, feature_audio_in, feature_video_in)
+    model.eval()
 
+    # run model
+    output = model(text, feature_audio, feature_video)
     logger.critical(f"output: {output}")
     # loop the output dict, get all of them into float
     for k, v in output.items():
         output[k] = float(v)
+        # and get it to decimal 2
+        output[k] = round(output[k], 2)
     multi_modal_output = output.get("M", 0)
     logger.critical(f"multi_modal_output: {multi_modal_output}")
     return output

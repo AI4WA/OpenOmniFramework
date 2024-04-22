@@ -38,7 +38,7 @@ const Jarv5 = () => {
         <div style={{display: 'flex', flexDirection: 'column', height: '100vh'}}> {/* Step 1 & 2 */}
             <Header/>
 
-            <Grid container spacing={2} sx={{flexGrow: 1, overflow: 'auto'}}>
+            <Grid container spacing={2} sx={{flexGrow: 1, overflow: 'hidden'}}>
                 {/* Vertical Navigation Bar */}
                 <Grid item xs={2} sx={{
                     height: "calc(100vh - 124px)",

@@ -50,6 +50,7 @@ class LLMAdaptor:
         messages: List[Dict[str, str]] = None,
         tools: List[ChatCompletionTool] = None,
         tool_choice: ChatCompletionToolChoiceOption = None,
+        handle_chat: bool = False,
         *args,
         **kwargs,
     ):
@@ -66,7 +67,7 @@ class LLMAdaptor:
                     self.llm.tokenizer.eos_token_id,
                     self.llm.tokenizer.convert_tokens_to_ids("<|eot_id|>"),
                 ]
-                outputs = self.llm(
+                res = self.llm(
                     construct_prompt,
                     max_new_tokens=256,
                     eos_token_id=terminators,
@@ -74,7 +75,9 @@ class LLMAdaptor:
                     temperature=0.6,
                     top_p=0.9,
                 )
-                return outputs[0]["generated_text"][len(construct_prompt) :]
+                if handle_chat:
+                    return res[0]["generated_text"][len(construct_prompt) :]
+                return res
             if self.model_config.model_type == MT_LLAMA:
                 logger.info(f"Creating chat completion for messages: {messages}")
                 return self.llm.create_chat_completion(
@@ -89,13 +92,18 @@ class LLMAdaptor:
             Simple version of it, without message "role" definition
             """
             if self.model_config.model_type == HF_LLAMA:
+                if handle_chat:
+                    return self.llm(prompt)[0]["generated_text"][len(prompt) :]
                 return self.llm(prompt)
             if self.model_config.model_type == MT_LLAMA:
-                return self.llm.create_chat_completion(
+                res = self.llm.create_chat_completion(
                     messages=[
                         {"role": "user", "content": prompt},
                     ]
                 )
+                if handle_chat:
+                    return res["choices"][0]["message"]["content"]
+                return res
             if self.model_config.model_type == MT_CHATGLM:
                 chatglm_pipeline = chatglm_cpp.Pipeline(
                     model_path=self.model_path.as_posix()

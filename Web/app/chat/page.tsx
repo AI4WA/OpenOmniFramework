@@ -322,7 +322,7 @@ const ChatGPTApp = () => {
                     <Grid item xs={12} md={8} lg={9}>
                         <Box display="flex" justifyContent="center" alignItems="center">
                             <Typography variant="h4" gutterBottom sx={{margin: "auto"}}>
-                                Open Source LLM Chat
+                                Public Available LLM Chat
                             </Typography>
                             <Tooltip title={(gpuWorkerData?.view_live_worker?.[0]?.recent_update_count > 0) ? 'Chatbot ONLINE' : 'Chatbot OFFLINE'} placement="right">
                                 <IconButton size="small">

@@ -25,10 +25,10 @@ export default function Dashboard() {
                             <div
                                 className="block rounded-lg border border-transparent p-6 transition-colors hover:border-gray-300 hover:bg-gray-100 dark:hover:border-neutral-700 dark:hover:bg-neutral-800 cursor-pointer">
                                 <div className="flex flex-col items-center">
-                                    <Image src="/icons/task.svg" alt="Open Source LLM Evaluation" width={64}
+                                    <Image src="/icons/task.svg" alt="Public Available LLM Evaluation" width={64}
                                            height={64}/>
                                     <h3 className="mt-5 text-xl font-semibold text-gray-800 dark:text-white">
-                                        Open Source LLM Evaluation
+                                        Public Available LLM Evaluation
                                     </h3>
                                     <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
                                         Manage your evaluation tasks and view results.
@@ -41,13 +41,13 @@ export default function Dashboard() {
                             <div
                                 className="block rounded-lg border border-transparent p-6 transition-colors hover:border-gray-300 hover:bg-gray-100 dark:hover:border-neutral-700 dark:hover:bg-neutral-800 cursor-pointer">
                                 <div className="flex flex-col items-center">
-                                    <Image src="/icons/chat.svg" alt="Chat with Open Source LLM" width={64}
+                                    <Image src="/icons/chat.svg" alt="Chat with Public Available LLM" width={64}
                                            height={64}/>
                                     <h3 className="mt-5 text-xl font-semibold text-gray-800 dark:text-white">
-                                        Chat with Open Source LLM
+                                        Chat with Public Available LLM
                                     </h3>
                                     <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                                        Engage with Open Source LLM models.
+                                        Engage with Public Available LLM models.
                                     </p>
                                 </div>
                             </div>

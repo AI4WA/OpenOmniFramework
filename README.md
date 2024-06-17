@@ -1,15 +1,6 @@
-# Jarv5
+# OpenBenang
 
-Jarv5 is an end-to-end conversational AI system framework that aims to surpass the capabilities of J.A.R.V.I.S.
-Here's what each component of "Jarv5" stands for:
-
-| Symbol | Stands for                    |
-|--------|-------------------------------|
-| **J**  | Junction                      |
-| **A**  | Artificial                    |
-| **R**  | Responsibility                | 
-| **V**  | Versatile                     |
-| **5**  | To be Better than J.A.R.V.I.S |
+**Benang** means tomorrow in Western Australia Noongar Language.
 
 ## System Operation Overview
 

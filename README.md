@@ -9,30 +9,32 @@ For an end to end conversational AI system, currently, there are mainly two appr
 - Right side is what we think OpenAI GPT-4o is doing.
 - Left side is what traditional conversational AI is doing.
 
-As what OpenAI demonstrated in their video, they are doing the end to end model, which is quite impressive.
-And in theory, it is the state of the art.
+As demonstrated in their video, OpenAI is working on an end-to-end model, which is quite impressive and theoretically
+state-of-the-art.
 
-However, we do not know how they implement it, and why they can achieve that.
-At the same time, fully end to end model is not easy to implement, one of the key reasons is that most of the
-researchers do not have the resources(**Money** and **Data**) to train such a model.
+However, there are challenges:
 
-To be able to reach what OpenAI is doing, we need crowd efforts, and we need everyone to focus on advancing their own
-part, and do not need to waste time building the wheels.
-Also, we need to allow this process be to high agile, which can allow people to easily test out their model,
-understanding the real issues, and then improve it.
-Another point is that, we need more data to advance the development of the system, for example, in a complex
-conversational scenario,
-we will want the system to be able to understand who is talking, what is the context, and what is the emotion.
-This kind of data is lacking in the current dataset, and we need to find a way to generate this kind of data.
+- We do not know how they implement it or why they can achieve such results.
+- Fully end-to-end models are difficult to implement because most researchers lack the resources (**money** and **data
+  **) to train such models.
 
-This is why we are building OpenBenang, which is a system that allows people to easily test out their model, it can be
-an end to end model, or it can be a single component model within the pipeline.
-It can also be easily deployed, so the researchers can collect the data they need with minimum effort to do the
-adaptation.
+To reach the level of OpenAI, we need:
+
+1. **Collaborative Efforts**: Crowd efforts where everyone focuses on advancing their own part without reinventing the
+   wheel.
+2. **High Agility**: A process that allows people to easily test their models, understand real application issues, and
+   improve them.
+3. **Gathering Data**: More data to advance system development, especially for complex conversational scenarios. This
+   includes understanding who is talking, the context, and the emotion, which is lacking in current datasets.
+
+To address these needs, we are building **OpenBenang**, a system that:
+
+- Allows people to easily test their models, whether end-to-end or single components within the pipeline.
+- Can be easily deployed, enabling researchers to collect the data they need with minimal effort for adaptation.
 
 Our ultimate goal is to:
 
-- Develop an open-source, end-to-end conversational AI robot that surpasses the capabilities of OpenAI's GPT-4o.
+- Develop an open-source, end-to-end conversational AI robot that match the capabilities of OpenAI's GPT-4o.
 - Enable easy data collection for advancing the development of end-to-end conversational AI systems.
 - Inspire and foster the development of innovative conversational AI applications and products.
 
@@ -49,6 +51,14 @@ There are two key metrics we are focusing on:
 - **Model Accuracy:** Whether the model generates the in-context response or accurate response.
 
 In the end we will want to respond to the user's query in a timely manner, and provide the most in-context response.
+
+---
+
+## Architecture
+
+![Architecture](./docs/images/ArchitectureDesign.jpg)
+
+---
 
 ## Main Components
 
@@ -115,10 +125,6 @@ Detailed information can be found in [Web](./docs/Web.md).
 - It will also provide an interface for the user to doing the annotation, and evaluation of the system.
 
 ---
-
-## Architecture
-
-![Architecture](./docs/images/ArchitectureDesign.jpg)
 
 ## Applications
 

@@ -9,3 +9,5 @@ API/ml/ml_models/model_data
 .coverage
 tmp
 API/.aws
+
+*.egg-info

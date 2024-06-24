@@ -2,34 +2,113 @@
 
 **Benang** means tomorrow in Western Australia Noongar Language.
 
+![./docs/images/OpenBenang.png](./docs/images/OpenBenang.png)
+
+For an end to end conversational AI system, currently, there are mainly two approaches:
+
+- Right side is what we think OpenAI GPT-4o is doing.
+- Left side is what traditional conversational AI is doing.
+
+As what OpenAI demonstrated in their video, they are doing the end to end model, which is quite impressive.
+And in theory, it is the state of the art.
+
+However, we do not know how they implement it, and why they can achieve that.
+At the same time, fully end to end model is not easy to implement, one of the key reasons is that most of the
+researchers do not have the resources(**Money** and **Data**) to train such a model.
+
+To be able to reach what OpenAI is doing, we need crowd efforts, and we need everyone to focus on advancing their own
+part, and do not need to waste time building the wheels.
+Also, we need to allow this process be to high agile, which can allow people to easily test out their model,
+understanding the real issues, and then improve it.
+Another point is that, we need more data to advance the development of the system, for example, in a complex
+conversational scenario,
+we will want the system to be able to understand who is talking, what is the context, and what is the emotion.
+This kind of data is lacking in the current dataset, and we need to find a way to generate this kind of data.
+
+This is why we are building OpenBenang, which is a system that allows people to easily test out their model, it can be
+an end to end model, or it can be a single component model within the pipeline.
+It can also be easily deployed, so the researchers can collect the data they need with minimum effort to do the
+adaptation.
+
+Our ultimate goal is to:
+
+- Develop an open-source, end-to-end conversational AI robot that surpasses the capabilities of OpenAI's GPT-4o.
+- Enable easy data collection for advancing the development of end-to-end conversational AI systems.
+- Inspire and foster the development of innovative conversational AI applications and products.
+
 ## System Operation Overview
 
 1. **Data Collection:** Video and audio inputs are collected from hardware devices.
-2. **Processing:** Data is sent to the API for downstream processing.
-3. **AI and ML models:** The API uses AI and ML models to process the data, generate responses.
-4. **Notification:** The client side is notified to play the speech.
+2. **Data Transfer:** Data is sent to the API for downstream processing.
+3. **Data Processing:** The API uses AI and ML models to process the data, generate responses.
+4. **Reaction:** The client side is notified to play the speech.
+
+There are two key metrics we are focusing on:
+
+- **Model Latency:** The time it takes for the model to generate a response.
+- **Model Accuracy:** Whether the model generates the in-context response or accurate response.
+
+In the end we will want to respond to the user's query in a timely manner, and provide the most in-context response.
 
 ## Main Components
 
-Three components:
+From Application Development Perspective, we divide the whole applications into three main components:
 
-- [Client](./docs/Client.md)
-    - Input:
-        - Audio
-        - Video
-    - Output:
-        - Text to Speech
-- [API](./docs/API.md):
-    - Knowledge base (Relational Database + Graph Database)
-    - Model Orchestration (LLM, GPT-4 API, self-developed models)
-    - Data processing
-- [Web](./docs/Web.md)
-    - Chat interface
-    - Data management
+- Client
+- API
+- Web
+
+### Client
+
+Detailed information can be found in [Client](./docs/Client.md).
+
+Client is decoupled from the API, to reduce the complexity of the system, and allow researchers or developers easily
+integrate their own model into the system.
+
+The client side will mainly in charge of
+
+- Data Acquisition
+    - Audio
+    - Video
+- Data Transfer
+    - Transfer the data to storage places
+- Data Presentation
+    - Play the speech
+- Distributed Computing
+    - Running the models which require intensive computation
+    - LLM models
+    - Text2Speech models
+    - Emotion Recognition models
+    - etc.
+
+### API
+
+Detailed information can be found in [API](./docs/API.md).
+
+This is the **Brain** of the system, which will be in charge of:
+
+- Knowledge Base
+    - Relational Database
+    - Graph Database
+- Models Orchestration
+    - LLM
+    - GPT-4 API
+    - Self-developed models
+- API
+- Data Management
+
+### Web
+
+Detailed information can be found in [Web](./docs/Web.md).
+
+- It will provide a real-time interface for the user to view the progress of the end to end conversation process.
+- It will also provide an interface for the user to doing the annotation, and evaluation of the system.
+
+---
 
 ## Architecture
 
-![Architecture](./docs/imgs/jarv5.png)
+![Architecture](./docs/images/jarv5.png)
 
 ## Applications
 

@@ -11,5 +11,5 @@ RUN pip install llama-cpp-python==0.2.55 --no-cache-dir --force-reinstall --upgr
 RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8000
 
-COPY ./entrypoint.sh /app/entrypoint.sh
+COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh

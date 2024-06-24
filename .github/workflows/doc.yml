@@ -3,7 +3,7 @@ name: Documentation
 on:
   push:
     branches:
-      - main  # Set this to the branch from which you deploy
+      - develop
 permissions:
   contents: write
   pages: write

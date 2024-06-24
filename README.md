@@ -56,6 +56,7 @@ From Application Development Perspective, we divide the whole applications into 
 
 - Client
 - API
+- AI
 - Web
 
 ### Client
@@ -74,12 +75,6 @@ The client side will mainly in charge of
     - Transfer the data to storage places
 - Data Presentation
     - Play the speech
-- Distributed Computing
-    - Running the models which require intensive computation
-    - LLM models
-    - Text2Speech models
-    - Emotion Recognition models
-    - etc.
 
 ### API
 
@@ -94,8 +89,23 @@ This is the **Brain** of the system, which will be in charge of:
     - LLM
     - GPT-4 API
     - Self-developed models
-- API
+- API Interface
+    - RESTful API
+    - WebSocket API
 - Data Management
+
+### AI
+
+Detailed information can be found in [AI](./docs/AI.md).
+
+- Running the ML or AI models
+    - Running the models which require intensive computation
+    - LLM models
+    - Text2Speech models
+    - Emotion Recognition models
+    - etc.
+
+The API side will work as the orchestrator, to manage the models, and provide the interface for the client to access
 
 ### Web
 
@@ -108,7 +118,7 @@ Detailed information can be found in [Web](./docs/Web.md).
 
 ## Architecture
 
-![Architecture](./docs/images/jarv5.png)
+![Architecture](./docs/images/ArchitectureDesign.jpg)
 
 ## Applications
 

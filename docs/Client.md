@@ -1,4 +1,4 @@
-# MultiModality Client Side
+# Client
 
 We have several client side processes that are used to interact with end users and API.
 

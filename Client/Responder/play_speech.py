@@ -1,26 +1,30 @@
 import argparse
 import io
-import os
 import time
 from tempfile import NamedTemporaryFile
 
 import requests
+from gtts import gTTS
 from pydub import AudioSegment
 from pydub.playback import play
 
 from api import API
-from constants import DATA_DIR
-from utils import get_logger, get_mac_address, timer
+from utils import get_logger, timer
 
 logger = get_logger("Responder")
 
 
-class Text2Speech:
-    def __init__(self):
-        pass
-
+class PlaySpeech:
     @staticmethod
     def text_to_speech_and_play(content: str):
+        """
+        Convert text to speech and play
+        Args:
+            content (str): The content to be converted to speech
+
+        Returns:
+
+        """
         # Convert text to speech
         with timer(logger, "Text to speech"):
             tts = gTTS(text=content, lang="en")
@@ -37,6 +41,14 @@ class Text2Speech:
 
     @staticmethod
     def play_audio_file(url: str):
+        """
+        Play audio file from the given
+        Args:
+            url (str): The URL of the audio file
+
+        Returns:
+
+        """
         response = requests.get(url)
         response.raise_for_status()  # This will raise an exception for HTTP errors
         with NamedTemporaryFile(delete=True, suffix=".mp3") as temp_file:
@@ -85,4 +97,4 @@ if __name__ == "__main__":
         if tts_url is None:
             logger.info(f"No tts_url for {text}")
             continue
-        Text2Speech.play_audio_file(tts_url)
+        PlaySpeech.play_audio_file(tts_url)

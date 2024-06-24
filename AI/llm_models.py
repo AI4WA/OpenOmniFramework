@@ -1,12 +1,12 @@
 import requests
+import torch
+import transformers
 from huggingface_hub import hf_hub_url
 from llama_cpp import Llama
 from tqdm import tqdm
 
 from constants import LLM_MODEL_DIR
 from utils import get_logger
-import transformers
-import torch
 
 logger = get_logger("GPU-Worker-LLM-MODEL-CONFIG")
 

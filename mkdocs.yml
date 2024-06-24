@@ -10,6 +10,33 @@ theme:
   icon:
     repo: fontawesome/brands/github
 repo_url: https://github.com/AI4WA/OpenBenang
+nav:
+  - Home: index.md
+  - Leaderboard: LeaderBoard.md
+  - Modules:
+      - Client:
+          - Introduction: Client/main.md
+          - Setup: Client/setup.md
+      - API: API.md
+      - AI: AI.md
+      - Web: Web.md
+  - Source:
+      - Client:
+          - Introduction: Source/index.md
+          - Listener:
+              - Audio: Sources/Client/Listener/audios_acquire.md
+              - Video: Sources/Client/Listener/videos_acquire.md
+              - API: Sources/Client/Listener/api.md
+              - Sync to Disk: Sources/Client/Listener/sync_files.md
+              - Sync to S3: Sources/Client/Listener/sync_to_s3.md
+              - Utils: Sources/Client/Listener/utils.md
+              - Constants: Sources/Client/Listener/constants.md
+          - Responder:
+              - Text2Speech: Sources/Client/Responder/text_to_speech.md
+              - API: Sources/Client/Responder/api.md
+              - Utils: Sources/Client/Responder/utils.md
+              - Constants: Sources/Client/Responder/constants.md
+      - AI: Sources/AI/main.md
 plugins:
   - search
   - gen-files:

@@ -9,6 +9,12 @@ import getmac
 def get_logger(logger_name: Optional[str] = None, stream: bool = True):
     """
     init the logger, give it proper format, log them both in terminal stream and file
+
+    Args:
+        logger_name: str
+            the name of the logger
+        stream: bool
+            whether to log in the terminal stream
     """
     logging.basicConfig(
         format="%(name)s: %(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
@@ -40,12 +46,11 @@ class timer:
         """
         init the timer
 
-        Parameters
-        ----------
-        logger: Logger
-            logger to write the logs
-        message: str
-            message to log, like start xxx
+        Args:
+            logger: Logger
+                the logger to log the message
+            message: str
+                the message to log
         """
         self.message = message
         self.logger = logger

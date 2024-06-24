@@ -1,7 +1,6 @@
 # the purpose of this function will be
 # if file changed, upload it to the s3
 import argparse
-import subprocess
 import time
 
 import boto3
@@ -17,6 +16,10 @@ s3_client = boto3.client("s3")
 
 
 class SyncHandler(FileSystemEventHandler):
+    """
+    Sync the files to s3 when they are created, modified, moved or deleted
+    """
+
     def __init__(self, home_id: int):
         super().__init__()
         self.home_id = home_id

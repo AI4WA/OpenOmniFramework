@@ -12,13 +12,32 @@ logger = get_logger(__name__)
 
 
 class SyncHandler(FileSystemEventHandler):
-    def __init__(self, src_path, dest_path, sshpass):
+    """
+    Sync the files to disk when they are created, modified, moved or deleted
+    """
+
+    def __init__(self, src_path: str, dest_path: str, sshpass: str):
+        """
+
+        Args:
+            src_path (str): The source path to sync
+            dest_path (str): The destination path to sync
+            sshpass (str): The password to ssh
+        """
         super().__init__()
         self.src_path = src_path
         self.dest_path = dest_path
         self.sshpass = sshpass
 
     def on_any_event(self, event):
+        """
+        Sync the files to disk when they are created, modified, moved or deleted
+        Args:
+            event:
+
+        Returns:
+
+        """
         if event.is_directory:
             return None
         else:
@@ -83,20 +102,11 @@ if __name__ == "__main__":
     else:
         src_directory = args.src_directory
 
-    if args.dest_ip is None:
-        dest_ip = "172.20.10.4"
-    else:
-        dest_ip = args.dest_ip
+    dest_ip = args.dest_ip
 
-    if args.dest_directory is None:
-        dest_directory = "/Users/pascal/PhD/applications/Assistant/Client/Listener/data/"  # this is hard coded
-    else:
-        dest_directory = args.dest_directory
+    dest_directory = args.dest_directory
 
-    if args.dest_username is None:
-        dest_username = "pascal"  # this is hard coded
-    else:
-        dest_username = args.dest_username
+    dest_username = args.dest_username
 
     if args.dest_password is None:
         dest_password = None

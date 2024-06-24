@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Optional
 
 import requests
@@ -11,10 +10,10 @@ logger = get_logger("API")
 
 class API:
     def __init__(
-        self,
-        domain: str = API_DOMAIN,
-        token: str = "",
-        home_id: int = None,
+            self,
+            domain: str = API_DOMAIN,
+            token: str = "",
+            home_id: int = None,
     ):
         self.domain = domain
         self.token = token
@@ -22,10 +21,10 @@ class API:
         self.home_id = home_id
 
     def register_device(
-        self,
-        device_name: Optional[str] = None,
-        device_type: Optional[str] = None,
-        description: Optional[str] = None,
+            self,
+            device_name: Optional[str] = None,
+            device_type: Optional[str] = None,
+            description: Optional[str] = None,
     ):
         url = f"{self.domain}/hardware/register/"
 

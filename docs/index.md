@@ -15,8 +15,8 @@ state-of-the-art.
 However, there are challenges:
 
 - We do not know how they implement it or why they can achieve such results.
-- Fully end-to-end models are difficult to implement because most researchers lack the resources (**money** and **data
-  **) to train such models.
+- Fully end-to-end models are difficult to implement because most researchers lack the resources
+  (**money** and **data**) to train such models.
 
 To reach the level of OpenAI, we need:
 

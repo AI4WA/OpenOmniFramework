@@ -1,7 +1,8 @@
 import logging
 import time
 from logging import Logger
-from typing import Optional
+from types import TracebackType
+from typing import Optional, Type
 
 import getmac
 
@@ -9,6 +10,10 @@ import getmac
 def get_logger(logger_name: Optional[str] = None, stream: bool = True):
     """
     init the logger, give it proper format, log them both in terminal stream and file
+
+    Args:
+        logger_name (Optional[str]): the logger name
+        stream (bool): whether to log in the terminal stream
     """
     logging.basicConfig(
         format="%(name)s: %(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
@@ -40,12 +45,9 @@ class timer:
         """
         init the timer
 
-        Parameters
-        ----------
-        logger: Logger
-            logger to write the logs
-        message: str
-            message to log, like start xxx
+        Args:
+            logger (Logger): the logger
+            message (str): the message to be logged
         """
         self.message = message
         self.logger = logger
@@ -61,9 +63,19 @@ class timer:
         self.logger.info("Starting %s" % self.message)
         return self
 
-    def __exit__(self, context, value, traceback):
+    def __exit__(
+        self,
+        context: Optional[Type[BaseException]],
+        value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ):
         """
         context exit will write this
+
+        Args:
+            context (Optional[Type[BaseException]]): the context
+            value (Optional[BaseException]): the value
+            traceback (Optional[TracebackType]): the traceback
         """
         self.duration = time.time() - self.start
         self.logger.info(f"Finished {self.message}, that took {self.duration:.3f}")

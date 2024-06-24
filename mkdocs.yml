@@ -32,7 +32,7 @@ nav:
               - Utils: Sources/Client/Listener/utils.md
               - Constants: Sources/Client/Listener/constants.md
           - Responder:
-              - Text2Speech: Sources/Client/Responder/text_to_speech.md
+              - PlaySpeech: Sources/Client/Responder/play_speech.md
               - API: Sources/Client/Responder/api.md
               - Utils: Sources/Client/Responder/utils.md
               - Constants: Sources/Client/Responder/constants.md

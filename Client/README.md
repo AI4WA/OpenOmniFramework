@@ -31,7 +31,18 @@ You will need a speaker to play the sound.
 
 First, you will need to grab the token from the API side, and then come here to run the client side
 
+And install the required packages:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+brew install ffmpeg
+```
+
 ### Video
+
+If you are using Raspberry Pi 4 or other devices with a camera but no GUI, you will need to set the display to the
 
 ```bash
 export DISPLAY=:0.0

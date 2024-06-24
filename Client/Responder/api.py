@@ -10,22 +10,39 @@ logger = get_logger("API")
 
 class API:
     def __init__(
-            self,
-            domain: str = API_DOMAIN,
-            token: str = "",
-            home_id: int = None,
+        self,
+        domain: str = API_DOMAIN,
+        token: str = "",
+        home_id: int = None,
     ):
+        """
+        init the api
+        Args:
+            domain (str): the domain of the api
+            token (str): the token of the api
+            home_id (int): the home id
+        """
         self.domain = domain
         self.token = token
         self.mac_address = get_mac_address()
         self.home_id = home_id
 
     def register_device(
-            self,
-            device_name: Optional[str] = None,
-            device_type: Optional[str] = None,
-            description: Optional[str] = None,
+        self,
+        device_name: Optional[str] = None,
+        device_type: Optional[str] = None,
+        description: Optional[str] = None,
     ):
+        """
+        register the device
+        Args:
+            device_name (Optional[str]): the device name
+            device_type (Optional[str]): the device type
+            description (Optional[str]): the description of the device
+
+        Returns:
+
+        """
         url = f"{self.domain}/hardware/register/"
 
         r = requests.post(
@@ -43,6 +60,11 @@ class API:
         logger.info(f"POST {url} {r.status_code}")
 
     def get_spoken_speech(self):
+        """
+        Call the API to get the speech to play
+        Returns:
+
+        """
         url = f"{self.domain}/hardware/speech/?home_id={self.home_id}"
         r = requests.get(
             url, headers={"Authorization": f"Token {self.token}"}, timeout=30

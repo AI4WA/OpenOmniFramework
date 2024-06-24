@@ -3,7 +3,7 @@ from typing import Dict, List
 import chatglm_cpp
 from llama_cpp.llama_types import ChatCompletionTool, ChatCompletionToolChoiceOption
 
-from constants import MT_CHATGLM, MT_LLAMA, HF_LLAMA
+from constants import HF_LLAMA, MT_CHATGLM, MT_LLAMA
 from llm_models import LLMModelConfig
 from utils import get_logger
 

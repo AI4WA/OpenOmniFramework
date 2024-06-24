@@ -10,6 +10,16 @@ from utils import get_logger
 
 logger = get_logger("video_acquire")
 
+"""
+PER_LENGTH = 1800  # 30 minutes
+
+# the screen width and height
+WIDTH = 640
+HEIGHT = 480
+FPS = 24.0
+
+"""
+
 # per length of the video
 PER_LENGTH = 1800  # 30 minutes
 
@@ -30,6 +40,17 @@ class VideoAcquire:
         token="",
         home_id: int = None,
     ):
+        """
+        init the video acquire
+        Args:
+            width: (int) the width of the video
+            height (int): the height of the video
+            fps (float): the frame per second
+            per_video_length (int): the length of the video
+            api_domain (str): the domain of the api
+            token (str): the token of the api
+            home_id (int): the home id
+        """
         self.uid = str(uuid.uuid4())
         self.data_dir = DATA_DIR / "videos" / self.uid  # the data dir
         self.data_dir.mkdir(parents=True, exist_ok=True)
@@ -37,14 +58,12 @@ class VideoAcquire:
         self.height = height  # the width and height of the video
         self.fps = fps  # frame per second
         self.per_video_length = per_video_length  # the length of the video
-        logger.info(self.per_video_length)
         self.api = API(domain=api_domain, token=token, home_id=home_id)
         self.api.register_device()
 
     def record(self):
         """
         start to record the video
-        :return:
         """
         segment_images = 60
         seconds = 0
@@ -60,7 +79,7 @@ class VideoAcquire:
         # use the XVID codec
         fourcc = cv2.VideoWriter_fourcc(*"avc1")  # noqa
 
-        cap_fps = cap.get(5)  # 获取摄像头帧率   帧率为30
+        cap_fps = cap.get(5)  # get the fps of the camera
         logger.info(f"the fps of the camera is {cap_fps}")
 
         start_time = datetime.now()
@@ -69,17 +88,17 @@ class VideoAcquire:
         out = cv2.VideoWriter(
             filename.as_posix(), fourcc, self.fps, (self.width, self.height)
         )  # noqa
-        logger.info("start flag")
+        logger.info("start to record the video")
         flag = True
         while flag:
             try:
                 if (datetime.now() - start_time).seconds >= self.per_video_length:
-                    # 到达视频分段时长后停止录制
+                    # stop the recording and save the video when the time is up
                     logger.info(f"the recording is finished, saved to file: {filename}")
                     out.release()
                     # TODO: post the video to the server
                     self.api.post_video(self.uid, filename.as_posix().split("/")[-1])
-                    # 重新开始新的视频录制
+                    # resume the recording
                     start_time = datetime.now()
                     filename = self.data_dir / (
                         start_time.strftime("%Y-%m-%d_%H-%M-%S") + ".mp4"
@@ -88,7 +107,7 @@ class VideoAcquire:
                         filename.as_posix(), fourcc, FPS, (self.width, self.height)
                     )  # noqa
                 else:
-                    # 读取一帧视频
+                    # read the frame
                     logger.debug("Try to process the frame")
                     ret, frame = cap.read()
                     if ret:

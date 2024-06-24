@@ -71,7 +71,7 @@ From Application Development Perspective, we divide the whole applications into 
 
 ### Client
 
-Detailed information can be found in [Client](./Client.md).
+Detailed information can be found in [Client](Client/main.md).
 
 Client is decoupled from the API, to reduce the complexity of the system, and allow researchers or developers easily
 integrate their own model into the system.

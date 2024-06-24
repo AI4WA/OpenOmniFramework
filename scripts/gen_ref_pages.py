@@ -18,6 +18,9 @@ for module in modules:
     for path in sorted(src.rglob("*.py")):
         module_path = path.relative_to(src).with_suffix("")
         full_doc_path = f"Sources/{module}" / module_path.with_suffix(".md")
+        # if it is venv, skip
+        if "venv" in str(full_doc_path):
+            continue
 
         parts = tuple(module_path.parts)
 

@@ -13,3 +13,15 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 API_DOMAIN = "http://localhost:8000"
 
 S3_BUCKET = "wa-data-and-llm-platform"
+
+"""
+# get parent of current folder as root
+ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = Path(ROOT_PATH) / "data"
+
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+API_DOMAIN = "http://localhost:8000"
+
+S3_BUCKET = "wa-data-and-llm-platform" => change this to your bucket name
+"""

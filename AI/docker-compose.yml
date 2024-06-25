@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   worker_cpu:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: worker_cpu
+    container_name: OpenBenangAIContainer
     command: /app/entrypoint.sh
     volumes:
       - .:/app

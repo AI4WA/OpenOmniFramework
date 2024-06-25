@@ -3,13 +3,14 @@ import json
 import time
 import uuid
 
-from api import API
-from constants import API_DOMAIN, NORMAL_MODELS
-from llm_adaptor_worker import LLMAdaptor
-from llm_models import LLMModelConfig
-from llm_task import LLMTask
-from ml_models import MLModelConfig
-from utils import get_logger, timer
+from modules.general_ml.ml_models import MLModelConfig
+from modules.quantization_llm.llm_adaptor_worker import LLMAdaptor
+from modules.quantization_llm.llm_models import LLMModelConfig
+from modules.quantization_llm.llm_task import LLMTask
+from utils.api import API
+from utils.constants import API_DOMAIN, NORMAL_MODELS
+from utils.get_logger import get_logger
+from utils.timer import timer
 
 logger = get_logger("GPU-Worker")
 
@@ -42,18 +43,18 @@ def work_manager(api: API):
 
 def handle_task(task: dict, api: API):
     # we want to control it also run a normal model task
-    model_name = task["parameters"].get("model_name", None)
-    logger.info(f"Model Name: {model_name}")
+    llm_model_name = task["parameters"].get("llm_model_name", None)
+    logger.info(f"Model Name: {llm_model_name}")
     """
     This is handling the normal ML model task like bert, etc
     """
-    if model_name in NORMAL_MODELS:
-        logger.info(f"Running ML Model Task {model_name}")
+    if llm_model_name in NORMAL_MODELS:
+        logger.info(f"Running ML Model Task {llm_model_name}")
         # get the ml model ready
         start_time = time.time()
         ml_task_id = task["id"]
         logger.info(f"Running ML Model Task {ml_task_id}")
-        ml_model = AVAIL_ML_MODEL_OBJS.get(model_name, None)
+        ml_model = AVAIL_ML_MODEL_OBJS.get(llm_model_name, None)
         logger.debug(ml_model)
         ml_model.model_ready()
         ml_input = task["parameters"].get("prompt", "")
@@ -204,7 +205,7 @@ if __name__ == "__main__":
     logger.info(available_models)
 
     for model in available_models:
-        AVAIL_MODEL_OBJS[model["model_name"]] = LLMModelConfig(**model)
+        AVAIL_MODEL_OBJS[model["llm_model_name"]] = LLMModelConfig(**model)
 
     for ml_model_name in NORMAL_MODELS:
         AVAIL_ML_MODEL_OBJS[ml_model_name] = MLModelConfig(model_name=ml_model_name)

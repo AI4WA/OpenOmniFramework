@@ -6,7 +6,6 @@ from sys import platform
 from time import sleep
 
 import speech_recognition as sr
-
 from api import API
 from constants import DATA_DIR
 from utils import get_logger, timer
@@ -129,6 +128,7 @@ class AudioAcquire:
                     "wb",
                 ) as file:
                     file.write(wav_data)
+                self.audio_index += 1
 
         # Create a background thread that will pass us raw audio bytes.
         # We could do this manually, but SpeechRecognizer provides a nice helper.

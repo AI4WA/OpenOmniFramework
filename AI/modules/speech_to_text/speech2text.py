@@ -3,7 +3,6 @@ from typing import Tuple
 
 import torch
 import whisper
-
 from models.parameters import Speech2TextParameters
 from utils.constants import CLIENT_DATA_FOLDER
 from utils.get_logger import get_logger

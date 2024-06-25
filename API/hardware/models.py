@@ -149,12 +149,7 @@ class DataText(models.Model):
         help_text="The audio data",
     )
     text = models.TextField(help_text="The text of the audio")
-    logs = models.JSONField(
-        help_text="The logs of the text", null=True, blank=True, default=dict
-    )
-    translation_in_seconds = models.FloatField(
-        help_text="The time taken to translate the audio", null=True, blank=True
-    )
+
     created_at = models.DateTimeField(
         auto_now_add=True, help_text="The created time of the text"
     )

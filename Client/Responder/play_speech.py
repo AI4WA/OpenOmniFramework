@@ -4,11 +4,10 @@ import time
 from tempfile import NamedTemporaryFile
 
 import requests
+from api import API
 from gtts import gTTS
 from pydub import AudioSegment
 from pydub.playback import play
-
-from api import API
 from utils import get_logger, timer
 
 logger = get_logger("Responder")

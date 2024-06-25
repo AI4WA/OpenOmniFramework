@@ -1,7 +1,6 @@
 from typing import Optional
 
 import torch
-
 from modules.emotion_detection.features_extraction import FeaturesExtractor
 from modules.emotion_detection.sentiment import SentimentAnalysis
 from utils.constants import EMOTION_DETECTION_MODEL_DIR

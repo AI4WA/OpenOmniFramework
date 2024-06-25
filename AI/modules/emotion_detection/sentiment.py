@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from sklearn.decomposition import PCA
 from torch.nn.parameter import Parameter
 from transformers import BertModel, BertTokenizer
-
 from utils.constants import EMOTION_DETECTION_MODEL_DIR
 
 models_dir = EMOTION_DETECTION_MODEL_DIR / "model_data"

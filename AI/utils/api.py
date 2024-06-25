@@ -2,7 +2,6 @@ import socket
 
 import getmac
 import requests
-
 from models.task import Task
 from utils.get_logger import get_logger
 

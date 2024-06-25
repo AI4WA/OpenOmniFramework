@@ -109,12 +109,14 @@ class AIOrchestrator:
         task_obj = Task(**task)
         logger.info(task_obj)
         if task_obj.task_name in self.task_name_router:
-            task = self.task_name_router[task_obj.task_name](task_obj)
+            task_obj = self.task_name_router[task_obj.task_name](task_obj)
         else:
             logger.error(f"Unknown task type: {task_obj.task_name}")
+            task_obj.result_status = "failed"
+            task_obj.result_json = {"error": f"Unknown task type: {task_obj.task_name}"}
 
         # then update the task status
-        self.api.post_task_result(task)
+        self.api.post_task_result(task_obj)
 
     def handle_speech2text_task(self, task: Task):
         """

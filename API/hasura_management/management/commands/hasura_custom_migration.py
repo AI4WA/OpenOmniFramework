@@ -7,30 +7,30 @@ from authenticate.utils.get_logger import get_logger
 logger = get_logger(__name__)
 
 SQL_SCRIPTS = [
-    """
-    DROP VIEW IF EXISTS view_live_worker;
-    CREATE VIEW view_live_worker AS
-    SELECT 
-        task_type,
-        COUNT(*) AS recent_update_count 
-    FROM 
-        worker_taskworker 
-    WHERE 
-        updated_at > NOW() - INTERVAL '1 minutes'
-    GROUP BY 
-        task_type;
-    """,
-    """
-    DROP VIEW IF EXISTS view_llm_unique_task_name;
-    CREATE VIEW view_llm_unique_task_name AS
-    SELECT 
-        user_id,
-        name,
-        COUNT(*) AS count
-    FROM llm_llmrequestrecord
-    GROUP BY 
-        user_id, name;
-    """,
+    # """
+    # DROP VIEW IF EXISTS view_live_worker;
+    # CREATE VIEW view_live_worker AS
+    # SELECT
+    #     task_type,
+    #     COUNT(*) AS recent_update_count
+    # FROM
+    #     worker_taskworker
+    # WHERE
+    #     updated_at > NOW() - INTERVAL '1 minutes'
+    # GROUP BY
+    #     task_type;
+    # """,
+    # """
+    # DROP VIEW IF EXISTS view_llm_unique_task_name;
+    # CREATE VIEW view_llm_unique_task_name AS
+    # SELECT
+    #     user_id,
+    #     name,
+    #     COUNT(*) AS count
+    # FROM llm_llmrequestrecord
+    # GROUP BY
+    #     user_id, name;
+    # """,
 ]
 
 

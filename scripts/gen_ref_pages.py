@@ -21,6 +21,8 @@ for module in modules:
         # if it is venv, skip
         if "venv" in str(full_doc_path):
             continue
+        if ".tox" in str(full_doc_path):
+            continue
 
         parts = tuple(module_path.parts)
 

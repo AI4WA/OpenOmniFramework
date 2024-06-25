@@ -37,11 +37,10 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path("hardware/", include("hardware.urls")),
     path("authenticate/", include("authenticate.urls")),
-    path("queue_task/", include("worker.urls")),
+    path("hardware/", include("hardware.urls")),
+    path("queue_task/", include("orchestrator.urls")),
     path("llm/", include("llm.urls")),
-    path("chat/", include("chat.urls")),
     path(
         "swagger/",
         login_required(schema_view.with_ui("swagger", cache_timeout=0)),

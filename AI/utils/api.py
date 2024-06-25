@@ -1,24 +1,27 @@
-import json
 import socket
-from typing import Optional
 
-# import getmac
+import getmac
 import requests
 
+from models.task import Task
 from utils.get_logger import get_logger
 
 from .constants import API_DOMAIN
 
-logger = get_logger("GPU-Worker-API")
+logger = get_logger("AI-API")
 
 
 class API:
+    """
+    This is the class to communicate with the API component
+    """
+
     def __init__(
         self,
         domain: str = API_DOMAIN,
         token: str = "",
         uuid: str = "",
-        task_type: str = "gpu",
+        task_name: str = "llm",
     ):
         """
         Init API class to communicate with the API
@@ -26,14 +29,31 @@ class API:
             domain (str): The domain of the API
             token (str): The token to authenticate
             uuid (str): The UUID of the worker
-            task_type (str): The task type of the worker
+            task_name (str): The task type of the worker
         """
         self.domain = domain
         self.token = token
-        self.task_type = task_type
+        self.task_name = task_name
         self.uuid = uuid
-        # self.mac_address = getmac.get_mac_address()
+        self.mac_address = getmac.get_mac_address()
         self.ip_address = self.get_local_ip()
+
+    def verify_token(self) -> bool:
+        try:
+            url = f"{self.domain}/authenticate/api/token/verify/"
+            r = requests.post(
+                url,
+                headers={"Authorization": f"Token {self.token}"},
+                data={"token": self.token},
+            )
+            logger.info(f"POST {url} {r.status_code}")
+            logger.info(r.json())
+            if r.status_code != 200:
+                return False
+            return True
+        except Exception as e:
+            logger.error(f"Error verifying token: {e}")
+            return False
 
     def get_available_models(self):
         """
@@ -52,44 +72,35 @@ class API:
         Returns:
 
         """
-        url = f"{self.domain}/queue_task/task/{self.task_type}/"
+        logger.info(self.task_name)
+        url = f"{self.domain}/queue_task/task/{self.task_name}/"
         r = requests.get(url, headers={"Authorization": f"Token {self.token}"})
         logger.info(f"GET {url} {r.status_code}")
+        logger.info(r.text)
         if r.status_code != 200:
             return None
         return r.json()
 
     def post_task_result(
         self,
-        task_id: str,
-        result_status: str,
-        description: str,
-        completed_in_seconds: Optional[float] = 0,
-        result: Optional[dict] = None,
+        task: Task,
     ):
         """
         Post the task result to the API
         Args:
-            task_id (str): The task ID
-            result_status (str): The result status
-            description (str): The description of the result
-            completed_in_seconds (float): The time taken to complete the task
-            result (dict): The result of the task
+            task[Task]: The task to post the result
 
         Returns:
 
         """
-        url = f"{self.domain}/queue_task/{task_id}/update_result/"
+        url = f"{self.domain}/queue_task/{task.id}/update_result/"
         r = requests.post(
             url,
-            data={
-                "result_status": result_status,
-                "description": description,
-                "completed_in_seconds": completed_in_seconds,
-                "success": result_status == "completed",
-                "result": json.dumps(result) if result else None,
+            data=task.json(),
+            headers={
+                "Authorization": f"Token {self.token}",
+                "Content-Type": "application/json",
             },
-            headers={"Authorization": f"Token {self.token}"},
         )
         logger.info(f"POST {url} {r.status_code}")
         logger.info(r.json())
@@ -98,6 +109,7 @@ class API:
     def register_or_update_worker(self):
         """
         Register or update the  worker
+        So we can know whether the worker is alive or not
         """
         try:
             url = f"{self.domain}/queue_task/worker/"
@@ -105,14 +117,14 @@ class API:
                 url,
                 data={
                     "uuid": self.uuid,
-                    # "mac_address": self.mac_address,
+                    "mac_address": self.mac_address,
                     "ip_address": self.ip_address,
-                    "task_type": self.task_type,
+                    "task_name": self.task_name,
                 },
                 headers={"Authorization": f"Token {self.token}"},
             )
             logger.info(f"POST {url} {r.status_code}")
-            logger.info(r.json())
+            # logger.info(r.text)
             return r.json()
         except Exception as e:
             logger.error(f"Error registering worker: {e}")

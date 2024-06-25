@@ -44,14 +44,13 @@ INSTALLED_APPS = [
     "drf_yasg",
     "import_export",
     "corsheaders",
-    "hardware",
     "authenticate",
+    "orchestrator",
+    "hardware",
     "llm",
-    "worker",
     "ml",
     "rag",
     "hasura_management",
-    "chat",
 ]
 
 MIDDLEWARE = [
@@ -212,5 +211,7 @@ SIMPLE_JWT = {
 }
 
 BOTO3_SESSION = boto3.Session(region_name=os.environ.get("AWS_REGION", "us-west-2"))
+
+# update this
 
 CSV_BUCKET = "wa-data-and-llm-platform"

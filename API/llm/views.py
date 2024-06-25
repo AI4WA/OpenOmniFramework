@@ -13,7 +13,7 @@ from llm.serializers import (
     LLMConfigRecordsSerializer,
     LLMRequestResultDownloadSerializer,
 )
-from worker.models import Task
+from orchestrator.models import Task
 
 logger = logging.getLogger(__name__)
 

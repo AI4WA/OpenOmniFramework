@@ -4,6 +4,6 @@ setup(
     name="OpenBenangAI",
     version="0.1",
     packages=find_packages(),
-    description="OpenBenang AI",
+    description="OpenBenang AI Orchestrator",
     author="AI4WA",
 )

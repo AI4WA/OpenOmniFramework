@@ -3,12 +3,12 @@ import os
 import time
 
 from django.core.management.base import BaseCommand
+from worker.models import Task
 
 from authenticate.utils.get_logger import get_logger
 from hardware.models import EmotionDetection, LLMResponse, Text2Speech
 from llm.models import LLMConfigRecords
 from ml.ml_models.emoji_detect import gather_data, trigger_model
-from worker.models import Task
 
 logger = get_logger(__name__)
 

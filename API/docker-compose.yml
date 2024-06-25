@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:13
-    container_name: pgdb
+    container_name: DB
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -17,7 +15,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: api
+    container_name: API
     command: /usr/src/app/entrypoint.sh
     volumes:
       - .:/usr/src/app
@@ -28,44 +26,21 @@ services:
       - DB_NAME=yourdbname
       - DB_USER=youruser
       - DB_PASS=yourpassword
-      - DB_SERVICE=pgdb
+      - DB_SERVICE=DB
       - DB_PORT=5432
-    depends_on:
-      - db
-
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: worker
-    command: /usr/src/app/entrypoint_worker.sh
-    volumes:
-      - .:/usr/src/app
-      - ../Client/Listener/data:/usr/src/Client/Listener/data
-      - ../Client/Responder/data:/usr/src/Client/Responder/data
-      - whisper_cache:/root/.cache
-      - .aws:/root/.aws
-    environment:
-      - DB_NAME=yourdbname
-      - DB_USER=youruser
-      - DB_PASS=yourpassword
-      - DB_SERVICE=pgdb
-      - DB_PORT=5432
-      - LLM_MODEL_NAME=llama2-7b-chat
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       - db
 
   hasura:
     image: hasura/graphql-engine:v2.38.0.cli-migrations-v3
-    container_name: hasura
+    container_name: HASURA
     ports:
       - "8080:8080"
     restart: always
     volumes:
       - ./hasura/:/Javr5/
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://youruser:yourpassword@pgdb:5432/yourdbname
+      HASURA_GRAPHQL_DATABASE_URL: postgres://youruser:yourpassword@DB:5432/yourdbname
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_ADMIN_SECRET: yn
       HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"

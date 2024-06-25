@@ -2,11 +2,12 @@ import json
 import socket
 from typing import Optional
 
-import getmac
+# import getmac
 import requests
 
-from constants import API_DOMAIN
-from utils import get_logger
+from utils.get_logger import get_logger
+
+from .constants import API_DOMAIN
 
 logger = get_logger("GPU-Worker-API")
 
@@ -31,7 +32,7 @@ class API:
         self.token = token
         self.task_type = task_type
         self.uuid = uuid
-        self.mac_address = getmac.get_mac_address()
+        # self.mac_address = getmac.get_mac_address()
         self.ip_address = self.get_local_ip()
 
     def get_available_models(self):
@@ -104,7 +105,7 @@ class API:
                 url,
                 data={
                     "uuid": self.uuid,
-                    "mac_address": self.mac_address,
+                    # "mac_address": self.mac_address,
                     "ip_address": self.ip_address,
                     "task_type": self.task_type,
                 },

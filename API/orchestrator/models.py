@@ -72,12 +72,7 @@ class Task(models.Model):
 
 class TaskWorker(models.Model):
     uuid = models.CharField(max_length=100, unique=True)
-    task_type = models.CharField(
-        max_length=100,
-        choices=[("cpu", "CPU"), ("stt", "Speech2Text"), ("gpu", "GPU")],
-        help_text="Select the type of work, it can be either CPU, GPU (both for LLM) or STT",
-        default="gpu",
-    )
+    task_name = models.CharField(max_length=100, blank=True, null=True)
     mac_address = models.CharField(max_length=100, blank=True, null=True)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

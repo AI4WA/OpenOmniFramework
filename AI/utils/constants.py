@@ -42,3 +42,6 @@ NORMAL_MODELS = [BERT]
 ```
 
 """
+
+
+CLIENT_DATA_FOLDER = BASE_DIR.parent.parent / "Client" / "Listener" / "data"

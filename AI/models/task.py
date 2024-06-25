@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Dict, Optional
 
 from pydantic import BaseModel, Field
 
@@ -26,17 +26,17 @@ class Task(BaseModel):
     This is the one we will pull and ask for the task from the API
     """
 
-    id: int = Field(int, description="The ID of the task")
-    name: str = Field(str, description="A unique name to track the cluster of tasks")
+    id: int = Field(description="The ID of the task")
+    name: str = Field(description="A unique name to track the cluster of tasks")
     user_id: Optional[int] = Field(
-        int, description="The ID of the user who created the task"
+        None, description="The ID of the user who created the task"
     )
     task_name: TaskName = Field(description="The name of the task")
     parameters: dict = Field(dict, description="The parameters for the task")
     result_status: ResultStatus = Field(
         ResultStatus.pending, description="The status of the task"
     )
-    result_json = Optional[dict] = Field(dict, description="The result of the task")
-    description = Optional[str] = Field(
-        str, description="The description of the task result"
+    result_json: Optional[Dict] = Field(None, description="The result of the task")
+    description: Optional[str] = Field(
+        None, description="The description of the task result"
     )

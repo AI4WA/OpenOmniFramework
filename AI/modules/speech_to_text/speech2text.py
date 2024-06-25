@@ -1,17 +1,17 @@
 from datetime import datetime
+from typing import Tuple
 
 import torch
 import whisper
-from django.conf import settings
 
-from authenticate.utils.get_logger import get_logger
-from authenticate.utils.timer import timer
-from hardware.models import DataAudio, DataText, Home
+from utils.constants import CLIENT_DATA_FOLDER
+from utils.get_logger import get_logger
+from utils.timer import timer
 
 logger = get_logger(__name__)
 
 
-class Translator:
+class Speech2Text:
     SUPPORTED_MODELS = ["whisper"]
 
     def __init__(
@@ -45,11 +45,9 @@ class Translator:
             format also like: "2024-03-13T13:10:21.527852Z"
         :return: The path to the audio file
         """
-        audio_folder = (
-            settings.CLIENT_DATA_FOLDER / "Listener" / "data" / "audio" / uid / "audio"
-        )
+        audio_folder = CLIENT_DATA_FOLDER / "audio" / uid
         # audio file will be within this folder, and name like sequence_index-endtimetimestap.wav
-        end_time_obj = datetime.strptime(end_time, "%Y-%m-%dT%H:%M:%S.%f%z")
+        end_time_obj = datetime.strptime(end_time, "%Y-%m-%dT%H:%M:%S.%f")
         audio_file = (
             audio_folder
             / f"{sequence_index}-{end_time_obj.strftime('%Y%m%d%H%M%S')}.wav"
@@ -59,8 +57,19 @@ class Translator:
             raise FileNotFoundError(f"Audio file {audio_file} not found")
         return audio_file
 
-    def translate(self, message):
-        """ """
+    def translate(self, message) -> Tuple[dict, dict]:
+        """
+        This is the key function to translate the audio to text
+        Args:
+            message (dict): The message to translate
+
+        Returns:
+            str: The translated text
+            latency_profile (dict): The latency profile
+
+        """
+        latency_profile = {}
+        result_profile = {}
         logger.info(f"Translating message {message}")
         # read the data from the audio file in .wav file, then do the translation
         audio_file = self.locate_audio_file(
@@ -68,79 +77,48 @@ class Translator:
         )
         logger.info(f"Audio file {audio_file}")
         if audio_file is None:
-            return None, None
+            return latency_profile, result_profile
 
         with timer(logger, "Loading audio"):
+            start_time = datetime.now()
             audio_np = whisper.load_audio(audio_file.as_posix())
+            latency_profile["model_load_audio"] = (
+                datetime.now() - start_time
+            ).total_seconds()
         with timer(logger, "Transcribing"):
-            result = self.audio_model.transcribe(
+            start_time = datetime.now()
+            result_profile = self.audio_model.transcribe(
                 audio_np, fp16=torch.cuda.is_available()
             )
-        logger.critical(result)
-        return result, audio_file
+            latency_profile["model_transcribe"] = (
+                datetime.now() - start_time
+            ).total_seconds()
+        logger.critical(result_profile)
+        return latency_profile, result_profile
 
     def handle_task(self, task):
         """
-        :param task: The task to handle
+        Args:
+            task: The task to process
         """
         try:
             start_time = datetime.now()
-            result, audio_file = self.translate(task.parameters)
+            latency_profile, result_profile = self.translate(task.parameters)
             end_time = datetime.now()
-            translation_in_seconds = (end_time - start_time).total_seconds()
+            latency_profile["within_speech2text"] = (
+                end_time - start_time
+            ).total_seconds()
             task.result_status = "completed"
-            task.description = result
-            task.save()
-            logger.info(f"Task {task.id} completed")
-            logger.info(task.__dict__)
-            # create data text object
-            data_audio = DataAudio.objects.filter(
-                uid=task.parameters["uid"],
-                sequence_index=int(task.parameters["audio_index"]),
-            ).first()
-            if data_audio is None:
-                logger.error(f"Data audio not found")
-                try:
-                    home = Home.objects.get(id=task.parameters.get("home_id", None))
-                except Home.DoesNotExist:
-                    logger.error(f"Home not found")
-                    home = None
-                data_audio = DataAudio.create_obj(
-                    home=home,
-                    uid=task.parameters["uid"],
-                    hardware_device_mac_address=task.parameters.get(
-                        "hardware_device_mac_address", ""
-                    ),
-                    sequence_index=int(task.parameters["audio_index"]),
-                    audio_file=audio_file.as_posix().split("/")[-1],
-                    start_time=datetime.strptime(
-                        task.parameters["start_time"], "%Y-%m-%dT%H:%M:%S.%f%z"
-                    ),
-                    end_time=datetime.strptime(
-                        task.parameters["end_time"], "%Y-%m-%dT%H:%M:%S.%f%z"
-                    ),
-                )
-            else:
-                home = data_audio.home
-            data_text = DataText(
-                home=home,
-                audio=data_audio,
-                text=result["text"],
-                logs=result,
-                translation_in_seconds=translation_in_seconds,
-                pipeline_triggered=False,
-            )
-            data_text.save()
-
+            task.result_json = {
+                "result_profile": result_profile,
+                "latency_profile": latency_profile,
+            }
         except FileNotFoundError:
             # then we need to try later as the sync is not done yet
             logger.error(f"Audio file not found, will try later")
             task.result_status = "pending"
-            task.save()
         except Exception as e:
             logger.error(e)
             task.result_status = "failed"
             task.description = str(e)
-            task.save()
-            logger.error(f"Task {task.id} failed")
-            logger.error(e)
+        return task

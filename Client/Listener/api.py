@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from typing import Optional
 
@@ -154,14 +155,18 @@ class API:
         Returns:
 
         """
-        url = f"{self.domain}/queue_task/stt/"
+        url = f"{self.domain}/queue_task/ai_task/"
         data = {
-            "uid": uid,
-            "home_id": self.home_id,
-            "audio_index": audio_index,
-            "start_time": start_time.isoformat(),
-            "end_time": end_time.isoformat(),
-            "hardware_device_mac_address": self.mac_address,
+            "name": "speech_to_text",
+            "task_name": "speech2text",
+            "parameters": json.dumps({
+                "uid": uid,
+                "home_id": self.home_id,
+                "audio_index": audio_index,
+                "start_time": start_time.isoformat(),
+                "end_time": end_time.isoformat(),
+                "hardware_device_mac_address": self.mac_address,
+            }),
         }
         r = requests.post(
             url, data=data, headers={"Authorization": f"Token {self.token}"}, timeout=30

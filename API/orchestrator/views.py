@@ -67,14 +67,17 @@ class QueueTaskViewSet(viewsets.ViewSet):
         url_path="task/(?P<task_name>.+)",
         url_name="task",
     )
-    def task(self, request, task_name="llm"):
+    def task(self, request, task_name="all"):
         """
         Endpoint to get the task for AI
         """
         try:
-            task = Task.objects.filter(
-                task_name=task_name, result_status="pending"
-            ).first()
+            if task_name == "all":
+                task = Task.objects.filter(result_status="pending").first()
+            else:
+                task = Task.objects.filter(
+                    task_name=task_name, result_status="pending"
+                ).first()
             if task is None:
                 return Response(
                     {"error": f"No pending {task_name} tasks found"},

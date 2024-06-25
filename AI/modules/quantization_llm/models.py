@@ -2,6 +2,7 @@ import requests
 from huggingface_hub import hf_hub_url
 from llama_cpp import Llama
 from tqdm import tqdm
+
 from utils.constants import LLM_MODEL_DIR
 from utils.get_logger import get_logger
 

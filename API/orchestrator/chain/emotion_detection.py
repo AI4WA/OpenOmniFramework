@@ -1,7 +1,5 @@
-import os
 from datetime import timedelta
 
-from django.conf import settings
 from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
@@ -44,15 +42,7 @@ def trigger_multi_modal_emotion_detection(sender, **kwargs):
 
     data_audio = data_text.audio
 
-    audio_file = (
-        settings.CLIENT_DATA_FOLDER
-        / "Listener"
-        / "data"
-        / "audio"
-        / data_audio.uid
-        / "audio"
-        / data_audio.audio_file
-    ).as_posix()
+    audio_file = f"audio/{data_audio.uid}/{data_audio.audio_file}"
 
     # get the image data based on the audio data time range
     # TODO: this will be changed rapidly
@@ -76,25 +66,19 @@ def trigger_multi_modal_emotion_detection(sender, **kwargs):
         images_path.append(f"{video_data.uid}/frames/{image_folder_name}")
 
     # I need to read image files into List[np.ndarray]
-    images_file_list = []
+    images_path_list = []
     for image_path in images_path:
         # loop the path, get all images
-        folder = (
-            settings.CLIENT_DATA_FOLDER / "Listener" / "data" / "videos" / image_path
-        )
-
-        if not folder.exists():
-            continue
-        for image_file in os.listdir(folder):
-            images_file_list.append((folder / image_file).as_posix())
+        folder = f"videos/{image_path}"
+        images_path_list.append(folder)
 
     # trigger the model
-    logger.info(f"Text: {text}, Audio: {audio_file}, Images: {len(images_file_list)}")
+    logger.info(f"Text: {text}, Audio: {audio_file}, Images: {len(images_path_list)}")
 
     task_params = {
         "text": text,
         "audio_file": audio_file,
-        "images_file_list": images_file_list,
+        "images_path_list": images_path_list,
         "data_text_id": data_text.id,
     }
     Task.create_task(
@@ -103,4 +87,4 @@ def trigger_multi_modal_emotion_detection(sender, **kwargs):
         task_name="emotion_detection",
         parameters=task_params,
     )
-    return text, [audio_file], images_file_list, data_text
+    return text, [audio_file], images_path_list, data_text

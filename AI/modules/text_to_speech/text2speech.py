@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import Optional
 
+from openai import OpenAI
+
 from models.parameters import Text2SpeechParameters
 from models.task import Task
-from openai import OpenAI
 from utils.aws import BOTO3_SESSION, CSV_BUCKET
 from utils.constants import DATA_DIR
 from utils.get_logger import get_logger

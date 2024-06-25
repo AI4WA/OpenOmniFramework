@@ -1,4 +1,5 @@
 from sentence_transformers import SentenceTransformer
+
 from utils.constants import BERT, NORMAL_MODELS
 
 

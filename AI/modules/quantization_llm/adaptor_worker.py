@@ -1,8 +1,8 @@
 from typing import Dict, List
 
 import chatglm_cpp
-from llama_cpp.llama_types import (ChatCompletionTool,
-                                   ChatCompletionToolChoiceOption)
+from llama_cpp.llama_types import ChatCompletionTool, ChatCompletionToolChoiceOption
+
 from utils.constants import HF_LLAMA, MT_CHATGLM, MT_LLAMA
 from utils.get_logger import get_logger
 

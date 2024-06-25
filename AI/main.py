@@ -4,6 +4,7 @@ import uuid
 from typing import Optional
 
 from models.task import Task
+from modules.emotion_detection.handler import EmotionDetectionHandler
 from modules.speech_to_text.speech2text import Speech2Text
 from modules.text_to_speech.text2speech import Text2Speech
 from utils.api import API
@@ -61,10 +62,12 @@ class AIOrchestrator:
 
         self.speech2text = None
         self.text2speech = None
+        self.emotion_detection = None
 
         self.task_name_router = {
             "speech2text": self.handle_speech2text_task,
             "text2speech": self.handle_text2speech_task,
+            "emotion_detection": self.handle_emotion_detection_task,
         }
 
     def authenticate_token(self):
@@ -138,6 +141,17 @@ class AIOrchestrator:
         if self.text2speech is None:
             self.text2speech = Text2Speech()
         task = self.text2speech.handle_task(task)
+        return task
+
+    def handle_emotion_detection_task(self, task: Task):
+        """
+        Handle the emotion detection task
+        Args:
+            task (Task): The task
+        """
+        if self.emotion_detection is None:
+            self.emotion_detection = EmotionDetectionHandler()
+        task = self.emotion_detection.handle_task(task)
         return task
 
 

@@ -1,6 +1,7 @@
 from typing import List
 
 from pydantic import BaseModel
+
 from utils.get_logger import get_logger
 
 from .adaptor_worker import QuantizationLLMAdaptor

@@ -11,6 +11,7 @@ from deepface.models.FacialRecognition import FacialRecognition
 from deepface.modules import modeling, preprocessing
 from PIL import Image
 from tensorflow.keras.preprocessing import image
+
 from utils.get_logger import get_logger
 
 logger = get_logger(__name__)

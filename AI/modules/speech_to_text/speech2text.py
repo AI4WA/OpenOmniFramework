@@ -22,9 +22,10 @@ class Speech2Text:
     ):
         """
         Initialize the translator
-        :param model_name: The name of the model to use
-        :param model_size: The size of the model to use
-        :param multi_language: Whether to use a multi-language model
+        Args:
+            model_name (str): The name of the model to use
+            model_size (str): The size of the model to use
+            multi_language (bool): If the model is multi-language
         """
         self.model_name = model_name
         if self.model_name == "whisper":
@@ -38,12 +39,13 @@ class Speech2Text:
     def locate_audio_file(uid: str, sequence_index: str, end_time: str):
         """
         Locate the audio file
-        :param uid: The uid of the audio file
-        :param sequence_index: The sequence index of the audio file
+        Args:
+            uid (str): The uid
+            sequence_index (str): The sequence index
+            end_time (str): The end time
 
-        :param end_time: The end time of the audio file, the file will name after this,
-            format also like: "2024-03-13T13:10:21.527852Z"
-        :return: The path to the audio file
+        Returns:
+            The audio file (str): The audio file
         """
         audio_folder = CLIENT_DATA_FOLDER / "audio" / uid
         # audio file will be within this folder, and name like sequence_index-endtimetimestap.wav
@@ -105,7 +107,7 @@ class Speech2Text:
             start_time = datetime.now()
             latency_profile, result_profile = self.translate(task.parameters)
             end_time = datetime.now()
-            latency_profile["within_speech2text"] = (
+            latency_profile["transfer_within_speech2text"] = (
                 end_time - start_time
             ).total_seconds()
             task.result_status = "completed"
@@ -115,7 +117,7 @@ class Speech2Text:
             }
         except FileNotFoundError:
             # then we need to try later as the sync is not done yet
-            logger.error(f"Audio file not found, will try later")
+            logger.error("Audio file not found, will try later")
             task.result_status = "pending"
         except Exception as e:
             logger.error(e)

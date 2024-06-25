@@ -5,6 +5,7 @@ from typing import Optional
 
 from models.task import Task
 from modules.speech_to_text.speech2text import Speech2Text
+from modules.text_to_speech.text2speech import Text2Speech
 from utils.api import API
 from utils.constants import API_DOMAIN
 from utils.get_logger import get_logger
@@ -59,9 +60,11 @@ class AIOrchestrator:
             raise Exception("Token is not valid")
 
         self.speech2text = None
+        self.text2speech = None
 
         self.task_name_router = {
             "speech2text": self.handle_speech2text_task,
+            "text2speech": self.handle_text2speech_task,
         }
 
     def authenticate_token(self):
@@ -124,12 +127,23 @@ class AIOrchestrator:
         task = self.speech2text.handle_task(task)
         return task
 
+    def handle_text2speech_task(self, task: Task):
+        """
+        Handle the text2speech task
+        Args:
+            task (Task): The task
+        """
+        if self.text2speech is None:
+            self.text2speech = Text2Speech()
+        task = self.text2speech.handle_task(task)
+        return task
+
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
     args.add_argument("--token", type=str, required=True)
     args.add_argument("--api_domain", type=str, required=False, default=API_DOMAIN)
-    args.add_argument("--task_name", type=str, required=False, default="speech2text")
+    args.add_argument("--task_name", type=str, required=False, default="all")
     args = args.parse_args()
 
     ai_orchestrator = AIOrchestrator(

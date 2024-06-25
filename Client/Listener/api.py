@@ -159,14 +159,16 @@ class API:
         data = {
             "name": "speech_to_text",
             "task_name": "speech2text",
-            "parameters": json.dumps({
-                "uid": uid,
-                "home_id": self.home_id,
-                "audio_index": audio_index,
-                "start_time": start_time.isoformat(),
-                "end_time": end_time.isoformat(),
-                "hardware_device_mac_address": self.mac_address,
-            }),
+            "parameters": json.dumps(
+                {
+                    "uid": uid,
+                    "home_id": self.home_id,
+                    "audio_index": audio_index,
+                    "start_time": start_time.isoformat(),
+                    "end_time": end_time.isoformat(),
+                    "hardware_device_mac_address": self.mac_address,
+                }
+            ),
         }
         r = requests.post(
             url, data=data, headers={"Authorization": f"Token {self.token}"}, timeout=30

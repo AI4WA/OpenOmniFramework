@@ -12,12 +12,12 @@ from deepface.modules import modeling, preprocessing
 from PIL import Image
 from tensorflow.keras.preprocessing import image
 
-from authenticate.utils.get_logger import get_logger
+from utils.get_logger import get_logger
 
 logger = get_logger(__name__)
 
 
-class GetFeatures:
+class FeaturesExtractor:
     def __init__(self) -> None:
         self.padding_mode = "zeros"
         self.padding_location = "back"
@@ -234,7 +234,7 @@ class GetFeatures:
 
         if len(resp_objs) == 0 and enforce_detection is True:
             raise ValueError(
-                f"Exception while extracting faces from ...."
+                "Exception while extracting faces from ...."
                 "Consider to set enforce_detection arg to False."
             )
 

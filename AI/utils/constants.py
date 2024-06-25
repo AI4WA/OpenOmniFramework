@@ -2,6 +2,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 LLM_MODEL_DIR = BASE_DIR / "llm" / "models"
+EMOTION_DETECTION_MODEL_DIR = BASE_DIR / "emotion_detection" / "models"
 
 DATA_DIR = BASE_DIR.parent / "data"
 

@@ -6,4 +6,6 @@ class Text2SpeechParameters(BaseModel):
 
 
 class Speech2TextParameters(BaseModel):
-    audio_file_path: str = Field(..., description="The path to the audio file")
+    uid: str = Field(..., description="The uid of the audio acquire session")
+    audio_index: str = Field(..., description="The sequence index of the audio")
+    end_time: str = Field(..., description="The end time of the audio")

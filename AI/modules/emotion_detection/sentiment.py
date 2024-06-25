@@ -1,15 +1,15 @@
-from pathlib import Path
 from typing import Tuple
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from django.conf import settings
 from sklearn.decomposition import PCA
 from torch.nn.parameter import Parameter
 from transformers import BertModel, BertTokenizer
 
-models_dir = Path(settings.BASE_DIR) / "ml" / "ml_models" / "model_data"
+from utils.constants import EMOTION_DETECTION_MODEL_DIR
+
+models_dir = EMOTION_DETECTION_MODEL_DIR / "model_data"
 
 
 class SentimentAnalysis(nn.Module):
@@ -221,7 +221,6 @@ class BertTextEncoder(nn.Module):
         segment_ids: token_type_ids
         """
         text = self.tokenizer(text)
-        print(text)
         input_ids, input_mask, segment_ids = (
             torch.tensor(text["input_ids"]).long().unsqueeze(0),
             torch.tensor(text["token_type_ids"]).unsqueeze(0).float(),

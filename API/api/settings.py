@@ -23,12 +23,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# CHANGE ME: Change this to a random string, and make it within your environment variables
 SECRET_KEY = "django-insecure-yk8_z-l5)!2p2ii*^)i&4z)#j94d#f3by&j1*g*ru=)q7m#jw6"
 AUTH_USER_MODEL = "authenticate.User"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
+# CHANGE ME: Change this to the domain of your frontend
 CSRF_TRUSTED_ORIGINS = ["https://api.nlp-tlp.org"]
 # Application definition
 
@@ -45,12 +47,12 @@ INSTALLED_APPS = [
     "import_export",
     "corsheaders",
     "authenticate",
+    "hasura_management",
     "orchestrator",
     "hardware",
     "llm",
     "ml",
     "rag",
-    "hasura_management",
 ]
 
 MIDDLEWARE = [
@@ -200,7 +202,6 @@ LOGGING = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Replace with your Next.js app origin
-    "https://jarv5.vercel.app",
     "https://llm.nlp-tlp.org",
 ]
 

@@ -6,7 +6,6 @@ from sys import platform
 from time import sleep
 
 import speech_recognition as sr
-
 from api import API
 from constants import DATA_DIR
 from utils import get_logger, timer
@@ -95,6 +94,7 @@ class AudioAcquire:
     def run(self):
         data_queue = Queue()
         sample_time_queue = Queue()
+        audio_index_queue = Queue()
         recorder = sr.Recognizer()
         recorder.energy_threshold = self.energy_threshold
         recorder.dynamic_energy_threshold = False
@@ -120,15 +120,17 @@ class AudioAcquire:
                 sample_time = datetime.now()
                 data_queue.put(data)
                 sample_time_queue.put(sample_time)
-
+                audio_index_queue.put(self.audio_index)
                 curr_audio_dir = DATA_DIR / "audio" / self.uid
                 curr_audio_dir.mkdir(parents=True, exist_ok=True)
+
                 with open(
                     curr_audio_dir
                     / f"{self.audio_index}-{sample_time.strftime('%Y%m%d%H%M%S')}.wav",
                     "wb",
                 ) as file:
                     file.write(wav_data)
+                self.audio_index += 1
 
         # Create a background thread that will pass us raw audio bytes.
         # We could do this manually, but SpeechRecognizer provides a nice helper.
@@ -148,17 +150,19 @@ class AudioAcquire:
                     data_queue.queue.clear()
                     last_sample_time = sample_time_queue.queue[-1]
                     sample_time_queue.queue.clear()
+                    audio_index = audio_index_queue.queue[-1]
+                    audio_index_queue.queue.clear()
 
                     self.api.queue_speech_to_text(
                         self.uid,
-                        audio_index=str(self.audio_index),
+                        audio_index=str(audio_index),
                         start_time=last_sample_start_time,
                         end_time=last_sample_time,
                     )
                     self.api.post_audio(
                         self.uid,
-                        self.audio_index,
-                        f"{self.audio_index}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.wav",
+                        audio_index,
+                        f"{audio_index}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.wav",
                         last_sample_start_time,
                         last_sample_time,
                     )

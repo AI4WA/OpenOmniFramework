@@ -1,6 +1,7 @@
 from django.db import models
 
 from authenticate.models import User
+from orchestrator.chain.signals import task_completed
 
 
 # Create your models here.
@@ -68,6 +69,14 @@ class Task(models.Model):
         )
         task.save()
         return task
+
+    # override the save method, to call the chain
+    def save(self, *args, **kwargs):
+        # if it is updated, then we need to call the chain
+        if self.result_status == "completed":
+            print("Task completed")
+            task_completed.send(sender=self, data=self.__dict__)
+        super().save(*args, **kwargs)
 
 
 class TaskWorker(models.Model):

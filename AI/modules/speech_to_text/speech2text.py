@@ -4,6 +4,7 @@ from typing import Tuple
 import torch
 import whisper
 
+from models.parameters import Speech2TextParameters
 from utils.constants import CLIENT_DATA_FOLDER
 from utils.get_logger import get_logger
 from utils.timer import timer
@@ -59,7 +60,7 @@ class Speech2Text:
             raise FileNotFoundError(f"Audio file {audio_file} not found")
         return audio_file
 
-    def translate(self, message) -> Tuple[dict, dict]:
+    def translate(self, message: Speech2TextParameters) -> Tuple[dict, dict]:
         """
         This is the key function to translate the audio to text
         Args:
@@ -75,7 +76,7 @@ class Speech2Text:
         logger.info(f"Translating message {message}")
         # read the data from the audio file in .wav file, then do the translation
         audio_file = self.locate_audio_file(
-            message["uid"], message["audio_index"], message["end_time"]
+            message.uid, message.audio_index, message.end_time
         )
         logger.info(f"Audio file {audio_file}")
         if audio_file is None:
@@ -105,7 +106,8 @@ class Speech2Text:
         """
         try:
             start_time = datetime.now()
-            latency_profile, result_profile = self.translate(task.parameters)
+            task_parameters = Speech2TextParameters(**task.parameters)
+            latency_profile, result_profile = self.translate(task_parameters)
             end_time = datetime.now()
             latency_profile["transfer_within_speech2text"] = (
                 end_time - start_time

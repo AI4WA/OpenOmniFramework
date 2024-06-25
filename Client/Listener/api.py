@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Optional
 
 import requests
-
 from constants import API_DOMAIN
 from utils import get_logger, get_mac_address
 

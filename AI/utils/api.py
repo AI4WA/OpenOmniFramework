@@ -103,7 +103,8 @@ class API:
             },
         )
         logger.info(f"POST {url} {r.status_code}")
-        logger.info(r.json())
+        logger.info(r.text)
+
         return r.json()
 
     def register_or_update_worker(self):

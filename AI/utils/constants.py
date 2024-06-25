@@ -1,11 +1,14 @@
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
-LLM_MODEL_DIR = BASE_DIR / "llm" / "models"
+BASE_DIR = Path(__file__).resolve().parent.parent
+LLM_MODEL_DIR = BASE_DIR / "data" / "models" / "llm"
+EMOTION_DETECTION_MODEL_DIR = BASE_DIR / "data" / "models" / "emotion_detection"
 
-DATA_DIR = BASE_DIR.parent / "data"
+DATA_DIR = BASE_DIR / "data"
 
 DATA_DIR.mkdir(exist_ok=True)
+LLM_MODEL_DIR.mkdir(exist_ok=True, parents=True)
+EMOTION_DETECTION_MODEL_DIR.mkdir(exist_ok=True, parents=True)
 
 API_DOMAIN = "http://localhost:8000"  # default domain
 
@@ -48,4 +51,4 @@ NORMAL_MODELS = [BERT]
 """
 
 
-CLIENT_DATA_FOLDER = BASE_DIR.parent.parent / "Client" / "Listener" / "data"
+CLIENT_DATA_FOLDER = BASE_DIR.parent / "Client" / "Listener" / "data"

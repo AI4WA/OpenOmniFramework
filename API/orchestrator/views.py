@@ -6,12 +6,7 @@ from rest_framework.response import Response
 
 from authenticate.utils.get_logger import get_logger
 from orchestrator.models import Task, TaskWorker
-from orchestrator.serializers import (
-    TaskReportSerializer,
-    TaskRequestSerializer,
-    TaskSerializer,
-    TaskWorkerSerializer,
-)
+from orchestrator.serializers import TaskSerializer, TaskWorkerSerializer
 
 logger = get_logger(__name__)
 
@@ -28,7 +23,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
     @swagger_auto_schema(
         operation_summary="Queue an AI task",
         operation_description="This will include LLM, STT, and other AI tasks",
-        request_body=TaskRequestSerializer,
+        request_body=TaskSerializer,
         responses={200: "Task queued successfully"},
     )
     @action(detail=False, methods=["post"], permission_classes=[IsAuthenticated])
@@ -37,7 +32,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
         Endpoint to queue tasks for AI Client side to run
         """
         data = request.data
-        serializer = TaskRequestSerializer(data=data)
+        serializer = TaskSerializer(data=data)
 
         try:
             serializer.is_valid(raise_exception=True)
@@ -98,7 +93,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
     @swagger_auto_schema(
         operation_summary="Worker: Result Update",
         operation_description="Update the task result",
-        request_body=TaskReportSerializer,
+        request_body=TaskSerializer,
         responses={200: "Task result updated successfully"},
     )
     @action(

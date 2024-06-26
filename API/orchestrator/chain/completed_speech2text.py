@@ -4,6 +4,7 @@ from authenticate.utils.get_logger import get_logger
 from hardware.models import DataAudio, DataText
 from orchestrator.chain.models import TaskData
 from orchestrator.chain.signals import completed_speech2text, created_data_text
+from orchestrator.chain.cluster import ClusterManager
 
 logger = get_logger(__name__)
 
@@ -56,6 +57,9 @@ def trigger_completed_speech2text(sender, **kwargs):
             text=text,
         )
         data_text_obj.save()
-    created_data_text.send(
-        sender=data_text_obj, data=data_text_obj.__dict__, track_id=track_id
+
+    ClusterManager.chain_next(
+        track_id=track_id,
+        current_component="completed_speech2text",
+        next_component_params={"sender": data_text_obj, "data": data_text_obj.__dict__},
     )

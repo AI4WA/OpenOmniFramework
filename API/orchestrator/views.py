@@ -5,7 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from authenticate.utils.get_logger import get_logger
-from orchestrator.chain.cluster import CLUSTER_ETE_CONVERSATION_NAME
+from orchestrator.chain.cluster import (
+    CLUSTER_Q_ETE_CONVERSATION_NAME,
+)
 from orchestrator.models import Task, TaskWorker
 from orchestrator.serializers import TaskSerializer, TaskWorkerSerializer
 
@@ -43,11 +45,12 @@ class QueueTaskViewSet(viewsets.ViewSet):
                 {"error": f"Error validating task request: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        track_id = data.get("track_id", None)
+        logger.info(f"Track ID: {track_id}")
         # if track_id is not provided, then we need to generate it
-        if serializer.validated_data.get("track_id") is None:
-            track_id = Task.init_track_id(CLUSTER_ETE_CONVERSATION_NAME)
+        if track_id is None:
+            track_id = Task.init_track_id(CLUSTER_Q_ETE_CONVERSATION_NAME)
             logger.info(f"Generated track ID: {track_id}")
-            print(track_id)
             serializer.validated_data["track_id"] = track_id
 
         task = serializer.save(user=request.user)

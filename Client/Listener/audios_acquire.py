@@ -4,6 +4,7 @@ from datetime import datetime
 from queue import Queue
 from sys import platform
 from time import sleep
+from typing import Optional
 
 import speech_recognition as sr
 
@@ -19,11 +20,12 @@ class AudioAcquire:
         self,
         api_domain: str = "",
         token: str = "",
-        home_id: str = "",
+        home_id: Optional[str] = "",
         energy_threshold: int = 5000,
         default_microphone: str = "pulse",
         record_timeout: int = 30000,
         sampling_time: float = 0.25,
+        track_cluster: Optional[str] = None,
     ):
         """
         The audio acquire class
@@ -36,13 +38,16 @@ class AudioAcquire:
             default_microphone (str): the default microphone
             record_timeout (int): the record timeout
             sampling_time (float): the sampling time in seconds, default is 0.25
+            track_cluster (str): the track cluster
         """
         self.uid = str(uuid.uuid4())
         self.data_dir = DATA_DIR / "audio" / self.uid  # the data dir
         self.data_dir.mkdir(parents=True, exist_ok=True)
 
         # api setup
-        self.api = API(domain=api_domain, token=token, home_id=home_id)
+        self.api = API(
+            domain=api_domain, token=token, home_id=home_id, track_cluster=track_cluster
+        )
         # register the device
         self.api.register_device()
 
@@ -206,6 +211,12 @@ def main():
         "Run this with 'list' to view available Microphones.",
         type=str,
     )
+    parser.add_argument(
+        "--track_cluster",
+        default=None,
+        help="The track cluster to be used",
+        type=str,
+    )
 
     args = parser.parse_args()
 
@@ -216,6 +227,7 @@ def main():
         energy_threshold=args.energy_threshold,
         default_microphone=args.default_microphone,
         record_timeout=args.record_timeout,
+        track_cluster=args.track_cluster,
     )
     audio_acquire.run()
 

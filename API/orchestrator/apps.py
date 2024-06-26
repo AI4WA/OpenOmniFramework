@@ -13,3 +13,4 @@ class WorkerConfig(AppConfig):
         import orchestrator.chain.completed_task
         import orchestrator.chain.completed_text2speech
         import orchestrator.chain.created_data_text
+        import orchestrator.chain.completed_hf_llm

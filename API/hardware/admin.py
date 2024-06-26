@@ -74,7 +74,7 @@ class DataTextAdmin(ImportExportModelAdmin):
 
 @admin.register(EmotionDetection)
 class EmotionDetectionAdmin(ImportExportModelAdmin):
-    list_display = ("id", "home", "data_text", "result")
+    list_display = ("id", "home", "result")
     search_fields = ("result", "logs")
     readonly_fields = ("created_at", "updated_at")
 
@@ -88,7 +88,7 @@ class LLMResponseAdmin(ImportExportModelAdmin):
 
 @admin.register(Text2Speech)
 class Text2SpeechAdmin(ImportExportModelAdmin):
-    list_display = ("id", "data_text", "text")
+    list_display = ("id", "text")
     search_fields = ("text", "audio_file")
     filter_fields = ("hardware_device_mac_address",)
     readonly_fields = ("created_at", "updated_at")

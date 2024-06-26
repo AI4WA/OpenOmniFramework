@@ -166,7 +166,7 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
         )
         home_id = self.request.query_params.get("home_id", None)
         logger.info(f"Home id: {home_id}")
-        if home_id is not None:
+        if (home_id is not None) and (home_id != "None"):
             home = Home.objects.filter(id=home_id).first()
             if not home:
                 return None

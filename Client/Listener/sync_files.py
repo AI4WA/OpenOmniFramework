@@ -2,10 +2,11 @@ import argparse
 import subprocess
 import time
 
-from constants import DATA_DIR
-from utils import get_logger
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+
+from constants import DATA_DIR
+from utils import get_logger
 
 logger = get_logger(__name__)
 

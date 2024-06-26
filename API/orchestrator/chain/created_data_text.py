@@ -4,14 +4,14 @@ from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
 from hardware.models import DataText, DataVideo
-from orchestrator.chain.signals import data_text_created
+from orchestrator.chain.signals import created_data_text
 from orchestrator.models import Task
 
 logger = get_logger("Emotion-Detection-Chain")
 
 
-@receiver(data_text_created)
-def trigger_multi_modal_emotion_detection(sender, **kwargs):
+@receiver(created_data_text)
+def trigger_created_data_text(sender, **kwargs):
     """
     This function will trigger the emotion detection model with the latest data
 
@@ -25,7 +25,9 @@ def trigger_multi_modal_emotion_detection(sender, **kwargs):
 
     """
     data = kwargs.get("data", {})
+    track_id = kwargs.get("track_id", None)
     data_text_id = data.get("id", None)
+    logger.debug(track_id)
     # get the audio data, which have not been process and have the text information
     if data_text_id:
         data_text = DataText.objects.get(id=data_text_id)
@@ -86,5 +88,6 @@ def trigger_multi_modal_emotion_detection(sender, **kwargs):
         name="Emotion Detection",
         task_name="emotion_detection",
         parameters=task_params,
+        track_id=track_id,
     )
     return text, [audio_file], images_path_list, data_text

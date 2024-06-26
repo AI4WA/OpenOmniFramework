@@ -20,3 +20,8 @@ class EmotionDetectionParameters(BaseModel):
         description="The images data to analyze for emotion"
     )
     data_text_id: int = Field(..., description="The id of the data text")
+
+
+class QuantizationLLMParameters(BaseModel):
+    prompt: str = Field(..., description="The text to analyze for quantization")
+    llm_model_name: str = Field(..., description="The name of the llm model")

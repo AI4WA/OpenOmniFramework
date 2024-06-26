@@ -23,8 +23,6 @@ logger = get_logger(__name__)
 
 
 class EmotionDetectionHandler:
-    def __init__(self):
-        pass
 
     def handle_task(self, task: Task) -> Optional[dict]:
         """
@@ -74,7 +72,7 @@ class EmotionDetectionHandler:
             logger.error(
                 f"text: {text is None}, audio: {audio_paths is None}, images: {images_paths is None}"
             )
-            return
+            return {}, {}
         # audio is the file path
         # same as the images, we need to read the images first
         audio = []

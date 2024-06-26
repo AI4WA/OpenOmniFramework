@@ -5,6 +5,7 @@ from typing import Optional
 
 from models.task import Task
 from modules.emotion_detection.handler import EmotionDetectionHandler
+from modules.quantization_llm.quantization_llm import QuantizationLLM
 from modules.speech_to_text.speech2text import Speech2Text
 from modules.text_to_speech.text2speech import Text2Speech
 from utils.api import API
@@ -27,7 +28,7 @@ class AIOrchestrator:
         self,
         api_domain: str,
         token: str,
-        task_name: Optional[str] = "llm",
+        task_name: Optional[str] = "all",
         time_sleep: Optional[float] = 1.5,
     ):
         """
@@ -35,7 +36,7 @@ class AIOrchestrator:
         Args:
             api_domain (str): The API Domain
             token (str): The API Token
-            task_name (str): The task name. Default is "llm"
+            task_name (str): The task name. Default is "all"
             time_sleep (float): The time to sleep. Default is 1.5 during each loop
         """
         self.uuid = str(uuid.uuid4())
@@ -46,11 +47,6 @@ class AIOrchestrator:
             domain=api_domain, token=token, task_name=task_name, uuid=self.uuid
         )
         self.api.register_or_update_worker()
-        # init for llm models
-        self.api_llm_available_models = {}
-        self.local_llm_available_models = {}
-        self.api_general_ml_available_models = {}
-        self.local_general_ml_available_models = {}
 
         # controller
         self.counter = 0
@@ -63,11 +59,13 @@ class AIOrchestrator:
         self.speech2text = None
         self.text2speech = None
         self.emotion_detection = None
+        self.quantization_llm = None
 
         self.task_name_router = {
             "speech2text": self.handle_speech2text_task,
             "text2speech": self.handle_text2speech_task,
             "emotion_detection": self.handle_emotion_detection_task,
+            "quantization_llm": self.handle_quantization_llm_task,
         }
 
     def authenticate_token(self):
@@ -152,6 +150,17 @@ class AIOrchestrator:
         if self.emotion_detection is None:
             self.emotion_detection = EmotionDetectionHandler()
         task = self.emotion_detection.handle_task(task)
+        return task
+
+    def handle_quantization_llm_task(self, task: Task):
+        """
+        Handle the quantization llm task
+        Args:
+            task (Task): The task
+        """
+        if self.quantization_llm is None:
+            self.quantization_llm = QuantizationLLM(api=self.api)
+        task = self.quantization_llm.handle_task(task)
         return task
 
 

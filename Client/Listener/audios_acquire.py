@@ -6,6 +6,7 @@ from sys import platform
 from time import sleep
 
 import speech_recognition as sr
+
 from api import API
 from constants import DATA_DIR
 from utils import get_logger, timer

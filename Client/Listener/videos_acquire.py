@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 
 import cv2
+
 from api import API
 from constants import DATA_DIR
 from utils import get_logger

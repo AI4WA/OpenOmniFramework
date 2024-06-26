@@ -3,13 +3,13 @@ from django.dispatch import receiver
 from authenticate.utils.get_logger import get_logger
 from hardware.models import DataAudio, DataText
 from orchestrator.chain.models import TaskData
-from orchestrator.chain.signals import data_text_created, speech2text_completed
+from orchestrator.chain.signals import completed_speech2text, created_data_text
 
 logger = get_logger(__name__)
 
 
-@receiver(speech2text_completed)
-def trigger_speech2text(sender, **kwargs):
+@receiver(completed_speech2text)
+def trigger_completed_speech2text(sender, **kwargs):
     """
     After the speech2text is done, save it to the database
 
@@ -19,8 +19,10 @@ def trigger_speech2text(sender, **kwargs):
     """
     logger.info("Speech2Text completed triggerred")
     data = kwargs.get("data", {})
+    track_id = kwargs.get("track_id", None)
     task_data = TaskData(**data)
     params = task_data.parameters
+    logger.info(track_id)
 
     uid = params.get("uid")
     home_id = params.get("home_id")
@@ -54,4 +56,6 @@ def trigger_speech2text(sender, **kwargs):
             text=text,
         )
         data_text_obj.save()
-    data_text_created.send(sender=data_text_obj, data=data_text_obj.__dict__)
+    created_data_text.send(
+        sender=data_text_obj, data=data_text_obj.__dict__, track_id=track_id
+    )

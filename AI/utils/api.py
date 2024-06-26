@@ -72,7 +72,7 @@ class API:
         Returns:
 
         """
-        logger.info(self.task_name)
+        logger.debug(self.task_name)
         url = f"{self.domain}/queue_task/task/{self.task_name}/"
         r = requests.get(url, headers={"Authorization": f"Token {self.token}"})
         logger.info(f"GET {url} {r.status_code}")
@@ -104,7 +104,8 @@ class API:
         )
         logger.info(f"POST {url} {r.status_code}")
         logger.info(r.text)
-
+        if r.status_code != 200:
+            return None
         return r.json()
 
     def register_or_update_worker(self):

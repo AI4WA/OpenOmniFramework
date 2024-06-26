@@ -24,7 +24,7 @@ logger = get_logger(__name__)
 
 class EmotionDetectionHandler:
 
-    def handle_task(self, task: Task) -> Optional[dict]:
+    def handle_task(self, task: Task) -> Optional[Task]:
         """
         Handle the task
         Args:

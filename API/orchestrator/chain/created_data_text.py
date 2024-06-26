@@ -3,8 +3,8 @@ from datetime import timedelta
 from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
-from orchestrator.chain.cluster import ClusterManager
 from hardware.models import DataText, DataVideo
+from orchestrator.chain.cluster import ClusterManager
 from orchestrator.chain.signals import created_data_text
 from orchestrator.models import Task
 

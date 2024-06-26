@@ -13,9 +13,10 @@ For example, end-to-end conversation chain will have the following components:
 - completed_text2speech
 """
 
-from orchestrator.models import Task
 from typing import Optional, Tuple
+
 from orchestrator.chain.signals import created_data_text
+from orchestrator.models import Task
 
 CLUSTER_Q_ETE_CONVERSATION_NAME = "CLUSTER_Q_ETE_CONVERSATION"
 

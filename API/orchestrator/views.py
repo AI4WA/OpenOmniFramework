@@ -5,9 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from authenticate.utils.get_logger import get_logger
-from orchestrator.chain.cluster import (
-    CLUSTER_Q_ETE_CONVERSATION_NAME,
-)
+from orchestrator.chain.cluster import CLUSTER_Q_ETE_CONVERSATION_NAME
 from orchestrator.models import Task, TaskWorker
 from orchestrator.serializers import TaskSerializer, TaskWorkerSerializer
 

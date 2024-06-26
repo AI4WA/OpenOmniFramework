@@ -2,9 +2,9 @@ from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
 from hardware.models import DataAudio, DataText
+from orchestrator.chain.cluster import ClusterManager
 from orchestrator.chain.models import TaskData
 from orchestrator.chain.signals import completed_speech2text, created_data_text
-from orchestrator.chain.cluster import ClusterManager
 
 logger = get_logger(__name__)
 

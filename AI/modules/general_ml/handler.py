@@ -1,7 +1,6 @@
 from datetime import datetime
+
 from sentence_transformers import SentenceTransformer
-import torch
-import transformers
 
 from models.parameters import GeneralMLParameters
 from models.task import Task

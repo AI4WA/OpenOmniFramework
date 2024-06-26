@@ -4,6 +4,7 @@ from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
 from hardware.models import DataText, DataVideo
+from orchestrator.chain.cluster import ClusterManager
 from orchestrator.chain.signals import created_data_text
 from orchestrator.models import Task
 
@@ -83,11 +84,11 @@ def trigger_created_data_text(sender, **kwargs):
         "images_path_list": images_path_list,
         "data_text_id": data_text.id,
     }
-    Task.create_task(
-        user=None,
-        name="Emotion Detection",
-        task_name="emotion_detection",
-        parameters=task_params,
+
+    ClusterManager.chain_next(
         track_id=track_id,
+        current_component="created_data_text",
+        next_component_params=task_params,
     )
+
     return text, [audio_file], images_path_list, data_text

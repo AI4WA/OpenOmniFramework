@@ -15,35 +15,52 @@ For example, end-to-end conversation chain will have the following components:
 
 from typing import Optional, Tuple
 
-CLUSTER_ETE_CONVERSATION_NAME = "CLUSTER_ETE_CONVERSATION"
+from orchestrator.chain.signals import created_data_text
+from orchestrator.models import Task
 
-CLUSTER_ETE_CONVERSATION = {
-    "completed_speech2text": {
-        "order": 1,
-        "extra_params": {},
-    },
-    "created_data_text": {
-        "order": 2,
-        "extra_params": {},
-    },
+CLUSTER_Q_ETE_CONVERSATION_NAME = "CLUSTER_Q_ETE_CONVERSATION"
+
+CLUSTER_Q_ETE_CONVERSATION = {
+    "completed_speech2text": {"order": 1, "extra_params": {}, "component_type": "task"},
+    "created_data_text": {"order": 2, "extra_params": {}, "component_type": "signal"},
     "completed_emotion_detection": {
         "order": 3,
         "extra_params": {},
+        "component_type": "task",
     },
     "completed_quantization_llm": {
         "order": 4,
         "extra_params": {
             "llm_model_name": "SOLAR-10",
         },
+        "component_type": "task",
     },
-    "completed_text2speech": {
-        "order": 5,
+    "completed_text2speech": {"order": 5, "extra_params": {}, "component_type": "task"},
+}
+
+CLUSTER_HF_ETE_CONVERSATION_NAME = "CLUSTER_HF_ETE_CONVERSATION"
+
+CLUSTER_HF_ETE_CONVERSATION = {
+    "completed_speech2text": {"order": 1, "extra_params": {}, "component_type": "task"},
+    "created_data_text": {"order": 2, "extra_params": {}, "component_type": "signal"},
+    "completed_emotion_detection": {
+        "order": 3,
         "extra_params": {},
+        "component_type": "task",
     },
+    "completed_hf_llm": {
+        "order": 4,
+        "extra_params": {
+            "hf_model_name": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        },
+        "component_type": "task",
+    },
+    "completed_text2speech": {"order": 5, "extra_params": {}, "component_type": "task"},
 }
 
 CLUSTERS = {
-    CLUSTER_ETE_CONVERSATION_NAME: CLUSTER_ETE_CONVERSATION,
+    CLUSTER_Q_ETE_CONVERSATION_NAME: CLUSTER_Q_ETE_CONVERSATION,
+    CLUSTER_HF_ETE_CONVERSATION_NAME: CLUSTER_HF_ETE_CONVERSATION,
 }
 
 
@@ -71,6 +88,9 @@ class ClusterManager:
         Args:
             cluster (dict): The cluster
             current_component (str): The current component
+
+        Return:
+            Tuple[Optional[str], Optional[dict]]: The next component and its parameters if exists, otherwise None
         """
         chain = []
         for key, value in cluster.items():
@@ -97,3 +117,53 @@ class ClusterManager:
         if cluster is None:
             return None
         return ClusterManager.get_next_chain_component(cluster, current_component)
+
+    @classmethod
+    def chain_next(
+        cls,
+        track_id: Optional[str],
+        current_component: str,
+        next_component_params: dict,
+    ):
+        """
+        Chain to the next component
+
+        Args:
+            current_component (str): The current component
+            track_id (str): The track ID
+            next_component_params (dict): The next component parameters
+        """
+        cluster_name = track_id.split("-")[1]
+        next_component_name, next_component = cls.get_next(
+            cluster_name, current_component
+        )
+        if next_component_name is None:
+            return
+        # do something with the next component
+        # It can be a task or a signal
+        next_parameters = {
+            **next_component_params,
+            **next_component.get("extra_params", {}),
+        }
+
+        task_mapping = {
+            "completed_quantization_llm": "quantization_llm",
+            "completed_hf_llm": "hf_llm",
+            "completed_text2speech": "text2speech",
+            "completed_emotion_detection": "emotion_detection",
+        }
+
+        if next_component_name in task_mapping:
+            Task.create_task(
+                user=None,
+                name=task_mapping[next_component_name],
+                task_name=task_mapping[next_component_name],
+                parameters=next_parameters,
+                track_id=track_id,
+            )
+        elif next_component_name == "created_data_text":
+            created_data_text.send(
+                sender=next_component_params.get("sender"),
+                data=next_component_params.get("data"),
+                track_id=track_id,
+            )

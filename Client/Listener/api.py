@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 from typing import Optional
+from uuid import uuid4
 
 import requests
 
@@ -20,7 +21,13 @@ class API:
     - [Optional] Queue speech to text
     """
 
-    def __init__(self, domain: str = API_DOMAIN, token: str = "", home_id: int = None):
+    def __init__(
+        self,
+        domain: str = API_DOMAIN,
+        token: str = "",
+        home_id: Optional[int] = None,
+        track_cluster: Optional[str] = None,
+    ):
         """
         The API class for the responder
 
@@ -32,12 +39,23 @@ class API:
             domain (str): The domain of the API.
             token (str): The token for the API.
             home_id (int): The home ID.
+            track_cluster (str): The track cluster.
 
         """
         self.domain = domain
         self.token = token
         self.mac_address = get_mac_address()
         self.home_id = home_id
+        self.track_cluster = track_cluster
+
+    def set_track_id(self):
+        if self.track_cluster is None:
+            return None
+        uid = str(uuid4())
+        uid = uid.replace("-", "")
+        track_id = f"T-{self.track_cluster}-{uid}"
+        logger.info(track_id)
+        return track_id
 
     def register_device(
         self,
@@ -169,6 +187,7 @@ class API:
                     "hardware_device_mac_address": self.mac_address,
                 }
             ),
+            "track_id": self.set_track_id(),
         }
         r = requests.post(
             url, data=data, headers={"Authorization": f"Token {self.token}"}, timeout=30

@@ -19,7 +19,6 @@ def trigger_completed_task(sender, **kwargs):
     Trigger the multi-modal emotion detection.
     """
     data = kwargs.get("data", {})
-    logger.info(data)
     task_data = TaskData(**data)
 
     if task_data.task_name == "speech2text":

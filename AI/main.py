@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 from models.task import Task
 from modules.emotion_detection.handler import EmotionDetectionHandler
+from modules.general_ml.handler import GeneralMLModel
 from modules.hf_llm.handler import HFLLM
 from modules.quantization_llm.handler import QuantizationLLM
 from modules.speech_to_text.speech2text import Speech2Text
@@ -69,6 +70,7 @@ class AIOrchestrator:
         self.emotion_detection = None
         self.quantization_llm = None
         self.hf_llm = None
+        self.general_ml = None
 
         self.task_name_router = {
             "speech2text": self.handle_speech2text_task,
@@ -76,6 +78,7 @@ class AIOrchestrator:
             "emotion_detection": self.handle_emotion_detection_task,
             "quantization_llm": self.handle_quantization_llm_task,
             "hf_llm": self.handle_hf_llm_task,
+            "general_ml": self.handle_general_ml_task,
         }
 
     def authenticate_token(self):
@@ -204,6 +207,20 @@ class AIOrchestrator:
         if self.hf_llm is None:
             self.hf_llm = HFLLM()
         task = self.hf_llm.handle_task(task)
+        return task
+
+    def handle_general_ml_task(self, task: Task):
+        """
+        Handle the general ml task
+        Args:
+            task (Task): The task
+
+        Returns:
+
+        """
+        if self.general_ml is None:
+            self.general_ml = GeneralMLModel()
+        task = self.general_ml.handle_task(task)
         return task
 
 

@@ -28,6 +28,7 @@ class Task(models.Model):
             ("emotion_detection", "Emotion Detection"),
             ("speech2text", "Speech2Text"),
             ("text2speech", "Text2Speech"),
+            ("general_ml", "General ML"),
         ],
         help_text="Select the type of task",
     )

@@ -10,6 +10,7 @@ class TaskName(str, Enum):
     emotion_detection = "emotion_detection"
     speech2text = "speech2text"
     text2speech = "text2speech"
+    general_ml = "general_ml"
 
 
 class ResultStatus(str, Enum):

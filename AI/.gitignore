@@ -3,3 +3,4 @@ venv
 venv_p100
 *.txt
 docker-compose-prod.yml
+.env

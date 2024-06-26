@@ -25,3 +25,15 @@ class EmotionDetectionParameters(BaseModel):
 class QuantizationLLMParameters(BaseModel):
     prompt: str = Field(..., description="The text to analyze for quantization")
     llm_model_name: str = Field(..., description="The name of the llm model")
+
+
+class HFParameters(BaseModel):
+    text: str = Field(..., description="The text to analyze for HFP")
+    task: str = Field(default="text-generation", description="The task, can be others")
+    hf_model_name: str = Field(..., description="The name of the hf model")
+
+
+class GeneralMLParameters(BaseModel):
+    text: str = Field(..., description="The text to analyze for general ML")
+    general_model_name: str = Field(..., description="The name of the model")
+    params: dict = Field({}, description="The parameters of the model")

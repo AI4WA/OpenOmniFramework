@@ -1,13 +1,15 @@
 import argparse
 import io
 import time
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import requests
-from api import API
 from gtts import gTTS
 from pydub import AudioSegment
 from pydub.playback import play
+
+from api import API
 from utils import get_logger, timer
 
 logger = get_logger("Responder")
@@ -39,7 +41,7 @@ class PlaySpeech:
             play(audio)
 
     @staticmethod
-    def play_audio_file(url: str):
+    def play_audio_url(url: str):
         """
         Play audio file from the given
         Args:
@@ -59,6 +61,22 @@ class PlaySpeech:
 
             # Play the audio
             play(audio)
+
+    @staticmethod
+    def play_audio_file(file_path: Path):
+        """
+        Play audio file from the given
+        Args:
+            file_path (Path): The path of the audio file
+
+        Returns:
+
+        """
+        # Load the audio into pydub
+        audio = AudioSegment.from_file(file_path, format="mp3")
+
+        # Play the audio
+        play(audio)
 
 
 if __name__ == "__main__":
@@ -91,9 +109,15 @@ if __name__ == "__main__":
             continue
 
         item = speech_content
+        logger.info(item)
         text = item["text"]
         tts_url = item["tts_url"]
-        if tts_url is None:
-            logger.info(f"No tts_url for {text}")
-            continue
-        PlaySpeech.play_audio_file(tts_url)
+        if tts_url:
+            PlaySpeech.play_audio_url(tts_url)
+        logger.info(f"No tts_url for {text}")
+        text2speech_file = Path(item["text2speech_file"])
+        if text2speech_file.exists():
+            PlaySpeech.play_audio_file(text2speech_file)
+        else:
+            logger.error(f"No file for {text}")
+        time.sleep(0.25)

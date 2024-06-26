@@ -1,11 +1,17 @@
 import argparse
+import os
 import time
 import uuid
 from typing import Optional
 
+# load env from file
+from dotenv import load_dotenv
+
 from models.task import Task
 from modules.emotion_detection.handler import EmotionDetectionHandler
-from modules.quantization_llm.quantization_llm import QuantizationLLM
+from modules.general_ml.handler import GeneralMLModel
+from modules.hf_llm.handler import HFLLM
+from modules.quantization_llm.handler import QuantizationLLM
 from modules.speech_to_text.speech2text import Speech2Text
 from modules.text_to_speech.text2speech import Text2Speech
 from utils.api import API
@@ -56,16 +62,23 @@ class AIOrchestrator:
         if not self.authenticate_token():
             raise Exception("Token is not valid")
 
+        if not self.pre_env_check():
+            raise Exception("Pre Environment Check Failed")
+
         self.speech2text = None
         self.text2speech = None
         self.emotion_detection = None
         self.quantization_llm = None
+        self.hf_llm = None
+        self.general_ml = None
 
         self.task_name_router = {
             "speech2text": self.handle_speech2text_task,
             "text2speech": self.handle_text2speech_task,
             "emotion_detection": self.handle_emotion_detection_task,
             "quantization_llm": self.handle_quantization_llm_task,
+            "hf_llm": self.handle_hf_llm_task,
+            "general_ml": self.handle_general_ml_task,
         }
 
     def authenticate_token(self):
@@ -75,6 +88,25 @@ class AIOrchestrator:
             bool: True if the token is valid
         """
         return self.api.verify_token()
+
+    def pre_env_check(self):
+        # if task is text 2 speech, check openai key
+        load_dotenv()
+        if self.task_name in ["all", "text2speech"]:
+            # check openai key
+            openai_key = os.getenv("OPENAI_API_KEY")
+            if openai_key is None:
+                # READ from .env, and set it
+                # if it not exists, then return False
+                logger.error("OpenAI API Key is not set")
+                return False
+        if self.task_name in ["all", "hf_llm"]:
+            # check openai key
+            openai_key = os.getenv("HF_TOKEN")
+            if openai_key is None:
+                logger.error("OpenAI HF TOKEN is not set")
+                return False
+        return True
 
     def run(self):
         logger.info(f"AI Worker Running UUID: {self.uuid}")
@@ -161,6 +193,34 @@ class AIOrchestrator:
         if self.quantization_llm is None:
             self.quantization_llm = QuantizationLLM(api=self.api)
         task = self.quantization_llm.handle_task(task)
+        return task
+
+    def handle_hf_llm_task(self, task: Task):
+        """
+        Handle the hf llm task which will require more time compare to other tasks
+        Args:
+            task (Task): The task
+
+        Returns:
+
+        """
+        if self.hf_llm is None:
+            self.hf_llm = HFLLM()
+        task = self.hf_llm.handle_task(task)
+        return task
+
+    def handle_general_ml_task(self, task: Task):
+        """
+        Handle the general ml task
+        Args:
+            task (Task): The task
+
+        Returns:
+
+        """
+        if self.general_ml is None:
+            self.general_ml = GeneralMLModel()
+        task = self.general_ml.handle_task(task)
         return task
 
 

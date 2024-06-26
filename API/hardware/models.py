@@ -179,12 +179,6 @@ class EmotionDetection(models.Model):
         null=True,
         blank=True,
     )
-    data_text = models.ForeignKey(
-        DataText,
-        on_delete=models.CASCADE,
-        related_name="emotion_detection",
-        help_text="The text data",
-    )
     result = models.JSONField(
         help_text="The emotion result of the text", null=True, blank=True, default=dict
     )
@@ -241,14 +235,6 @@ class Text2Speech(models.Model):
         Home,
         on_delete=models.CASCADE,
         related_name="text2speech",
-        null=True,
-        blank=True,
-    )
-    data_text = models.ForeignKey(
-        DataText,
-        on_delete=models.SET_NULL,
-        related_name="text2speech",
-        help_text="The text data",
         null=True,
         blank=True,
     )

@@ -8,6 +8,8 @@ class WorkerConfig(AppConfig):
     def ready(self):
         # Import signals
         import orchestrator.chain.completed_emotion_detection
+        import orchestrator.chain.completed_quantization_llm
         import orchestrator.chain.completed_speech2text
         import orchestrator.chain.completed_task
+        import orchestrator.chain.completed_text2speech
         import orchestrator.chain.created_data_text

@@ -1,6 +1,7 @@
 from typing import Optional
 
 import requests
+
 from constants import API_DOMAIN
 from utils import get_logger, get_mac_address
 
@@ -65,12 +66,13 @@ class API:
 
         """
         url = f"{self.domain}/hardware/speech/?home_id={self.home_id}"
+        logger.info(url)
         r = requests.get(
             url, headers={"Authorization": f"Token {self.token}"}, timeout=30
         )
 
         logger.info(f"get {url} {r.status_code}")
-        logger.info(r.text)
+        # logger.info(r.text)
         if r.status_code != 200:
             return []
         return r.json()

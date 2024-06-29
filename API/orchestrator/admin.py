@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
+from orchestrator.metrics.benchmark import Benchmark
 from orchestrator.models import Task, TaskWorker
 
 
@@ -11,6 +12,12 @@ class TaskAdminForm(forms.ModelForm):
         fields = "__all__"
 
     task_name = forms.ChoiceField(choices=Task.get_task_name_choices())
+
+
+@admin.action(description="Run Benchmark")
+def run_benchmark(modeladmin, request, queryset):
+    benchmark = Benchmark(benchmark_cluster="all")
+    benchmark.run()
 
 
 @admin.register(Task)
@@ -29,6 +36,7 @@ class TaskAdmin(ImportExportModelAdmin):
     list_filter = ("task_name", "result_status", "user")
 
     readonly_fields = ("created_at", "updated_at")
+    actions = [run_benchmark]
 
 
 @admin.register(TaskWorker)

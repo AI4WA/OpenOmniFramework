@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
-from orchestrator.chain.cluster import ClusterManager
+from orchestrator.chain.manager import ClusterManager
 from orchestrator.chain.models import TaskData
 from orchestrator.chain.signals import completed_quantization_llm
 

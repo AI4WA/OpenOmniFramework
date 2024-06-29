@@ -8,7 +8,9 @@ from orchestrator.chain.signals import (
     completed_speech2text,
     completed_task,
     completed_text2speech,
+    completed_hf_llm,
 )
+from orchestrator.models import Task
 
 logger = get_logger(__name__)
 
@@ -22,22 +24,35 @@ def trigger_completed_task(sender, **kwargs):
     task_data = TaskData(**data)
 
     if task_data.task_name == "speech2text":
-        completed_speech2text.send(
+        return completed_speech2text.send(
             sender=sender, data=data, track_id=task_data.track_id
         )
 
     if task_data.task_name == "emotion_detection":
-        completed_emotion_detection.send(
+        return completed_emotion_detection.send(
             sender=sender, data=data, track_id=task_data.track_id
         )
 
     if task_data.task_name == "quantization_llm":
-        completed_quantization_llm.send(
+        return completed_quantization_llm.send(
             sender=sender, data=data, track_id=task_data.track_id
         )
 
     if task_data.task_name == "text2speech":
         logger.info("Text2Speech task completed")
-        completed_text2speech.send(
+        return completed_text2speech.send(
             sender=sender, data=data, track_id=task_data.track_id
         )
+
+    if task_data.task_name == "hf_llm":
+        logger.info("HF LLM task completed")
+        return completed_hf_llm.send(
+            sender=sender, data=data, track_id=task_data.track_id
+        )
+
+    task_name_choices = Task.get_task_name_choices()
+    task_name_choices_list = [task[0] for task in task_name_choices]
+    if task_data.task_name not in task_name_choices_list:
+        logger.error("Task name not found is not in the choices list")
+        return
+    logger.critical(f"{task_data.task_name} task completed, however, no action taken.")

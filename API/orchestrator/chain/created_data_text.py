@@ -4,7 +4,7 @@ from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
 from hardware.models import DataText, DataVideo
-from orchestrator.chain.cluster import ClusterManager
+from orchestrator.chain.manager import ClusterManager
 from orchestrator.chain.signals import created_data_text
 from orchestrator.models import Task
 

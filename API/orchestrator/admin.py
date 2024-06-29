@@ -1,11 +1,22 @@
+from django import forms
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
 from orchestrator.models import Task, TaskWorker
 
 
+class TaskAdminForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = "__all__"
+
+    task_name = forms.ChoiceField(choices=Task.get_task_name_choices())
+
+
 @admin.register(Task)
 class TaskAdmin(ImportExportModelAdmin):
+    # get task_name to be the choices field
+    form = TaskAdminForm
     list_display = (
         "user",
         "name",

@@ -9,6 +9,8 @@ class WorkerConfig(AppConfig):
         # Import signals
         import orchestrator.chain.completed_emotion_detection
         import orchestrator.chain.completed_hf_llm
+        import orchestrator.chain.completed_openai_gpt_4o
+        import orchestrator.chain.completed_openai_speech2text
         import orchestrator.chain.completed_quantization_llm
         import orchestrator.chain.completed_speech2text
         import orchestrator.chain.completed_task

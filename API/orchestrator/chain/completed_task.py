@@ -5,6 +5,8 @@ from orchestrator.chain.models import TaskData
 from orchestrator.chain.signals import (
     completed_emotion_detection,
     completed_hf_llm,
+    completed_openai_gpt_4o,
+    completed_openai_speech2text,
     completed_quantization_llm,
     completed_speech2text,
     completed_task,
@@ -47,6 +49,18 @@ def trigger_completed_task(sender, **kwargs):
     if task_data.task_name == "hf_llm":
         logger.info("HF LLM task completed")
         return completed_hf_llm.send(
+            sender=sender, data=data, track_id=task_data.track_id
+        )
+
+    if task_data.task_name == "openai_speech2text":
+        logger.info("OpenAI Speech2Text task completed")
+        return completed_openai_speech2text.send(
+            sender=sender, data=data, track_id=task_data.track_id
+        )
+
+    if task_data.task_name == "openai_gpt_4o":
+        logger.info("OpenAI Speech2Text task completed")
+        return completed_openai_gpt_4o.send(
             sender=sender, data=data, track_id=task_data.track_id
         )
 

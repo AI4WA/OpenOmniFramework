@@ -96,7 +96,19 @@ CLUSTER_GPT_4O_ETE_CONVERSATION = {
     # then will call the GPT-4o model to convert the text to speech
     "completed_openai_gpt_4o": {
         "order": 2,
-        "extra_params": {},
+        "extra_params": {
+            "sample_ratio": 10,
+            "prompt_template": """
+            You are a robot, and you are talking to a human.
+            You will be provided with text and some flow of images, which actually are the video frames.
+            
+            Your task is to generate a response to the human based on the text and the images.
+            
+            You response will be directly send to end user.
+            
+            The text is: {text}
+            """,
+        },
         "component_type": "task",
     },
     # then the output should be directly the text, feed to speech 2 text
@@ -211,6 +223,8 @@ class ClusterManager:
             "completed_hf_llm": "hf_llm",
             "completed_text2speech": "text2speech",
             "completed_emotion_detection": "emotion_detection",
+            "completed_openai_gpt_4o": "openai_gpt_4o",
+            "completed_openai_text2speech": "openai_text2speech",
         }
 
         if next_component_name in task_mapping:

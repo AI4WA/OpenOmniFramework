@@ -12,6 +12,8 @@ class TaskName(str, Enum):
     text2speech = "text2speech"
     general_ml = "general_ml"
     openai_speech2text = "openai_speech2text"
+    openai_gpt4o = "openai_gpt_4o"
+    openai_text2speech = "openai_text2speech"
 
 
 class ResultStatus(str, Enum):

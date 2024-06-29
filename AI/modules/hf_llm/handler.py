@@ -1,11 +1,12 @@
-from datetime import datetime
-
 import torch
 import transformers
 
 from models.parameters import HFParameters
 from models.task import Task
+from models.track_type import TrackType
 from utils.get_logger import get_logger
+from utils.time_logger import TimeLogger
+from utils.time_tracker import time_tracker
 from utils.timer import timer
 
 logger = get_logger("HFHandler")
@@ -33,24 +34,26 @@ class HFLLM:
         if hf_model is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
             logger.error(f"Model {hf_model_name} not loaded yet")
-            start_time = datetime.now()
-            hf_model = transformers.pipeline(
-                task=hf_parameters.task,  # default is "text-generation"
-                model=hf_model_name,
-                torch_dtype=torch.float16,
-                device=device,
-            )
-            self.avail_models[hf_model_name] = hf_model
-            latency_profile["model_init"] = (
-                datetime.now() - start_time
-            ).total_seconds()
-        start_time = datetime.now()
+            with time_tracker(
+                "init_model", latency_profile, track_type=TrackType.TRANSFER.value
+            ):
+                hf_model = transformers.pipeline(
+                    task=hf_parameters.task,  # default is "text-generation"
+                    model=hf_model_name,
+                    torch_dtype=torch.float16,
+                    device=device,
+                )
+                self.avail_models[hf_model_name] = hf_model
+
         messages = [
             {"role": "user", "content": text},
         ]
         with timer(logger, f"Model infer {hf_model_name}"):
-            res = hf_model(messages)
-        latency_profile["model_infer"] = (datetime.now() - start_time).total_seconds()
+            with time_tracker(
+                "model_infer", latency_profile, track_type=TrackType.MODEL.value
+            ):
+                TimeLogger.log(latency_profile, "start_hf_llm")
+                res = hf_model(messages)
         text = res[0]["generated_text"][len(text) :]  # noqa
         result_profile["text"] = text
         result_profile["logs"] = res

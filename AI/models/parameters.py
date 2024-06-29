@@ -37,3 +37,7 @@ class GeneralMLParameters(BaseModel):
     text: str = Field(..., description="The text to analyze for general ML")
     general_model_name: str = Field(..., description="The name of the model")
     params: dict = Field({}, description="The parameters of the model")
+
+
+class OpenAISpeech2TextParameters(BaseModel):
+    audio_file_path: str = Field(..., description="The path to the audio file")

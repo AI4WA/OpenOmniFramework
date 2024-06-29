@@ -4,11 +4,11 @@ from authenticate.utils.get_logger import get_logger
 from orchestrator.chain.models import TaskData
 from orchestrator.chain.signals import (
     completed_emotion_detection,
+    completed_hf_llm,
     completed_quantization_llm,
     completed_speech2text,
     completed_task,
     completed_text2speech,
-    completed_hf_llm,
 )
 from orchestrator.models import Task
 

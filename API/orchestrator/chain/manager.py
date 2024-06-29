@@ -151,7 +151,6 @@ class ClusterManager:
             If this is the start of the chain, then return the first component
             """
             return chain[0], cluster[chain[0]]
-
         # index of the current component
         current_component_index = chain.index(current_component)
         next_index = current_component_index + 1
@@ -194,6 +193,8 @@ class ClusterManager:
         next_component_name, next_component = cls.get_next(
             cluster_name, current_component
         )
+        logger.info(f"Next component: {next_component_name}")
+
         if next_component_name is None:
             return
         # do something with the next component
@@ -205,6 +206,7 @@ class ClusterManager:
 
         task_mapping = {
             "speech2text": "speech2text",
+            "openai_speech2text": "openai_speech2text",
             "completed_quantization_llm": "quantization_llm",
             "completed_hf_llm": "hf_llm",
             "completed_text2speech": "text2speech",
@@ -214,8 +216,8 @@ class ClusterManager:
         if next_component_name in task_mapping:
             task = Task.create_task(
                 user=None,
-                name=task_mapping[next_component_name],
-                task_name=task_name or task_mapping[next_component_name],
+                name=task_name or task_mapping[next_component_name],
+                task_name=task_mapping[next_component_name],
                 parameters=next_parameters,
                 track_id=track_id,
             )

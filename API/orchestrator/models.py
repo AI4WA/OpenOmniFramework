@@ -20,17 +20,10 @@ class Task(models.Model):
     name = models.CharField(
         max_length=100, help_text="A unique name to track the cluster of tasks"
     )
+
     task_name = models.CharField(
         max_length=100,
-        choices=[
-            ("quantization_llm", "Quantization LLM"),
-            ("hf_llm", "HF LLM"),
-            ("emotion_detection", "Emotion Detection"),
-            ("speech2text", "Speech2Text"),
-            ("text2speech", "Text2Speech"),
-            ("general_ml", "General ML"),
-        ],
-        help_text="Select the type of task",
+        help_text="The name of the task",
     )
     parameters = models.JSONField(
         default=dict,
@@ -123,6 +116,24 @@ class Task(models.Model):
         if self.result_status == "completed":
             completed_task.send(sender=self, data=self.__dict__)
         super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_task_name_choices():
+        """
+        Get dynamic task name choices
+        Returns:
+            list: List of tuples containing task name choices
+        """
+        # Here you can fetch the choices from an external source or database
+        return [
+            ("quantization_llm", "Quantization LLM"),
+            ("hf_llm", "HF LLM"),
+            ("emotion_detection", "Emotion Detection"),
+            ("speech2text", "Speech2Text"),
+            ("text2speech", "Text2Speech"),
+            ("general_ml", "General ML"),
+            ("openai_speech2text", "OpenAI Speech2Text"),
+        ]
 
 
 class TaskWorker(models.Model):

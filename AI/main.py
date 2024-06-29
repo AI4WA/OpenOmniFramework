@@ -11,6 +11,7 @@ from models.task import Task
 from modules.emotion_detection.handler import EmotionDetectionHandler
 from modules.general_ml.handler import GeneralMLModel
 from modules.hf_llm.handler import HFLLM
+from modules.openai.handler import OpenAIHandler
 from modules.quantization_llm.handler import QuantizationLLM
 from modules.speech_to_text.speech2text import Speech2Text
 from modules.text_to_speech.text2speech import Text2Speech
@@ -71,6 +72,7 @@ class AIOrchestrator:
         self.quantization_llm = None
         self.hf_llm = None
         self.general_ml = None
+        self.openai_handler = None
 
         self.task_name_router = {
             "speech2text": self.handle_speech2text_task,
@@ -79,6 +81,7 @@ class AIOrchestrator:
             "quantization_llm": self.handle_quantization_llm_task,
             "hf_llm": self.handle_hf_llm_task,
             "general_ml": self.handle_general_ml_task,
+            "openai": self.handle_openai_task,
         }
 
     def authenticate_token(self):
@@ -143,6 +146,8 @@ class AIOrchestrator:
         logger.info(task_obj)
         if task_obj.task_name in self.task_name_router:
             task_obj = self.task_name_router[task_obj.task_name](task_obj)
+        elif "openai" in task_obj.task_name:
+            task_obj = self.handle_openai_task(task_obj)
         else:
             logger.error(f"Unknown task type: {task_obj.task_name}")
             task_obj.result_status = "failed"
@@ -221,6 +226,20 @@ class AIOrchestrator:
         if self.general_ml is None:
             self.general_ml = GeneralMLModel()
         task = self.general_ml.handle_task(task)
+        return task
+
+    def handle_openai_task(self, task: Task):
+        """
+        Handle the openai task
+        Args:
+            task (Task): The task
+
+        Returns:
+
+        """
+        if self.openai_handler is None:
+            self.openai_handler = OpenAIHandler()
+        task = self.openai_handler.handle_task(task)
         return task
 
 

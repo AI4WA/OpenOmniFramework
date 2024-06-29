@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from authenticate.utils.get_logger import get_logger
-from orchestrator.chain.cluster import CLUSTER_Q_ETE_CONVERSATION_NAME
+from orchestrator.chain.manager import CLUSTER_Q_ETE_CONVERSATION_NAME, ClusterManager
 from orchestrator.models import Task, TaskWorker
 from orchestrator.serializers import TaskSerializer, TaskWorkerSerializer
 
@@ -43,6 +43,8 @@ class QueueTaskViewSet(viewsets.ViewSet):
                 {"error": f"Error validating task request: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        # if track id not set, set up the track id
         track_id = data.get("track_id", None)
         logger.info(f"Track ID: {track_id}")
         # if track_id is not provided, then we need to generate it
@@ -51,8 +53,14 @@ class QueueTaskViewSet(viewsets.ViewSet):
             logger.info(f"Generated track ID: {track_id}")
             serializer.validated_data["track_id"] = track_id
 
-        task = serializer.save(user=request.user)
-        task_id = task.id
+        # based on the track cluster name, determine what to do next
+        task_id = ClusterManager.chain_next(
+            track_id=track_id,
+            current_component="init",
+            next_component_params=serializer.validated_data["parameters"],
+            task_name=data.get("task_name", None),
+        )
+
         return Response(
             {"message": "LLM task queued successfully", "task_id": task_id},
             status=status.HTTP_200_OK,

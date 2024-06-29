@@ -41,3 +41,12 @@ class GeneralMLParameters(BaseModel):
 
 class OpenAISpeech2TextParameters(BaseModel):
     audio_file_path: str = Field(..., description="The path to the audio file")
+
+
+class OpenAIGPT4OParameters(BaseModel):
+    text: str = Field(..., description="The text to analyze for GPT-4o")
+    images_path_list: List[str] = Field(
+        description="The images data to analyze for GPT-4o"
+    )
+    sample_ratio: int = Field(1, description="The sample ratio")
+    prompt_template: str = Field(description="The prompt template")

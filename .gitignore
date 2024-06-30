@@ -15,3 +15,4 @@ Client/Responder/.tox
 Client/Responder/venv
 Client/Listener/.tox
 Client/Listener/venv
+logs

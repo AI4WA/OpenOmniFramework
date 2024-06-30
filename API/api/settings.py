@@ -80,7 +80,7 @@ REST_FRAMEWORK = {
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -214,3 +214,7 @@ BOTO3_SESSION = boto3.Session(region_name=os.environ.get("AWS_REGION", "us-west-
 # update this
 
 CSV_BUCKET = "wa-data-and-llm-platform"
+
+
+LOG_DIR = Path(BASE_DIR) / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)

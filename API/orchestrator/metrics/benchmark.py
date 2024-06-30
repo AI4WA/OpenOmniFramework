@@ -1,5 +1,5 @@
 from typing import List
-
+from django.conf import settings
 import pandas as pd
 
 from authenticate.utils.get_logger import get_logger
@@ -36,13 +36,20 @@ class Benchmark:
         """
         Run the benchmark
         """
+        html_content = ""
         if self.benchmark_cluster == "all":
             for cluster_name in CLUSTERS.keys():
-                self.process_cluster(cluster_name)
+                # add a divider
+                html_content += "<hr>"
+                html_content += f"<h2>Cluster: {cluster_name}</h2>"
+                html_content += self.process_cluster(cluster_name)
         else:
             if self.benchmark_cluster not in CLUSTERS:
                 raise ValueError(f"Cluster {self.benchmark_cluster} not found")
-            self.process_cluster(self.benchmark_cluster)
+            html_content += "<hr>"
+            html_content += f"<h2>Cluster: {self.benchmark_cluster}</h2>"
+            html_content += self.process_cluster(self.benchmark_cluster)
+        return html_content
 
     def process_cluster(self, cluster_name: str):
         """
@@ -89,21 +96,29 @@ class Benchmark:
                 Required tasks: {required_tasks_count}, Total tasks: {len(tasks)}
             """
         )
+        # flatten the cluster_latency
         result_df = pd.DataFrame(cluster_latency)
-        result_df.to_csv(f"{cluster_name}_benchmark.csv")
+        if len(result_df) != 0:
+            logger.info(result_df.describe())
+            result_df.to_csv(settings.LOG_DIR / f"{cluster_name}_benchmark.csv")
+            # to html and return it
+            return result_df.describe().to_html()
+        return ""
 
     @staticmethod
-    def process_task_group(task_group: List[Task]):
+    def process_task_group(task_track: List[Task]):
         """
         This will process each component, and then extract the transfer and model latency total
         Args:
-            task_group:
+            task_track:
 
         Returns:
             dict: The benchmark result
         """
-        result = {}
-        for task in task_group:
+        result = {
+            "track_id": task_track[0].track_id,
+        }
+        for task in task_track:
             latency_profile = task.result_json.get("latency_profile", {})
             # NOTE: this will require client side do not log overlap durations
             model_latency = 0
@@ -113,9 +128,9 @@ class Benchmark:
                     model_latency += value
                 if "transfer" in key:
                     transfer_latency += value
-            result[task.task_name] = {
-                "model_latency": model_latency,
-                "transfer_latency": transfer_latency,
-                "overall_latency": model_latency + transfer_latency,
-            }
+            result[f"{task.task_name}_model_latency"] = model_latency
+            result[f"{task.task_name}_transfer_latency"] = transfer_latency
+            result[f"{task.task_name}_overall_latency"] = (
+                model_latency + transfer_latency
+            )
         return result

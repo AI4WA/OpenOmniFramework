@@ -28,7 +28,11 @@ CLUSTER_Q_ETE_CONVERSATION_NAME = "CLUSTER_Q_ETE_CONVERSATION"
 
 CLUSTER_Q_ETE_CONVERSATION = {
     "speech2text": {"order": 0, "extra_params": {}, "component_type": "task"},
-    "completed_speech2text": {"order": 1, "extra_params": {}, "component_type": "task"},
+    "completed_speech2text": {
+        "order": 1,
+        "extra_params": {},
+        "component_type": "signal",
+    },
     "created_data_text": {"order": 2, "extra_params": {}, "component_type": "signal"},
     "completed_emotion_detection": {
         "order": 3,

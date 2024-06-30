@@ -1,8 +1,11 @@
 from django import forms
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
-
+from orchestrator.metrics.benchmark import Benchmark
 from orchestrator.models import Task, TaskWorker
+from django.urls import path
+
+from django.shortcuts import render
 
 
 class TaskAdminForm(forms.ModelForm):
@@ -14,7 +17,9 @@ class TaskAdminForm(forms.ModelForm):
 
 
 @admin.register(Task)
-class TaskAdmin(ImportExportModelAdmin):
+class TaskAdmin(admin.ModelAdmin):
+    change_list_template = "admin/orchestrator/task/change_list.html"
+
     # get task_name to be the choices field
     form = TaskAdminForm
     list_display = (
@@ -29,6 +34,24 @@ class TaskAdmin(ImportExportModelAdmin):
     list_filter = ("task_name", "result_status", "user")
 
     readonly_fields = ("created_at", "updated_at")
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "benchmark/",
+                self.admin_site.admin_view(self.benchmark),
+                name="benchmark",
+            ),
+        ]
+        return custom_urls + urls
+
+    @staticmethod
+    def benchmark(request):
+        benchmark = Benchmark(benchmark_cluster="all")
+        html_content = benchmark.run()
+        context = {"content": html_content, "benchmark_type": "Latency"}
+        return render(request, "admin/orchestrator/task/benchmark.html", context)
 
 
 @admin.register(TaskWorker)

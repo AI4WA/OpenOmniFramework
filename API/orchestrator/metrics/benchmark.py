@@ -1,6 +1,7 @@
 from typing import List
-from django.conf import settings
+
 import pandas as pd
+from django.conf import settings
 
 from authenticate.utils.get_logger import get_logger
 from orchestrator.chain.manager import CLUSTER_Q_ETE_CONVERSATION_NAME, CLUSTERS

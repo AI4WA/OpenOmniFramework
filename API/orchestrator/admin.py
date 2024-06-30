@@ -1,11 +1,11 @@
 from django import forms
 from django.contrib import admin
+from django.shortcuts import render
+from django.urls import path
 from import_export.admin import ImportExportModelAdmin
+
 from orchestrator.metrics.benchmark import Benchmark
 from orchestrator.models import Task, TaskWorker
-from django.urls import path
-
-from django.shortcuts import render
 
 
 class TaskAdminForm(forms.ModelForm):

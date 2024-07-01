@@ -2,7 +2,7 @@ from typing import List
 
 import pandas as pd
 from django.conf import settings
-
+from datetime import datetime
 from authenticate.utils.get_logger import get_logger
 from orchestrator.chain.manager import CLUSTER_Q_ETE_CONVERSATION_NAME, CLUSTERS
 from orchestrator.models import Task
@@ -17,6 +17,8 @@ class Benchmark:
     - transfer_latency: The time taken to transfer the data to the model
     - overall_latency: The time taken by the model to process the data and transfer the data to the model
 
+    The whole pipeline latency will be the sum of
+    - all component start end end ts
 
     Another way to output the performance is the Timeline
     - start will be 0
@@ -124,14 +126,53 @@ class Benchmark:
             # NOTE: this will require client side do not log overlap durations
             model_latency = 0
             transfer_latency = 0
+            logger.info(latency_profile)
+            task_start_time = None
+            task_end_time = None
             for key, value in latency_profile.items():
-                if "model" in key:
-                    model_latency += value
-                if "transfer" in key:
-                    transfer_latency += value
+                if key.startswith("model"):
+                    print(key, value)
+                    model_latency += float(value)
+                if key.startswith("transfer"):
+                    transfer_latency += float(value)
+                if key.startswith("ts"):
+                    if key == "ts_start_task":
+                        task_start_time = value
+                    if key == "ts_end_task":
+                        task_end_time = value
             result[f"{task.task_name}_model_latency"] = model_latency
             result[f"{task.task_name}_transfer_latency"] = transfer_latency
-            result[f"{task.task_name}_overall_latency"] = (
-                model_latency + transfer_latency
-            )
+            # look for the ts_start_task and ts_end_task, and the overall_latency should be that value
+            # process time into datetime object
+            # ts_end_trigger_emotion_model 2024-07-01T14:58:36.419352
+            if task_start_time and task_end_time:
+                task_start_time_dt = Benchmark.str_to_datetime(task_start_time)
+                task_end_time_dt = Benchmark.str_to_datetime(task_end_time)
+                result[f"{task.task_name}_overall_latency"] = (  # noqa
+                    task_end_time_dt - task_start_time_dt
+                ).total_seconds()
+
+            else:
+                logger.error(f"Task {task.task_name} does not have start and end time")
+                result[f"{task.task_name}_overall_latency"] = (
+                    model_latency + transfer_latency
+                )
+        # total_latency should be the sum of all the overall_latency
+        total_latency = 0
+        for key, value in result.items():
+            if key.endswith("overall_latency"):
+                total_latency += value
+        result["total_latency"] = total_latency
         return result
+
+    @staticmethod
+    def str_to_datetime(datetime_str: str) -> datetime:
+        """
+        Convert the datetime string to datetime object
+        Args:
+            datetime_str (str): the string datetime, like this: 2024-07-01T14:58:36.419352
+
+        Returns:
+
+        """
+        return datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%f")

@@ -129,7 +129,7 @@ class EmotionDetectionHandler:
         model = SentimentAnalysis().to(device)
         # load the model
         with time_tracker(
-            latency_profile, "load_model", track_type=TrackType.MODEL.value
+            "load_model", latency_profile, track_type=TrackType.MODEL.value
         ):
             model.load_state_dict(
                 {
@@ -142,9 +142,7 @@ class EmotionDetectionHandler:
             model.eval()
 
         # run model
-        with time_tracker(
-            latency_profile, "model_inference", track_type=TrackType.MODEL.value
-        ):
+        with time_tracker("infer", latency_profile, track_type=TrackType.MODEL.value):
             output = model(text, feature_audio, feature_video)
 
         logger.critical(f"output: {output}")

@@ -54,7 +54,7 @@ class HFLLM:
                 "infer", latency_profile, track_type=TrackType.MODEL.value
             ):
                 res = hf_model(messages)
-        text = res[0]["generated_text"][len(text) :]  # noqa
+        text = res[0]["generated_text"][-1]["content"]
         result_profile["text"] = text
         result_profile["logs"] = res
         task.result_status = ResultStatus.completed.value

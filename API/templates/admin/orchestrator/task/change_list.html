@@ -6,6 +6,9 @@
             <li>
                 <a href="{% url 'admin:benchmark' %}" class="export_link">Latency Benchmark</a>
             </li>
+            <li>
+                <a href="{% url 'admin:benchmark_detail' %}" class="export_link">Latency Details</a>
+            </li>
             {{ block.super }}
         {% endblock %}
     </ul>

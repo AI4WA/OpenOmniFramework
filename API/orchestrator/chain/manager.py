@@ -27,17 +27,29 @@ This is for the quantization LLM model for the ETE conversation
 CLUSTER_Q_ETE_CONVERSATION_NAME = "CLUSTER_Q_ETE_CONVERSATION"
 
 CLUSTER_Q_ETE_CONVERSATION = {
-    "speech2text": {"order": 0, "extra_params": {}, "component_type": "task"},
+    "speech2text": {
+        "order": 0,
+        "extra_params": {},
+        "component_type": "task",
+        "task_name": "speech2text",
+    },
     "completed_speech2text": {
         "order": 1,
         "extra_params": {},
         "component_type": "signal",
+        "task_name": None,
     },
-    "created_data_text": {"order": 2, "extra_params": {}, "component_type": "signal"},
+    "created_data_text": {
+        "order": 2,
+        "extra_params": {},
+        "component_type": "signal",
+        "task_name": None,
+    },
     "completed_emotion_detection": {
         "order": 3,
         "extra_params": {},
         "component_type": "task",
+        "task_name": "emotion_detection",
     },
     "completed_quantization_llm": {
         "order": 4,
@@ -45,8 +57,14 @@ CLUSTER_Q_ETE_CONVERSATION = {
             "llm_model_name": "SOLAR-10",
         },
         "component_type": "task",
+        "task_name": "quantization_llm",
     },
-    "completed_text2speech": {"order": 5, "extra_params": {}, "component_type": "task"},
+    "completed_text2speech": {
+        "order": 5,
+        "extra_params": {},
+        "component_type": "task",
+        "task_name": "text2speech",
+    },
 }
 
 """
@@ -56,13 +74,29 @@ This is the pipeline using the HF LLM model for the ETE conversation
 CLUSTER_HF_ETE_CONVERSATION_NAME = "CLUSTER_HF_ETE_CONVERSATION"
 
 CLUSTER_HF_ETE_CONVERSATION = {
-    "speech2text": {"order": 0, "extra_params": {}, "component_type": "task"},
-    "completed_speech2text": {"order": 1, "extra_params": {}, "component_type": "task"},
-    "created_data_text": {"order": 2, "extra_params": {}, "component_type": "signal"},
+    "speech2text": {
+        "order": 0,
+        "extra_params": {},
+        "component_type": "task",
+        "task_name": "speech2text",
+    },
+    "completed_speech2text": {
+        "order": 1,
+        "extra_params": {},
+        "component_type": "task",
+        "task_name": "speech2text",
+    },
+    "created_data_text": {
+        "order": 2,
+        "extra_params": {},
+        "component_type": "signal",
+        "task_name": None,
+    },
     "completed_emotion_detection": {
         "order": 3,
         "extra_params": {},
         "component_type": "task",
+        "task_name": "emotion_detection",
     },
     "completed_hf_llm": {
         "order": 4,
@@ -70,8 +104,14 @@ CLUSTER_HF_ETE_CONVERSATION = {
             "hf_model_name": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
         },
         "component_type": "task",
+        "task_name": "hf_llm",
     },
-    "completed_text2speech": {"order": 5, "extra_params": {}, "component_type": "task"},
+    "completed_text2speech": {
+        "order": 5,
+        "extra_params": {},
+        "component_type": "task",
+        "task_name": "text2speech",
+    },
 }
 
 """
@@ -91,11 +131,13 @@ CLUSTER_GPT_4O_ETE_CONVERSATION = {
         "order": 0,
         "extra_params": {},
         "component_type": "task",
+        "task_name": "openai_speech2text",
     },
     "completed_openai_speech2text": {
         "order": 1,
         "extra_params": {},
         "component_type": "task",
+        "task_name": "openai_speech2text",
     },
     # then will call the GPT-4o model to convert the text to speech
     "completed_openai_gpt_4o": {
@@ -114,12 +156,14 @@ CLUSTER_GPT_4O_ETE_CONVERSATION = {
             """,
         },
         "component_type": "task",
+        "task_name": "openai_gpt_4o",
     },
     # then the output should be directly the text, feed to speech 2 text
     "completed_openai_text2speech": {
         "order": 3,
         "extra_params": {},
         "component_type": "task",
+        "task_name": "openai_text2speech",
     },
 }
 

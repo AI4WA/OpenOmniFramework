@@ -98,7 +98,7 @@ class Benchmark:
             """
         )
 
-        general_title = f"Cluster: {cluster_name}, Completed Ratio: {success_pipeline}/{len(task_groups)}"
+        general_title = f"Cluster: <b>{cluster_name}</b>, Completed Ratio: {success_pipeline}/{len(task_groups)}"
         # flatten the cluster_latency
         result_df = pd.DataFrame(cluster_latency)
         # get the column split with _ from right, and left element is the component name
@@ -159,7 +159,7 @@ class Benchmark:
             cluster_tp_latency.append(
                 self.process_task_group_detail_timeline(task_group, timeline=True)
             )
-        general_title = f"Cluster: {cluster_name}, Completed Ratio: {success_pipeline}/{len(task_groups)}"
+        general_title = f"Cluster: <b>{cluster_name}</b>, Completed Ratio: {success_pipeline}/{len(task_groups)}"
         result_df = pd.DataFrame(cluster_latency)
         if len(result_df) == 0:
             return ""
@@ -184,12 +184,14 @@ class Benchmark:
         if len(result_ts_df) == 0:
             return track_tasks_html
         # we will plot a bar
-        ts_stacked_html = self.plot_stacked_timeline(result_ts_df)
+        ts_stacked_html = self.plot_stacked_timeline(result_ts_df, title=general_title)
 
         # grab the time point latency, and try to draw time point html
         result_tp_df = pd.DataFrame(cluster_tp_latency)
         # result_tp_df.to_csv(settings.LOG_DIR / f"{cluster_name}_tp_benchmark.csv")
-        ts_timepoint_html = self.plot_timestamp_timeline_depth(result_tp_df)
+        ts_timepoint_html = self.plot_timestamp_timeline_depth(
+            result_tp_df, title=general_title
+        )
         return track_tasks_html + ts_stacked_html + ts_timepoint_html
 
     @staticmethod
@@ -493,7 +495,7 @@ class Benchmark:
         )
         fig.update_layout(
             title={
-                "text": "Latency Summary" + title,
+                "text": f"Latency Summary: {title}",
                 "x": 0.5,
                 "xanchor": "center",
                 "yanchor": "top",
@@ -559,11 +561,12 @@ class Benchmark:
         return plot_html
 
     @staticmethod
-    def plot_stacked_timeline(df: pd.DataFrame) -> str:
+    def plot_stacked_timeline(df: pd.DataFrame, title: str) -> str:
         """
         Plot the stacked timeline
         Args:
             df (pd.DataFrame): The dataframe
+            title (str): The title
 
         Returns:
 
@@ -586,10 +589,16 @@ class Benchmark:
 
         # Customize the layout
         fig.update_layout(
-            title="Timeline",
+            title={
+                "text": f"Time Interval in Seconds ({title})",
+                "x": 0.5,
+                "xanchor": "center",
+                "yanchor": "top",
+            },
             xaxis_title="Relative in Seconds to Start Time",
             yaxis_title="Track ID",
             barmode="stack",
+            height=(len(df) * 35),
         )
 
         # Convert Plotly figure to HTML
@@ -597,11 +606,12 @@ class Benchmark:
         return plot_html
 
     @staticmethod
-    def plot_timestamp_timeline_depth(df: pd.DataFrame) -> str:
+    def plot_timestamp_timeline_depth(df: pd.DataFrame, title: str) -> str:
         """
         Plot the timestamp timeline
         Args:
             df (pd.DataFrame): The dataframe
+            title (str): The title
 
         Returns:
             str: The plot in HTML
@@ -655,7 +665,12 @@ class Benchmark:
                     )
         # Customize the layout
         fig.update_layout(
-            title="Timeline of Events",
+            title={
+                "text": f"Timeline of Events ({title})",
+                "x": 0.5,
+                "xanchor": "center",
+                "yanchor": "top",
+            },
             xaxis_title="Time",
             yaxis=dict(
                 showline=False,
@@ -746,6 +761,14 @@ class Benchmark:
             if track_id not in task_groups:
                 task_groups[track_id] = []
             task_groups[track_id].append(task)
+
+        # sort the task groups by the first task created time
+        task_groups = dict(
+            sorted(
+                task_groups.items(),
+                key=lambda x: x[1][0].created_at if len(x[1]) > 0 else None,
+            )
+        )
         return task_groups, required_tasks_count, tasks
 
     @staticmethod

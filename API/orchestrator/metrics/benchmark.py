@@ -142,6 +142,7 @@ class Benchmark:
         # loop through the task groups, if the success task is not == required_tasks_count, then we will skip
         success_pipeline = 0
         cluster_latency = []
+        cluster_ts_latency = []
         for track_id, task_group in task_groups.items():
             success_tasks = [
                 task for task in task_group if task.result_status == "completed"
@@ -150,6 +151,9 @@ class Benchmark:
                 # the pipeline is not completed, so we will skip
                 success_pipeline += 1
             cluster_latency.append(self.process_task_group_detail(task_group))
+            cluster_ts_latency.append(
+                self.process_task_group_detail_timeline(task_group)
+            )
         general_title = f"Cluster: {cluster_name}, Completed Ratio: {success_pipeline}/{len(task_groups)}"
         html_cluster_header = f"<h3>{general_title}</h3>"
         result_df = pd.DataFrame(cluster_latency)
@@ -167,10 +171,17 @@ class Benchmark:
             split_columns.get_level_values(0),
             split_columns.get_level_values(1),
         ]
-
         # sort the column
         track_tasks_html = self.plot_table(result_df, title=f" ({general_title})")
-        return html_cluster_header + track_tasks_html
+
+        # cluster ts latency
+        result_ts_df = pd.DataFrame(cluster_ts_latency)
+        result_ts_df.to_csv(settings.LOG_DIR / f"{cluster_name}_ts_benchmark.csv")
+        if len(result_ts_df) == 0:
+            return html_cluster_header + track_tasks_html
+        # we will plot a bar
+        ts_stacked_html = self.plot_stacked_timeline(result_ts_df)
+        return html_cluster_header + track_tasks_html + ts_stacked_html
 
     @staticmethod
     def process_task_group(task_track: List[Task]):
@@ -196,7 +207,6 @@ class Benchmark:
             task_end_time = None
             for key, value in latency_profile.items():
                 if key.startswith("model"):
-                    print(key, value)
                     model_latency += float(value)
                 if key.startswith("transfer"):
                     transfer_latency += float(value)
@@ -266,12 +276,11 @@ class Benchmark:
             # NOTE: this will require client side do not log overlap durations
             model_latency = 0
             transfer_latency = 0
-            logger.info(latency_profile)
+            logger.debug(latency_profile)
             task_start_time = None
             task_end_time = None
             for key, value in latency_profile.items():
                 if key.startswith("model"):
-                    print(key, value)
                     model_latency += float(value)
                 if key.startswith("transfer"):
                     transfer_latency += float(value)
@@ -297,6 +306,14 @@ class Benchmark:
                 result[f"{task.task_name}_overall_latency"] = (
                     model_latency + transfer_latency
                 )
+
+        # sort the key to be the same as the cluster order, also if missed, fill it with missing
+        for task_name in task_names:
+            if f"{task_name}_overall_latency" not in result:
+                result[task_name + "_model_latency"] = "missing"
+                result[task_name + "_transfer_latency"] = "missing"
+                result[task_name + "_overall_latency"] = "missing"
+
         # total_latency should be the sum of all the overall_latency
         total_latency = 0
         for key, value in result.items():
@@ -310,13 +327,6 @@ class Benchmark:
         for key, value in result.items():
             if isinstance(value, float):
                 result[key] = round(value, 4)
-
-        # sort the key to be the same as the cluster order, also if missed, fill it with missing
-        for task_name in task_names:
-            if f"{task_name}_overall_latency" not in result:
-                result[task_name + "_model_latency"] = "missing"
-                result[task_name + "_transfer_latency"] = "missing"
-                result[task_name + "_overall_latency"] = "missing"
 
         ordered_result = {
             "track_id": result["track_id"],
@@ -334,6 +344,84 @@ class Benchmark:
 
         ordered_result["total_latency"] = result["total_latency"]
         return ordered_result
+
+    @staticmethod
+    def process_task_group_detail_timeline(
+        task_track: List[Task], timeline: bool = False
+    ):
+        """
+        Based on the result_json => latency_profile
+        We will gather the time point for each, and then change to the relative second value compared to start point
+
+        If timeline is True, we will only grab the timestamp information.
+        Otherwise, we will calculate the relative time to the start point
+
+        In the end, we will grab the
+        Args:
+            task_track (List[Task]): The task track
+            timeline (bool): If we want to plot the timeline
+
+        Returns:
+
+        """
+        result = {
+            "track_id": task_track[0].track_id,
+        }
+        cluster_name = task_track[0].track_id.split("-")[1]
+        cluster = CLUSTERS.get(cluster_name)
+        task_name_order = [
+            item for item in cluster.values() if item["component_type"] == "task"
+        ]
+        task_name_order = sorted(task_name_order, key=lambda x: x["order"])
+        task_names = [item["task_name"] for item in task_name_order]
+
+        task_results = {}
+        for task in task_track:
+            if task.result_status != "completed":
+
+                continue
+            latency_profile = task.result_json.get("latency_profile", {})
+            task_result = {}
+            for key, value in latency_profile.items():
+                if key.startswith("ts"):
+                    task_result[key] = Benchmark.str_to_datetime(value)
+
+            if timeline is False:
+                # sort out the whole task_result based on time timestamp
+                # and then calculate the relative time to the previous component
+                sorted_task_result = dict(
+                    sorted(task_result.items(), key=lambda item: item[1])
+                )
+                previous_time = None
+                task_relative_time = {}
+                for key, value in sorted_task_result.items():
+                    if previous_time is None:
+                        task_relative_time[key] = 0
+                    else:
+                        task_relative_time[key] = (
+                            value - previous_time
+                        ).total_seconds()
+                    previous_time = value
+                task_results[task.task_name] = task_relative_time
+            else:
+                task_results[task.task_name] = task_result
+
+        # sort the key to be the same as the cluster order, calculate the value to add up the previous component
+        first_start_task = None
+        for task_name in task_names:
+            if task_name not in task_results:
+                break
+            for key, value in task_results[task_name].items():
+                new_key = f"{task_name}_{key.split('_', 1)[1]}"
+                if key == "ts_start_task":
+                    if first_start_task is None:
+                        first_start_task = value
+                    else:
+                        continue
+                if new_key not in result:
+                    result[new_key] = value
+        logger.info(result)
+        return result
 
     @staticmethod
     def plot_table(df: pd.DataFrame, title: str = "") -> str:
@@ -399,6 +487,8 @@ class Benchmark:
             },
             #     update margin to be 0
             margin=dict(l=10, r=10, b=0),
+            # get the height to be whatever it requires
+            height=len(df) * 32,
         )
         # Update layout for better appearance
         desc_html = fig.to_html(full_html=False)
@@ -456,16 +546,42 @@ class Benchmark:
         return plot_html
 
     @staticmethod
-    def str_to_datetime(datetime_str: str) -> datetime:
+    def plot_stacked_timeline(df: pd.DataFrame) -> str:
         """
-        Convert the datetime string to datetime object
+        Plot the stacked timeline
         Args:
-            datetime_str (str): the string datetime, like this: 2024-07-01T14:58:36.419352
+            df (pd.DataFrame): The dataframe
 
         Returns:
-            datetime: The datetime object
+
         """
-        return datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%f")
+        # Create a Plotly figure
+        fig = go.Figure()
+        # get the track id to be the samll one
+        df["track_id"] = df["track_id"].str.split("-").str[-1]
+        # Add a trace for each component
+        for col in df.columns[1:]:
+            fig.add_trace(
+                go.Bar(
+                    y=df["track_id"],
+                    x=df[col],
+                    name=col,
+                    orientation="h",
+                    hovertemplate='%{x}<br>%{fullData.name}<extra></extra>',
+                )
+            )
+
+        # Customize the layout
+        fig.update_layout(
+            title="Timeline",
+            xaxis_title="Relative in Seconds to Start Time",
+            yaxis_title="Track ID",
+            barmode="stack",
+        )
+
+        # Convert Plotly figure to HTML
+        plot_html = fig.to_html(full_html=False)
+        return plot_html
 
     @staticmethod
     def extract_task_group(
@@ -499,3 +615,15 @@ class Benchmark:
                 task_groups[track_id] = []
             task_groups[track_id].append(task)
         return task_groups, required_tasks_count, tasks
+
+    @staticmethod
+    def str_to_datetime(datetime_str: str) -> datetime:
+        """
+        Convert the datetime string to datetime object
+        Args:
+            datetime_str (str): the string datetime, like this: 2024-07-01T14:58:36.419352
+
+        Returns:
+            datetime: The datetime object
+        """
+        return datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%f")

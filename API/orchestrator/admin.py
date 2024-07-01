@@ -23,6 +23,7 @@ class TaskAdmin(admin.ModelAdmin):
     # get task_name to be the choices field
     form = TaskAdminForm
     list_display = (
+        "id",
         "user",
         "name",
         "task_name",

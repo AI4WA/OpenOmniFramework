@@ -2,10 +2,11 @@ from typing import List
 
 import pandas as pd
 from django.conf import settings
-
+from datetime import datetime
 from authenticate.utils.get_logger import get_logger
 from orchestrator.chain.manager import CLUSTER_Q_ETE_CONVERSATION_NAME, CLUSTERS
 from orchestrator.models import Task
+import plotly.graph_objects as go
 
 logger = get_logger(__name__)
 
@@ -17,6 +18,8 @@ class Benchmark:
     - transfer_latency: The time taken to transfer the data to the model
     - overall_latency: The time taken by the model to process the data and transfer the data to the model
 
+    The whole pipeline latency will be the sum of
+    - all component start end end ts
 
     Another way to output the performance is the Timeline
     - start will be 0
@@ -42,13 +45,11 @@ class Benchmark:
             for cluster_name in CLUSTERS.keys():
                 # add a divider
                 html_content += "<hr>"
-                html_content += f"<h2>Cluster: {cluster_name}</h2>"
                 html_content += self.process_cluster(cluster_name)
         else:
             if self.benchmark_cluster not in CLUSTERS:
                 raise ValueError(f"Cluster {self.benchmark_cluster} not found")
             html_content += "<hr>"
-            html_content += f"<h2>Cluster: {self.benchmark_cluster}</h2>"
             html_content += self.process_cluster(self.benchmark_cluster)
         return html_content
 
@@ -97,14 +98,120 @@ class Benchmark:
                 Required tasks: {required_tasks_count}, Total tasks: {len(tasks)}
             """
         )
+
+        general_title = f"Cluster: {cluster_name}, Completed Ratio: {success_pipeline}/{len(task_groups)}"
+        html_cluster_header = f"<h3>{general_title}</h3>"
         # flatten the cluster_latency
         result_df = pd.DataFrame(cluster_latency)
+        # get the column split with _ from right, and left element is the component name
+
         if len(result_df) != 0:
             logger.info(result_df.describe())
             result_df.to_csv(settings.LOG_DIR / f"{cluster_name}_benchmark.csv")
             # to html and return it
-            return result_df.describe().to_html()
-        return ""
+            logger.info(result_df.describe())
+            desc = result_df.describe().transpose()
+            desc = desc.round(4)
+
+            # add another column
+            # Extract model accuracy from index and add it as a new column
+            desc["latency_type"] = desc.index.str.rsplit("_", n=2).str[1]
+            # then update the index to two columns, first will be component
+            desc.index = desc.index.str.rsplit("_", n=2, expand=True).get_level_values(
+                0
+            )
+            desc_html = self.plot_table(desc, title=f"({general_title})")
+            plot_html = self.plot_distribution(result_df, title=f"({general_title})")
+            return html_cluster_header + desc_html + plot_html
+        return html_cluster_header
+
+    @staticmethod
+    def plot_table(df: pd.DataFrame, title: str = "") -> str:
+        """
+
+        Args:
+            df:
+            title:
+
+        Returns:
+
+        """
+        # Create a Plotly table
+        fig = go.Figure(
+            data=[
+                go.Table(
+                    header=dict(
+                        values=["<b>Component</b>"]
+                        + [f"<b>{col.upper()}</b>" for col in df.columns],
+                        fill_color="paleturquoise",
+                        align="left",
+                    ),
+                    cells=dict(
+                        values=[df.index] + [df[col] for col in df.columns],
+                        fill_color="lavender",
+                        align="left",
+                    ),
+                )
+            ]
+        )
+        fig.update_layout(
+            title={
+                "text": "Latency Summary" + title,
+                "x": 0.5,
+                "xanchor": "center",
+                "yanchor": "top",
+            },
+            #     update margin to be 0
+            margin=dict(l=0, r=0, b=0),
+        )
+        # Update layout for better appearance
+        desc_html = fig.to_html(full_html=False)
+        return desc_html
+
+    @staticmethod
+    def plot_distribution(df: pd.DataFrame, title: str = "") -> str:
+        """
+        Plot the distribution of the latency
+        """
+        # plot the distribution for each column
+        # Calculate mean and max for each latency column
+        mean_latencies = df[df.columns[1:]].mean()
+        max_latencies = df[df.columns[1:]].max()
+        min_latencies = df[df.columns[1:]].min()
+
+        # Create a Plotly figure
+        fig = go.Figure()
+        # Add min latencies to the figure
+        fig.add_trace(
+            go.Bar(x=min_latencies.index, y=min_latencies.values, name="Min Latency")
+        )
+        # Add mean latencies to the figure
+        fig.add_trace(
+            go.Bar(x=mean_latencies.index, y=mean_latencies.values, name="Mean Latency")
+        )
+
+        # Add max latencies to the figure
+        fig.add_trace(
+            go.Bar(x=max_latencies.index, y=max_latencies.values, name="Max Latency")
+        )
+
+        # Customize the layout
+        fig.update_layout(
+            title={
+                "text": "Latency Distribution" + title,
+                "x": 0.5,
+                "xanchor": "center",
+                "yanchor": "top",
+            },
+            xaxis_title="Component and Latency",
+            yaxis_title="Latency (s)",
+            barmode="group",
+            margin=dict(l=0, r=0, b=0),
+        )
+
+        # Convert Plotly figure to HTML
+        plot_html = fig.to_html(full_html=False)
+        return plot_html
 
     @staticmethod
     def process_task_group(task_track: List[Task]):
@@ -124,14 +231,57 @@ class Benchmark:
             # NOTE: this will require client side do not log overlap durations
             model_latency = 0
             transfer_latency = 0
+            logger.info(latency_profile)
+            task_start_time = None
+            task_end_time = None
             for key, value in latency_profile.items():
-                if "model" in key:
-                    model_latency += value
-                if "transfer" in key:
-                    transfer_latency += value
+                if key.startswith("model"):
+                    print(key, value)
+                    model_latency += float(value)
+                if key.startswith("transfer"):
+                    transfer_latency += float(value)
+                if key.startswith("ts"):
+                    if key == "ts_start_task":
+                        task_start_time = value
+                    if key == "ts_end_task":
+                        task_end_time = value
             result[f"{task.task_name}_model_latency"] = model_latency
             result[f"{task.task_name}_transfer_latency"] = transfer_latency
-            result[f"{task.task_name}_overall_latency"] = (
-                model_latency + transfer_latency
-            )
+            # look for the ts_start_task and ts_end_task, and the overall_latency should be that value
+            # process time into datetime object
+            # ts_end_trigger_emotion_model 2024-07-01T14:58:36.419352
+            if task_start_time and task_end_time:
+                task_start_time_dt = Benchmark.str_to_datetime(task_start_time)
+                task_end_time_dt = Benchmark.str_to_datetime(task_end_time)
+                result[f"{task.task_name}_overall_latency"] = (  # noqa
+                    task_end_time_dt - task_start_time_dt
+                ).total_seconds()
+
+            else:
+                logger.error(f"Task {task.task_name} does not have start and end time")
+                result[f"{task.task_name}_overall_latency"] = (
+                    model_latency + transfer_latency
+                )
+        # total_latency should be the sum of all the overall_latency
+        total_latency = 0
+        for key, value in result.items():
+            if key.endswith("overall_latency"):
+                total_latency += value
+        result["total_latency"] = total_latency
+        # loop all value, get it to decimal 4
+        for key, value in result.items():
+            if isinstance(value, float):
+                result[key] = round(value, 4)
         return result
+
+    @staticmethod
+    def str_to_datetime(datetime_str: str) -> datetime:
+        """
+        Convert the datetime string to datetime object
+        Args:
+            datetime_str (str): the string datetime, like this: 2024-07-01T14:58:36.419352
+
+        Returns:
+
+        """
+        return datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%f")

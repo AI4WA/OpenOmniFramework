@@ -2,12 +2,14 @@ import argparse
 import os
 import time
 import uuid
+from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import cpu_count
 from typing import Optional
 
 # load env from file
 from dotenv import load_dotenv
 
-from models.task import ResultStatus, Task
+from models.task import ResultStatus, Task, TaskName
 from modules.emotion_detection.handler import EmotionDetectionHandler
 from modules.general_ml.handler import GeneralMLModel
 from modules.hf_llm.handler import HFLLM
@@ -76,13 +78,15 @@ class AIOrchestrator:
         self.openai_handler = None
 
         self.task_name_router = {
-            "speech2text": self.handle_speech2text_task,
-            "text2speech": self.handle_text2speech_task,
-            "emotion_detection": self.handle_emotion_detection_task,
-            "quantization_llm": self.handle_quantization_llm_task,
-            "hf_llm": self.handle_hf_llm_task,
-            "general_ml": self.handle_general_ml_task,
-            "openai": self.handle_openai_task,
+            TaskName.speech2text.value: self.handle_speech2text_task,
+            TaskName.text2speech.value: self.handle_text2speech_task,
+            TaskName.emotion_detection.value: self.handle_emotion_detection_task,
+            TaskName.quantization_llm.value: self.handle_quantization_llm_task,
+            TaskName.hf_llm.value: self.handle_hf_llm_task,
+            TaskName.general_ml.value: self.handle_general_ml_task,
+            TaskName.openai_gpt4o.value: self.handle_openai_task,
+            TaskName.openai_speech2text.value: self.handle_openai_task,
+            TaskName.openai_text2speech.value: self.handle_openai_task,
         }
 
     def authenticate_token(self):
@@ -249,9 +253,42 @@ if __name__ == "__main__":
     args.add_argument("--token", type=str, required=True)
     args.add_argument("--api_domain", type=str, required=False, default=API_DOMAIN)
     args.add_argument("--task_name", type=str, required=False, default="all")
+    args.add_argument("--multi_processing", type=int, required=False, default=0)
     args = args.parse_args()
 
-    ai_orchestrator = AIOrchestrator(
-        api_domain=args.api_domain, token=args.token, task_name=args.task_name
-    )
-    ai_orchestrator.run()
+    if args.multi_processing == 0:
+        ai_orchestrator = AIOrchestrator(
+            api_domain=args.api_domain, token=args.token, task_name=args.task_name
+        )
+        ai_orchestrator.run()
+    else:
+        if "all" in args.task_name:
+            task_names = [
+                TaskName.quantization_llm.value,
+                TaskName.hf_llm.value,
+                TaskName.emotion_detection.value,
+                TaskName.general_ml.value,
+                TaskName.openai_gpt4o.value,
+                TaskName.openai_speech2text.value,
+                TaskName.openai_text2speech.value,
+                TaskName.speech2text.value,
+                TaskName.text2speech.value,
+            ]
+        else:
+            task_names = args.task_name.split(",")
+
+        # get multiple processes to run the ai_orchestrator
+        with ProcessPoolExecutor(max_workers=cpu_count()) as executor:
+            futures = []
+            for task_name in task_names:
+                futures.append(
+                    executor.submit(
+                        AIOrchestrator(
+                            api_domain=args.api_domain,
+                            token=args.token,
+                            task_name=task_name,
+                        ).run
+                    )
+                )
+            for future in futures:
+                future.result()

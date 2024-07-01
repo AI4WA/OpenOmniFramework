@@ -44,6 +44,11 @@ class TaskAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.benchmark),
                 name="benchmark",
             ),
+            path(
+                "benchmark_detail/",
+                self.admin_site.admin_view(self.benchmark_detail),
+                name="benchmark_detail",
+            ),
         ]
         return custom_urls + urls
 
@@ -51,7 +56,14 @@ class TaskAdmin(admin.ModelAdmin):
     def benchmark(request):
         benchmark = Benchmark(benchmark_cluster="all")
         html_content = benchmark.run()
-        context = {"content": html_content, "benchmark_type": "Latency"}
+        context = {"content": html_content, "benchmark_type": "Latency Overall"}
+        return render(request, "admin/orchestrator/task/benchmark.html", context)
+
+    @staticmethod
+    def benchmark_detail(request):
+        benchmark = Benchmark(benchmark_cluster="all")
+        html_content = benchmark.run_detail()
+        context = {"content": html_content, "benchmark_type": "Latency Details"}
         return render(request, "admin/orchestrator/task/benchmark.html", context)
 
 

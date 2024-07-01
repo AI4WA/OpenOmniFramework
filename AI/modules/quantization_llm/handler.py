@@ -1,10 +1,11 @@
-from datetime import datetime
-
 from models.parameters import QuantizationLLMParameters
-from models.task import Task
+from models.task import ResultStatus, Task
+from models.track_type import TrackType
 from modules.quantization_llm.models import QuantizationLLMModelConfig
 from utils.api import API
 from utils.get_logger import get_logger
+from utils.time_logger import TimeLogger
+from utils.time_tracker import time_tracker
 
 from .adaptor_worker import QuantizationLLMAdaptor
 
@@ -38,6 +39,7 @@ class QuantizationLLM:
         Returns:
 
         """
+        TimeLogger.log_task(task, "start_quantization_llm")
         result_profile = {}
         latency_profile = {}
         quantization_llm_parameters = QuantizationLLMParameters(**task.parameters)
@@ -47,37 +49,34 @@ class QuantizationLLM:
         llm_model = self.local_llm_available_models.get(llm_model_name, None)
         if llm_model is None:
             logger.error(f"Model {llm_model_name} not found")
-            task.result_status = "failed"
+            task.result_status = ResultStatus.failed.value
             task.description = f"Model {llm_model_name} not found"
             return task
 
         if llm_model.llm is None:
             logger.error(f"Model {llm_model_name} not loaded")
             try:
-                start_time = datetime.now()
-                llm_model.init_llm()
-                end_time = datetime.now()
-                latency_profile["model_init_llm"] = (
-                    end_time - start_time
-                ).total_seconds()
+                with time_tracker(
+                    "init_llm", latency_profile, track_type=TrackType.MODEL.value
+                ):
+                    llm_model.init_llm()
             except Exception as llm_err:
                 logger.exception(llm_err)
-                task.result_status = "failed"
+                task.result_status = ResultStatus.failed.value
                 task.description = str(llm_err)
                 return task
-        start_time = datetime.now()
-        logger.info(f"Text: {prompt}")
-        res_text, logs = self.infer(
-            text=prompt,
-            llm_model_config=llm_model,
-        )
-        latency_profile["model_infer"] = (datetime.now() - start_time).total_seconds()
+        with time_tracker("infer", latency_profile, track_type=TrackType.MODEL.value):
+            logger.info(f"Text: {prompt}")
+            res_text, logs = self.infer(
+                text=prompt,
+                llm_model_config=llm_model,
+            )
         result_profile["logs"] = logs
         result_profile["text"] = res_text
-        task.result_status = "completed"
-        task.result_json["result_profile"] = result_profile
-        task.result_json["latency_profile"] = latency_profile
-
+        task.result_status = ResultStatus.completed.value
+        task.result_json.result_profile.update(result_profile)
+        task.result_json.latency_profile.update(latency_profile)
+        TimeLogger.log_task(task, "end_quantization_llm")
         return task
 
     @staticmethod

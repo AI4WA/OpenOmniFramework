@@ -1,12 +1,15 @@
 from datetime import datetime
-from typing import Tuple
 
 import torch
 import whisper
 
 from models.parameters import Speech2TextParameters
+from models.task import ResultStatus, Task
+from models.track_type import TrackType
 from utils.constants import CLIENT_DATA_FOLDER
 from utils.get_logger import get_logger
+from utils.time_logger import TimeLogger
+from utils.time_tracker import time_tracker
 from utils.timer import timer
 
 logger = get_logger(__name__)
@@ -60,19 +63,18 @@ class Speech2Text:
             raise FileNotFoundError(f"Audio file {audio_file} not found")
         return audio_file
 
-    def translate(self, message: Speech2TextParameters) -> Tuple[dict, dict]:
+    def translate(self, message: Speech2TextParameters, task: Task) -> Task:
         """
         This is the key function to translate the audio to text
         Args:
             message (dict): The message to translate
+            task (Task): The task
 
         Returns:
-            str: The translated text
-            latency_profile (dict): The latency profile
+            task (Task): The task
 
         """
-        latency_profile = {}
-        result_profile = {}
+
         logger.info(f"Translating message {message}")
         # read the data from the audio file in .wav file, then do the translation
         audio_file = self.locate_audio_file(
@@ -80,49 +82,49 @@ class Speech2Text:
         )
         logger.info(f"Audio file {audio_file}")
         if audio_file is None:
-            return latency_profile, result_profile
+            return task
 
         with timer(logger, "Loading audio"):
-            start_time = datetime.now()
-            audio_np = whisper.load_audio(audio_file.as_posix())
-            latency_profile["model_load_audio"] = (
-                datetime.now() - start_time
-            ).total_seconds()
-        with timer(logger, "Transcribing"):
-            start_time = datetime.now()
-            result_profile = self.audio_model.transcribe(
-                audio_np, fp16=torch.cuda.is_available()
-            )
-            latency_profile["model_transcribe"] = (
-                datetime.now() - start_time
-            ).total_seconds()
-        logger.critical(result_profile)
-        return latency_profile, result_profile
+            with time_tracker(
+                "load_audio",
+                task.result_json.latency_profile,
+                track_type=TrackType.MODEL.value,
+            ):
+                audio_np = whisper.load_audio(audio_file.as_posix())
 
-    def handle_task(self, task):
+        with timer(logger, "Transcribing"):
+            with time_tracker(
+                "transcribe",
+                task.result_json.latency_profile,
+                track_type=TrackType.MODEL.value,
+            ):
+                result = self.audio_model.transcribe(
+                    audio_np, fp16=torch.cuda.is_available()
+                )
+        logger.critical(result)
+        task.result_json.result_profile.update(result)
+        return task
+
+    def handle_task(self, task: Task) -> Task:
         """
         Args:
             task: The task to process
+
+        Returns:
+            The processed task
         """
         try:
-            start_time = datetime.now()
             task_parameters = Speech2TextParameters(**task.parameters)
-            latency_profile, result_profile = self.translate(task_parameters)
-            end_time = datetime.now()
-            latency_profile["transfer_within_speech2text"] = (
-                end_time - start_time
-            ).total_seconds()
-            task.result_status = "completed"
-            task.result_json = {
-                "result_profile": result_profile,
-                "latency_profile": latency_profile,
-            }
+            TimeLogger.log_task(task, "start_translate")
+            task = self.translate(task_parameters, task)
+            TimeLogger.log_task(task, "end_translate")
+            task.result_status = ResultStatus.completed.value
         except FileNotFoundError:
             # then we need to try later as the sync is not done yet
             logger.error("Audio file not found, will try later")
-            task.result_status = "pending"
+            task.result_status = ResultStatus.pending.value
         except Exception as e:
             logger.error(e)
-            task.result_status = "failed"
+            task.result_status = ResultStatus.failed.value
             task.description = str(e)
         return task

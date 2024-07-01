@@ -2,7 +2,7 @@ import torch
 import transformers
 
 from models.parameters import HFParameters
-from models.task import Task
+from models.task import ResultStatus, Task
 from models.track_type import TrackType
 from utils.get_logger import get_logger
 from utils.time_logger import TimeLogger
@@ -25,6 +25,7 @@ class HFLLM:
         Returns:
             Updated task
         """
+        TimeLogger.log_task(task, "start_hf_llm")
         result_profile = {}
         latency_profile = {}
         hf_parameters = HFParameters(**task.parameters)
@@ -50,15 +51,14 @@ class HFLLM:
         ]
         with timer(logger, f"Model infer {hf_model_name}"):
             with time_tracker(
-                "model_infer", latency_profile, track_type=TrackType.MODEL.value
+                "infer", latency_profile, track_type=TrackType.MODEL.value
             ):
-                TimeLogger.log(latency_profile, "start_hf_llm")
                 res = hf_model(messages)
         text = res[0]["generated_text"][len(text) :]  # noqa
         result_profile["text"] = text
         result_profile["logs"] = res
-        task.result_status = "completed"
-        task.result_json["result_profile"] = result_profile
-        task.result_json["latency_profile"] = latency_profile
-
+        task.result_status = ResultStatus.completed.value
+        task.result_json.result_profile.update(result_profile)
+        task.result_json.latency_profile.update(latency_profile)
+        TimeLogger.log_task(task, "end_hf_llm")
         return task

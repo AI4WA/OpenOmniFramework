@@ -6,11 +6,14 @@ import cv2
 import torch
 
 from models.parameters import EmotionDetectionParameters
-from models.task import Task
+from models.task import ResultStatus, Task
+from models.track_type import TrackType
 from modules.emotion_detection.features_extraction import FeaturesExtractor
 from modules.emotion_detection.sentiment import SentimentAnalysis
 from utils.constants import CLIENT_DATA_FOLDER, EMOTION_DETECTION_MODEL_DIR
 from utils.get_logger import get_logger
+from utils.time_logger import TimeLogger
+from utils.time_tracker import time_tracker
 
 deepface_dir = EMOTION_DETECTION_MODEL_DIR / ".deepface" / "weights"
 deepface_dir.mkdir(parents=True, exist_ok=True)
@@ -40,14 +43,14 @@ class EmotionDetectionHandler:
         logger.info(f"Text: {text}")
         logger.info(f"Audio: {audio_file}")
         logger.info(f"Images: {len(images_path_list)}")
+        TimeLogger.log_task(task, "start_trigger_emotion_model")
         result_profile, latency_profile = self.trigger_model(
             text, [audio_file], images_path_list
         )
-        task.result_status = "completed"
-        task.result_json = {
-            "result_profile": result_profile,
-            "latency_profile": latency_profile,
-        }
+        TimeLogger.log_task(task, "end_trigger_emotion_model")
+        task.result_status = ResultStatus.completed.value
+        task.result_json.result_profile.update(result_profile)
+        task.result_json.latency_profile.update(latency_profile)
         return task
 
     @staticmethod
@@ -94,15 +97,21 @@ class EmotionDetectionHandler:
             datetime.now() - start_time
         ).total_seconds()
 
-        start_time = datetime.now()
         # 1. get the features with bert cn model
-        features_extractor = FeaturesExtractor()
-        feature_video = (
-            features_extractor.get_images_tensor(images) if images is not None else None
-        )  # (n/5,709)
-        feature_audio = (
-            features_extractor.get_audio_embedding(audio) if audio is not None else None
-        )  # (94,33)
+        with time_tracker(
+            "feature_extraction", latency_profile, track_type=TrackType.MODEL.value
+        ):
+            features_extractor = FeaturesExtractor()
+            feature_video = (
+                features_extractor.get_images_tensor(images)
+                if images is not None
+                else None
+            )  # (n/5,709)
+            feature_audio = (
+                features_extractor.get_audio_embedding(audio)
+                if audio is not None
+                else None
+            )  # (94,33)
 
         (
             logger.info(f"feature_video: {feature_video.shape}")
@@ -119,21 +128,25 @@ class EmotionDetectionHandler:
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         model = SentimentAnalysis().to(device)
         # load the model
-        model.load_state_dict(
-            {
-                k.replace("Model.", ""): v
-                for k, v in torch.load(models_dir / "sa_sims.pth").items()
-            },
-            strict=True,
-        )
+        with time_tracker(
+            latency_profile, "load_model", track_type=TrackType.MODEL.value
+        ):
+            model.load_state_dict(
+                {
+                    k.replace("Model.", ""): v
+                    for k, v in torch.load(models_dir / "sa_sims.pth").items()
+                },
+                strict=True,
+            )
 
-        model.eval()
+            model.eval()
 
         # run model
-        output = model(text, feature_audio, feature_video)
-        latency_profile["model_inference"] = (
-            datetime.now() - start_time
-        ).total_seconds()
+        with time_tracker(
+            latency_profile, "model_inference", track_type=TrackType.MODEL.value
+        ):
+            output = model(text, feature_audio, feature_video)
+
         logger.critical(f"output: {output}")
         # loop the output dict, get all of them into float
         for k, v in output.items():

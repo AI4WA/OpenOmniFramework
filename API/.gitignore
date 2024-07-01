@@ -1,2 +1,4 @@
 .aws/
 .env
+static/
+staticfiles/

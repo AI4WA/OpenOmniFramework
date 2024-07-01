@@ -56,14 +56,14 @@ class TaskAdmin(admin.ModelAdmin):
     def benchmark(request):
         benchmark = Benchmark(benchmark_cluster="all")
         html_content = benchmark.run()
-        context = {"content": html_content, "benchmark_type": "Latency"}
+        context = {"content": html_content, "benchmark_type": "Latency Overall"}
         return render(request, "admin/orchestrator/task/benchmark.html", context)
 
     @staticmethod
     def benchmark_detail(request):
         benchmark = Benchmark(benchmark_cluster="all")
         html_content = benchmark.run_detail()
-        context = {"content": html_content, "benchmark_type": "Latency"}
+        context = {"content": html_content, "benchmark_type": "Latency Details"}
         return render(request, "admin/orchestrator/task/benchmark.html", context)
 
 

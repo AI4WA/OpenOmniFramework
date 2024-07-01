@@ -97,7 +97,6 @@ class Benchmark:
         )
 
         general_title = f"Cluster: {cluster_name}, Completed Ratio: {success_pipeline}/{len(task_groups)}"
-        html_cluster_header = f"<h3>{general_title}</h3>"
         # flatten the cluster_latency
         result_df = pd.DataFrame(cluster_latency)
         # get the column split with _ from right, and left element is the component name
@@ -124,8 +123,8 @@ class Benchmark:
             desc_html = self.plot_table(desc, title=f" ({general_title})")
             plot_html = self.plot_distribution(result_df, title=f" ({general_title})")
 
-            return html_cluster_header + desc_html + plot_html
-        return html_cluster_header
+            return desc_html + plot_html
+        return ""
 
     def process_cluster_detail(self, cluster_name: str) -> str:
         """
@@ -155,10 +154,9 @@ class Benchmark:
                 self.process_task_group_detail_timeline(task_group)
             )
         general_title = f"Cluster: {cluster_name}, Completed Ratio: {success_pipeline}/{len(task_groups)}"
-        html_cluster_header = f"<h3>{general_title}</h3>"
         result_df = pd.DataFrame(cluster_latency)
         if len(result_df) == 0:
-            return html_cluster_header
+            return ""
 
         # only keep the last element in the track_id
         result_df["track_id"] = result_df["track_id"].str.split("-").str[-1]
@@ -178,10 +176,10 @@ class Benchmark:
         result_ts_df = pd.DataFrame(cluster_ts_latency)
         result_ts_df.to_csv(settings.LOG_DIR / f"{cluster_name}_ts_benchmark.csv")
         if len(result_ts_df) == 0:
-            return html_cluster_header + track_tasks_html
+            return track_tasks_html
         # we will plot a bar
         ts_stacked_html = self.plot_stacked_timeline(result_ts_df)
-        return html_cluster_header + track_tasks_html + ts_stacked_html
+        return track_tasks_html + ts_stacked_html
 
     @staticmethod
     def process_task_group(task_track: List[Task]):
@@ -197,6 +195,7 @@ class Benchmark:
         result = {
             "track_id": task_track[0].track_id,
         }
+        task_names = Benchmark.get_task_names_order(result["track_id"])
         for task in task_track:
             latency_profile = task.result_json.get("latency_profile", {})
             # NOTE: this will require client side do not log overlap durations
@@ -242,7 +241,22 @@ class Benchmark:
         for key, value in result.items():
             if isinstance(value, float):
                 result[key] = round(value, 4)
-        return result
+
+        ordered_result = {
+            "track_id": result["track_id"],
+        }
+        for task_name in task_names:
+            ordered_result[task_name + "_model_latency"] = result[
+                task_name + "_model_latency"
+            ]
+            ordered_result[task_name + "_transfer_latency"] = result[
+                task_name + "_transfer_latency"
+            ]
+            ordered_result[task_name + "_overall_latency"] = result[
+                task_name + "_overall_latency"
+            ]
+        ordered_result["total_latency"] = result["total_latency"]
+        return ordered_result
 
     @staticmethod
     def process_task_group_detail(task_track: List[Task]):
@@ -258,14 +272,7 @@ class Benchmark:
         result = {
             "track_id": task_track[0].track_id,
         }
-        cluster_name = task_track[0].track_id.split("-")[1]
-        cluster = CLUSTERS.get(cluster_name)
-        task_name_order = [
-            item for item in cluster.values() if item["component_type"] == "task"
-        ]
-        task_name_order = sorted(task_name_order, key=lambda x: x["order"])
-        task_names = [item["task_name"] for item in task_name_order]
-
+        task_names = Benchmark.get_task_names_order(result["track_id"])
         for task in task_track:
             if task.result_status != "completed":
                 result[f"{task.task_name}_model_latency"] = task.result_status
@@ -367,18 +374,12 @@ class Benchmark:
         result = {
             "track_id": task_track[0].track_id,
         }
-        cluster_name = task_track[0].track_id.split("-")[1]
-        cluster = CLUSTERS.get(cluster_name)
-        task_name_order = [
-            item for item in cluster.values() if item["component_type"] == "task"
-        ]
-        task_name_order = sorted(task_name_order, key=lambda x: x["order"])
-        task_names = [item["task_name"] for item in task_name_order]
+
+        task_names = Benchmark.get_task_names_order(result["track_id"])
 
         task_results = {}
         for task in task_track:
             if task.result_status != "completed":
-
                 continue
             latency_profile = task.result_json.get("latency_profile", {})
             task_result = {}
@@ -420,6 +421,7 @@ class Benchmark:
                         continue
                 if new_key not in result:
                     result[new_key] = value
+
         logger.info(result)
         return result
 
@@ -488,7 +490,7 @@ class Benchmark:
             #     update margin to be 0
             margin=dict(l=10, r=10, b=0),
             # get the height to be whatever it requires
-            height=len(df) * 32,
+            height=len(df) * 35,
         )
         # Update layout for better appearance
         desc_html = fig.to_html(full_html=False)
@@ -557,7 +559,7 @@ class Benchmark:
         """
         # Create a Plotly figure
         fig = go.Figure()
-        # get the track id to be the samll one
+        # get the track id to be the stacked one
         df["track_id"] = df["track_id"].str.split("-").str[-1]
         # Add a trace for each component
         for col in df.columns[1:]:
@@ -567,7 +569,7 @@ class Benchmark:
                     x=df[col],
                     name=col,
                     orientation="h",
-                    hovertemplate='%{x}<br>%{fullData.name}<extra></extra>',
+                    hovertemplate="%{x}<br>%{fullData.name}<extra></extra>",
                 )
             )
 
@@ -615,6 +617,26 @@ class Benchmark:
                 task_groups[track_id] = []
             task_groups[track_id].append(task)
         return task_groups, required_tasks_count, tasks
+
+    @staticmethod
+    def get_task_names_order(track_id: str) -> str:
+        """
+        Get the task names order
+        Args:
+            track_id (str): The track ID
+
+        Returns:
+            str: The task names order
+
+        """
+        cluster_name = track_id.split("-")[1]
+        cluster = CLUSTERS.get(cluster_name)
+        task_name_order = [
+            item for item in cluster.values() if item["component_type"] == "task"
+        ]
+        task_name_order = sorted(task_name_order, key=lambda x: x["order"])
+        task_names = [item["task_name"] for item in task_name_order]
+        return task_names
 
     @staticmethod
     def str_to_datetime(datetime_str: str) -> datetime:

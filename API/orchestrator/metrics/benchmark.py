@@ -2,6 +2,8 @@ from datetime import datetime
 from typing import Dict, List, Tuple
 
 import pandas as pd
+import plotly.colors as pcolors
+import plotly.express as px
 import plotly.graph_objects as go
 from django.conf import settings
 
@@ -142,6 +144,7 @@ class Benchmark:
         success_pipeline = 0
         cluster_latency = []
         cluster_ts_latency = []
+        cluster_tp_latency = []
         for track_id, task_group in task_groups.items():
             success_tasks = [
                 task for task in task_group if task.result_status == "completed"
@@ -152,6 +155,9 @@ class Benchmark:
             cluster_latency.append(self.process_task_group_detail(task_group))
             cluster_ts_latency.append(
                 self.process_task_group_detail_timeline(task_group)
+            )
+            cluster_tp_latency.append(
+                self.process_task_group_detail_timeline(task_group, timeline=True)
             )
         general_title = f"Cluster: {cluster_name}, Completed Ratio: {success_pipeline}/{len(task_groups)}"
         result_df = pd.DataFrame(cluster_latency)
@@ -179,7 +185,12 @@ class Benchmark:
             return track_tasks_html
         # we will plot a bar
         ts_stacked_html = self.plot_stacked_timeline(result_ts_df)
-        return track_tasks_html + ts_stacked_html
+
+        # grab the time point latency, and try to draw time point html
+        result_tp_df = pd.DataFrame(cluster_tp_latency)
+        # result_tp_df.to_csv(settings.LOG_DIR / f"{cluster_name}_tp_benchmark.csv")
+        ts_timepoint_html = self.plot_timestamp_timeline_depth(result_tp_df)
+        return track_tasks_html + ts_stacked_html + ts_timepoint_html
 
     @staticmethod
     def process_task_group(task_track: List[Task]):
@@ -581,6 +592,125 @@ class Benchmark:
             barmode="stack",
         )
 
+        # Convert Plotly figure to HTML
+        plot_html = fig.to_html(full_html=False)
+        return plot_html
+
+    @staticmethod
+    def plot_timestamp_timeline_depth(df: pd.DataFrame) -> str:
+        """
+        Plot the timestamp timeline
+        Args:
+            df (pd.DataFrame): The dataframe
+
+        Returns:
+            str: The plot in HTML
+        """
+        fig = go.Figure()
+        y_values = list(range(len(df)))
+        shapes = []
+        for y_value in y_values:
+            shapes.append(
+                dict(
+                    type="line",
+                    xref="paper",
+                    x0=0,
+                    x1=1,
+                    yref="y",
+                    y0=y_value,
+                    y1=y_value,
+                    line=dict(color="grey", width=1, dash="dot"),
+                )
+            )
+        y_labels = []
+
+        legend_added = {}
+        # Use Plotly's qualitative color sequence 'Dark24' to generate a spectrum of colors
+        colors = pcolors.qualitative.Dark24
+
+        # Dynamically generate a color map for each column
+        column_colors = {
+            col: colors[i % len(colors)] for i, col in enumerate(df.columns[1:])
+        }
+        for i, row in df.iterrows():
+            y_value = y_values[i]
+            y_labels.append(row["track_id"].split("-")[-1])
+            for col in df.columns[1:]:
+                logger.info(col)
+                if not pd.isna(row[col]):
+                    show_legend = False
+                    if col not in legend_added:
+                        show_legend = True
+                        legend_added[col] = True
+                    fig.add_trace(
+                        go.Scatter(
+                            x=[row[col]],
+                            y=[y_value],
+                            mode="markers",
+                            marker=dict(size=10, color=column_colors[col]),
+                            name=f"{col}",
+                            hovertemplate="%{x}<br>%{fullData.name}<extra></extra>",
+                            showlegend=show_legend,
+                        )
+                    )
+        # Customize the layout
+        fig.update_layout(
+            title="Timeline of Events",
+            xaxis_title="Time",
+            yaxis=dict(
+                showline=False,
+                showgrid=True,
+                zeroline=False,
+                tickvals=y_values,
+                ticktext=y_labels,
+                title="Track ID",
+            ),
+            showlegend=True,
+            shapes=shapes,
+            height=(len(df) * 35),
+        )
+        # Convert Plotly figure to HTML
+        plot_html = fig.to_html(full_html=False)
+        return plot_html
+
+    @staticmethod
+    def plot_timestamp_timeline(df: pd.DataFrame) -> str:
+        """
+        Plot the timestamp timeline
+        Args:
+            df (pd.DataFrame): The dataframe
+
+        Returns:
+            str: The plot in HTML
+        """
+        fig = go.Figure()
+        y_values = range(len(df))
+
+        for i, row in df.iterrows():
+            y_value = y_values[i]
+            for col in df.columns[1:]:
+                if not pd.isna(row[col]):
+                    fig.add_trace(
+                        go.Scatter(
+                            x=[row[col]],
+                            y=[y_value],
+                            mode="markers",
+                            marker=dict(size=10),
+                            name=f"{col}",
+                            hovertemplate="%{x}<br>%{fullData.name}<extra></extra>",
+                        )
+                    )
+            # break
+        # Customize the layout
+        fig.update_layout(
+            title="Timeline of Time Points",
+            xaxis_title="Time",
+            # show nothing of y, even the label
+            yaxis=dict(
+                showticklabels=False, showline=False, showgrid=False, zeroline=True
+            ),
+            showlegend=True,
+        )
         # Convert Plotly figure to HTML
         plot_html = fig.to_html(full_html=False)
         return plot_html

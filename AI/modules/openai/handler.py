@@ -9,7 +9,8 @@ from models.parameters import (
     Speech2TextParameters,
     Text2SpeechParameters,
 )
-from models.task import Task
+from models.task import ResultStatus, Task
+from models.track_type import TrackType
 from modules.speech_to_text.speech2text import Speech2Text
 from utils.constants import CLIENT_DATA_FOLDER, DATA_DIR
 from utils.get_logger import get_logger
@@ -34,7 +35,7 @@ class OpenAIHandler:
         """
         result_profile = {}
         latency_profile = {}
-
+        TimeLogger.log_task(task, "start_openai")
         if "speech2text" in task.task_name:
             TimeLogger.log(latency_profile, "start_openai_speech2text")
             with time_tracker("openai_speech2text", latency_profile):
@@ -53,9 +54,10 @@ class OpenAIHandler:
                 text = self.text2speech(task)
             TimeLogger.log(latency_profile, "end_openai_text2speech")
             result_profile["text"] = text
-        task.result_status = "completed"
-        task.result_json["result_profile"] = result_profile
-        task.result_json["latency_profile"] = latency_profile
+        task.result_status = ResultStatus.completed.value
+        task.result_json.result_profile.update(result_profile)
+        task.result_json.latency_profile.update(latency_profile)
+        TimeLogger.log_task(task, "end_openai")
         return task
 
     def speech2text(self, task: Task) -> Optional[str]:
@@ -71,9 +73,14 @@ class OpenAIHandler:
         try:
             logger.info(task.parameters)
             params = Speech2TextParameters(**task.parameters)
-            audio_file_path = Speech2Text.locate_audio_file(
-                params.uid, params.audio_index, params.end_time
-            )
+            with time_tracker(
+                "locate_audio_file",
+                task.result_json.latency_profile,
+                track_type=TrackType.TRANSFER.value,
+            ):
+                audio_file_path = Speech2Text.locate_audio_file(
+                    params.uid, params.audio_index, params.end_time
+                )
 
             logger.info(f"Transcribing audio file: {audio_file_path}")
 
@@ -81,10 +88,15 @@ class OpenAIHandler:
             if not audio_file_path.exists():
                 logger.error(f"Audio file {audio_file_path} not found")
                 return None
-            with open(audio_file_path, "rb") as audio_file:
-                res = self.client.audio.transcriptions.create(
-                    model="whisper-1", file=audio_file
-                )
+            with time_tracker(
+                "openai_stt",
+                task.result_json.latency_profile,
+                track_type=TrackType.MODEL.value,
+            ):
+                with open(audio_file_path, "rb") as audio_file:
+                    res = self.client.audio.transcriptions.create(
+                        model="whisper-1", file=audio_file
+                    )
 
             text = res.text
             logger.info(f"Transcription result: {text}")
@@ -166,11 +178,13 @@ class OpenAIHandler:
             )
         logger.debug(messages)
         # call gpt-4o
-
-        res = self.client.chat.completions.create(
-            model="gpt-4o",
-            messages=messages,
-        )
+        with time_tracker(
+            "gpt-4o", task.result_json.latency_profile, track_type=TrackType.MODEL.value
+        ):
+            res = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+            )
         return res.choices[0].message.content
 
     @staticmethod
@@ -194,10 +208,21 @@ class OpenAIHandler:
         # if folder does not exist, create it
         output_audio_file_path.parent.mkdir(parents=True, exist_ok=True)
         output_audio_file_path = output_audio_file_path.as_posix()
-        res = self.client.audio.speech.create(
-            model="tts-1",
-            voice="alloy",
-            input=text,
-        )
-        res.stream_to_file(output_audio_file_path)
+
+        with time_tracker(
+            "openai_tts",
+            task.result_json.latency_profile,
+            track_type=TrackType.MODEL.value,
+        ):
+            res = self.client.audio.speech.create(
+                model="tts-1",
+                voice="alloy",
+                input=text,
+            )
+        with time_tracker(
+            "save_audio",
+            task.result_json.latency_profile,
+            track_type=TrackType.TRANSFER.value,
+        ):
+            res.stream_to_file(output_audio_file_path)
         return output_audio_file_path

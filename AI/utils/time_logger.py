@@ -1,5 +1,10 @@
 from datetime import datetime
 
+from models.task import Task
+from utils.get_logger import get_logger
+
+logger = get_logger(__name__)
+
 """
 For the latency
 
@@ -12,6 +17,21 @@ If it is just to log the timestamp, the name will start with ts_xx, and it is a 
 class TimeLogger:
 
     @staticmethod
+    def log_task(task: Task, name: str):
+        """
+        Log the time taken to execute a block of code
+        Args:
+            task (Task): The task to store the time
+            name (str): The name of the block
+
+        Returns:
+
+        """
+        # check whether the task has the latency profile
+
+        TimeLogger.log(task.result_json.latency_profile, name)
+
+    @staticmethod
     def log(profile: dict, name: str):
         """
         Log the time taken to execute a block of code
@@ -22,4 +42,6 @@ class TimeLogger:
         Returns:
 
         """
+        logger.info(profile)
+        logger.info(name)
         profile[f"ts_{name}"] = datetime.now()

@@ -7,7 +7,7 @@ from typing import Optional
 # load env from file
 from dotenv import load_dotenv
 
-from models.task import Task
+from models.task import ResultStatus, Task
 from modules.emotion_detection.handler import EmotionDetectionHandler
 from modules.general_ml.handler import GeneralMLModel
 from modules.hf_llm.handler import HFLLM
@@ -18,6 +18,7 @@ from modules.text_to_speech.text2speech import Text2Speech
 from utils.api import API
 from utils.constants import API_DOMAIN
 from utils.get_logger import get_logger
+from utils.time_logger import TimeLogger
 from utils.timer import timer
 
 logger = get_logger("AI-Worker")
@@ -143,16 +144,16 @@ class AIOrchestrator:
             task (dict): The task
         """
         task_obj = Task(**task)
-        logger.info(task_obj)
+        TimeLogger.log_task(task_obj, "start_task")
         if task_obj.task_name in self.task_name_router:
             task_obj = self.task_name_router[task_obj.task_name](task_obj)
         elif "openai" in task_obj.task_name:
             task_obj = self.handle_openai_task(task_obj)
         else:
             logger.error(f"Unknown task type: {task_obj.task_name}")
-            task_obj.result_status = "failed"
-            task_obj.result_json = {"error": f"Unknown task type: {task_obj.task_name}"}
-
+            task_obj.result_status = ResultStatus.failed.value
+            task_obj.description = f"Unknown task type: {task_obj.task_name}"
+        TimeLogger.log_task(task_obj, "end_task")
         # then update the task status
         self.api.post_task_result(task_obj)
 

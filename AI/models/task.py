@@ -24,6 +24,13 @@ class ResultStatus(str, Enum):
     cancelled = "cancelled"
 
 
+class TaskResultJSON(BaseModel):
+    result_profile: Dict = Field(default_factory=dict, description="The result profile")
+    latency_profile: Dict = Field(
+        default_factory=dict, description="The latency profile"
+    )
+
+
 class Task(BaseModel):
     """
     The Task Model
@@ -36,11 +43,16 @@ class Task(BaseModel):
         None, description="The ID of the user who created the task"
     )
     task_name: TaskName = Field(description="The name of the task")
-    parameters: dict = Field(dict, description="The parameters for the task")
+    parameters: dict = Field(
+        default_factory=dict, description="The parameters for the task"
+    )
     result_status: ResultStatus = Field(
         ResultStatus.pending, description="The status of the task"
     )
-    result_json: Optional[Dict] = Field(None, description="The result of the task")
+    result_json: TaskResultJSON = Field(
+        default_factory=lambda: TaskResultJSON(result_profile={}, latency_profile={}),
+        description="The result of the task",
+    )
     description: Optional[str] = Field(
         None, description="The description of the task result"
     )

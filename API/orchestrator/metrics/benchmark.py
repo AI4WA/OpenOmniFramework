@@ -6,6 +6,7 @@ from datetime import datetime
 from authenticate.utils.get_logger import get_logger
 from orchestrator.chain.manager import CLUSTER_Q_ETE_CONVERSATION_NAME, CLUSTERS
 from orchestrator.models import Task
+import plotly.graph_objects as go
 
 logger = get_logger(__name__)
 
@@ -44,13 +45,11 @@ class Benchmark:
             for cluster_name in CLUSTERS.keys():
                 # add a divider
                 html_content += "<hr>"
-                html_content += f"<h2>Cluster: {cluster_name}</h2>"
                 html_content += self.process_cluster(cluster_name)
         else:
             if self.benchmark_cluster not in CLUSTERS:
                 raise ValueError(f"Cluster {self.benchmark_cluster} not found")
             html_content += "<hr>"
-            html_content += f"<h2>Cluster: {self.benchmark_cluster}</h2>"
             html_content += self.process_cluster(self.benchmark_cluster)
         return html_content
 
@@ -99,14 +98,120 @@ class Benchmark:
                 Required tasks: {required_tasks_count}, Total tasks: {len(tasks)}
             """
         )
+
+        general_title = f"Cluster: {cluster_name}, Completed Ratio: {success_pipeline}/{len(task_groups)}"
+        html_cluster_header = f"<h3>{general_title}</h3>"
         # flatten the cluster_latency
         result_df = pd.DataFrame(cluster_latency)
+        # get the column split with _ from right, and left element is the component name
+
         if len(result_df) != 0:
             logger.info(result_df.describe())
             result_df.to_csv(settings.LOG_DIR / f"{cluster_name}_benchmark.csv")
             # to html and return it
-            return result_df.describe().to_html()
-        return ""
+            logger.info(result_df.describe())
+            desc = result_df.describe().transpose()
+            desc = desc.round(4)
+
+            # add another column
+            # Extract model accuracy from index and add it as a new column
+            desc["latency_type"] = desc.index.str.rsplit("_", n=2).str[1]
+            # then update the index to two columns, first will be component
+            desc.index = desc.index.str.rsplit("_", n=2, expand=True).get_level_values(
+                0
+            )
+            desc_html = self.plot_table(desc, title=f"({general_title})")
+            plot_html = self.plot_distribution(result_df, title=f"({general_title})")
+            return html_cluster_header + desc_html + plot_html
+        return html_cluster_header
+
+    @staticmethod
+    def plot_table(df: pd.DataFrame, title: str = "") -> str:
+        """
+
+        Args:
+            df:
+            title:
+
+        Returns:
+
+        """
+        # Create a Plotly table
+        fig = go.Figure(
+            data=[
+                go.Table(
+                    header=dict(
+                        values=["<b>Component</b>"]
+                        + [f"<b>{col.upper()}</b>" for col in df.columns],
+                        fill_color="paleturquoise",
+                        align="left",
+                    ),
+                    cells=dict(
+                        values=[df.index] + [df[col] for col in df.columns],
+                        fill_color="lavender",
+                        align="left",
+                    ),
+                )
+            ]
+        )
+        fig.update_layout(
+            title={
+                "text": "Latency Summary" + title,
+                "x": 0.5,
+                "xanchor": "center",
+                "yanchor": "top",
+            },
+            #     update margin to be 0
+            margin=dict(l=0, r=0, b=0),
+        )
+        # Update layout for better appearance
+        desc_html = fig.to_html(full_html=False)
+        return desc_html
+
+    @staticmethod
+    def plot_distribution(df: pd.DataFrame, title: str = "") -> str:
+        """
+        Plot the distribution of the latency
+        """
+        # plot the distribution for each column
+        # Calculate mean and max for each latency column
+        mean_latencies = df[df.columns[1:]].mean()
+        max_latencies = df[df.columns[1:]].max()
+        min_latencies = df[df.columns[1:]].min()
+
+        # Create a Plotly figure
+        fig = go.Figure()
+        # Add min latencies to the figure
+        fig.add_trace(
+            go.Bar(x=min_latencies.index, y=min_latencies.values, name="Min Latency")
+        )
+        # Add mean latencies to the figure
+        fig.add_trace(
+            go.Bar(x=mean_latencies.index, y=mean_latencies.values, name="Mean Latency")
+        )
+
+        # Add max latencies to the figure
+        fig.add_trace(
+            go.Bar(x=max_latencies.index, y=max_latencies.values, name="Max Latency")
+        )
+
+        # Customize the layout
+        fig.update_layout(
+            title={
+                "text": "Latency Distribution" + title,
+                "x": 0.5,
+                "xanchor": "center",
+                "yanchor": "top",
+            },
+            xaxis_title="Component and Latency",
+            yaxis_title="Latency (s)",
+            barmode="group",
+            margin=dict(l=0, r=0, b=0),
+        )
+
+        # Convert Plotly figure to HTML
+        plot_html = fig.to_html(full_html=False)
+        return plot_html
 
     @staticmethod
     def process_task_group(task_track: List[Task]):
@@ -163,6 +268,10 @@ class Benchmark:
             if key.endswith("overall_latency"):
                 total_latency += value
         result["total_latency"] = total_latency
+        # loop all value, get it to decimal 4
+        for key, value in result.items():
+            if isinstance(value, float):
+                result[key] = round(value, 4)
         return result
 
     @staticmethod

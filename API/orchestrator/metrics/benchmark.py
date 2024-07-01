@@ -3,7 +3,6 @@ from typing import Dict, List, Tuple
 
 import pandas as pd
 import plotly.colors as pcolors
-import plotly.express as px
 import plotly.graph_objects as go
 from django.conf import settings
 

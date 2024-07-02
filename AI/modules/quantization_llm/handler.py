@@ -43,7 +43,7 @@ class QuantizationLLM:
         result_profile = {}
         latency_profile = {}
         quantization_llm_parameters = QuantizationLLMParameters(**task.parameters)
-        prompt = quantization_llm_parameters.prompt
+        text = quantization_llm_parameters.text
         llm_model_name = quantization_llm_parameters.llm_model_name
         # get llm_model
         llm_model = self.local_llm_available_models.get(llm_model_name, None)
@@ -66,9 +66,9 @@ class QuantizationLLM:
                 task.description = str(llm_err)
                 return task
         with time_tracker("infer", latency_profile, track_type=TrackType.MODEL.value):
-            logger.info(f"Text: {prompt}")
+            logger.info(f"Text: {text}")
             res_text, logs = self.infer(
-                text=prompt,
+                text=text,
                 llm_model_config=llm_model,
             )
         result_profile["logs"] = logs

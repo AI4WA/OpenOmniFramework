@@ -3,13 +3,13 @@ from django.dispatch import receiver
 from authenticate.utils.get_logger import get_logger
 from orchestrator.chain.manager import ClusterManager
 from orchestrator.chain.models import TaskData
-from orchestrator.chain.signals import completed_openai_gpt_4o
+from orchestrator.chain.signals import completed_openai_gpt_4o_text_only
 
 logger = get_logger(__name__)
 
 
-@receiver(completed_openai_gpt_4o)
-def trigger_completed_openai_gpt_4o(sender, **kwargs):  # noqa
+@receiver(completed_openai_gpt_4o_text_only)
+def trigger_completed_openai_gpt_4o_text_only(sender, **kwargs):  # noqa
     """
     This will create the response, which will be a text 2 text task
     """
@@ -28,8 +28,9 @@ def trigger_completed_openai_gpt_4o(sender, **kwargs):  # noqa
 
         ClusterManager.chain_next(
             track_id=track_id,
-            current_component="completed_openai_gpt_4o",
+            current_component="completed_openai_gpt_4o_text_only",
             next_component_params={"text": text},
+            user=sender.user,
         )
 
     except Exception as e:

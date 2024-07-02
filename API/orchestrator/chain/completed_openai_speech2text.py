@@ -86,4 +86,5 @@ def trigger_completed_openai_speech2text(sender, **kwargs):
         track_id=track_id,
         current_component="completed_openai_speech2text",
         next_component_params=task_params,
+        user=sender.user,
     )

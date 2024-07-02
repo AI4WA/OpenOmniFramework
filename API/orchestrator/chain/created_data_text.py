@@ -85,10 +85,12 @@ def trigger_created_data_text(sender, **kwargs):
         "data_text_id": data_text.id,
     }
 
+    user = kwargs.get("user", None)
     ClusterManager.chain_next(
         track_id=track_id,
         current_component="created_data_text",
         next_component_params=task_params,
+        user=user,
     )
 
     return text, [audio_file], images_path_list, data_text

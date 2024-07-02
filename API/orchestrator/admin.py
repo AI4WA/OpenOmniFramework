@@ -1,11 +1,28 @@
 from django import forms
-from django.contrib import admin
+
+# import messages
+from django.contrib import admin, messages
 from django.shortcuts import render
 from django.urls import path
+from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
+from orchestrator.chain.manager import CLUSTERS, ClusterManager
 from orchestrator.metrics.benchmark import Benchmark
 from orchestrator.models import Task, TaskWorker
+
+
+class ClusterFilter(admin.SimpleListFilter):
+    title = _("Cluster")
+    parameter_name = "cluster"
+
+    def lookups(self, request, model_admin):
+        return [(cluster, cluster) for cluster in CLUSTERS]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(track_id__startswith=f"T-{self.value()}")
+        return queryset
 
 
 class TaskAdminForm(forms.ModelForm):
@@ -14,6 +31,22 @@ class TaskAdminForm(forms.ModelForm):
         fields = "__all__"
 
     task_name = forms.ChoiceField(choices=Task.get_task_name_choices())
+
+
+@admin.action(description="Trigger Downstream Task")
+def trigger_downstream_task(modeladmin, request, queryset):
+    for task in queryset:
+        ClusterManager.chain_next(
+            track_id=task.track_id,
+            current_component=f"completed_{task.task_name}",
+            next_component_params={},
+            user=request.user,
+        )
+        messages.add_message(
+            request,
+            messages.INFO,
+            f"Triggered downstream task for {task.track_id} with current component completed_{task.task_name}",
+        )
 
 
 @admin.register(Task)
@@ -31,12 +64,14 @@ class TaskAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    search_fields = ("user__email", "name", "task_name", "result_status")
-    list_filter = ("task_name", "result_status", "user")
+    search_fields = ("user__email", "name", "task_name", "result_status", "track_id")
+    list_filter = ("task_name", "result_status", "user", ClusterFilter)
+    actions = [trigger_downstream_task]
 
     readonly_fields = ("created_at", "updated_at")
 
     def get_urls(self):
+        # the custom urls will be changed when ClusterFilter is changed, how can I implement it?
         urls = super().get_urls()
         custom_urls = [
             path(
@@ -54,14 +89,17 @@ class TaskAdmin(admin.ModelAdmin):
 
     @staticmethod
     def benchmark(request):
-        benchmark = Benchmark(benchmark_cluster="all")
+        # get parameter from request url
+        cluster = request.GET.get("cluster", "all")
+        benchmark = Benchmark(benchmark_cluster=cluster)
         html_content = benchmark.run()
         context = {"content": html_content, "benchmark_type": "Latency Overall"}
         return render(request, "admin/orchestrator/task/benchmark.html", context)
 
     @staticmethod
     def benchmark_detail(request):
-        benchmark = Benchmark(benchmark_cluster="all")
+        cluster = request.GET.get("cluster", "all")
+        benchmark = Benchmark(benchmark_cluster=cluster)
         html_content = benchmark.run_detail()
         context = {"content": html_content, "benchmark_type": "Latency Details"}
         return render(request, "admin/orchestrator/task/benchmark.html", context)

@@ -54,7 +54,8 @@ def trigger_completed_emotion_detection(sender, **kwargs):
         ClusterManager.chain_next(
             track_id=track_id,
             current_component="completed_emotion_detection",
-            next_component_params={"prompt": prompt, "text": prompt},
+            next_component_params={"text": prompt},
+            user=sender.user,
         )
 
     except Exception as e:

@@ -3,18 +3,18 @@ from django.dispatch import receiver
 from authenticate.utils.get_logger import get_logger
 from orchestrator.chain.manager import ClusterManager
 from orchestrator.chain.models import TaskData
-from orchestrator.chain.signals import completed_quantization_llm
+from orchestrator.chain.signals import completed_openai_gpt_4o_text_and_image
 
 logger = get_logger(__name__)
 
 
-@receiver(completed_quantization_llm)
-def trigger_completed_quantization_llm(sender, **kwargs):  # noqa
+@receiver(completed_openai_gpt_4o_text_and_image)
+def trigger_completed_openai_gpt_4o_text_and_image(sender, **kwargs):  # noqa
     """
     This will create the response, which will be a text 2 text task
     """
     try:
-        logger.info("Quantization LLM completed triggerred")
+        logger.info("OpenAI GPT 4o LLM completed triggerred")
         data = kwargs.get("data", {})
         track_id = kwargs.get("track_id", None)
         logger.info(data)
@@ -28,7 +28,7 @@ def trigger_completed_quantization_llm(sender, **kwargs):  # noqa
 
         ClusterManager.chain_next(
             track_id=track_id,
-            current_component="completed_quantization_llm",
+            current_component="completed_openai_gpt_4o_text_and_image",
             next_component_params={"text": text},
             user=sender.user,
         )

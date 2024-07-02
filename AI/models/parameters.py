@@ -23,7 +23,7 @@ class EmotionDetectionParameters(BaseModel):
 
 
 class QuantizationLLMParameters(BaseModel):
-    prompt: str = Field(..., description="The text to analyze for quantization")
+    text: str = Field(..., description="The text to analyze for quantization")
     llm_model_name: str = Field(..., description="The name of the llm model")
 
 
@@ -49,4 +49,9 @@ class OpenAIGPT4OParameters(BaseModel):
         description="The images data to analyze for GPT-4o"
     )
     sample_ratio: int = Field(1, description="The sample ratio")
+    prompt_template: str = Field(description="The prompt template")
+
+
+class OpenAIGPT4OTextOnlyParameters(BaseModel):
+    text: str = Field(..., description="The text to analyze for GPT-4o text only")
     prompt_template: str = Field(description="The prompt template")

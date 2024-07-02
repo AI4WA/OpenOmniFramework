@@ -62,4 +62,5 @@ def trigger_completed_speech2text(sender, **kwargs):
         track_id=track_id,
         current_component="completed_speech2text",
         next_component_params={"sender": data_text_obj, "data": data_text_obj.__dict__},
+        user=sender.user,
     )

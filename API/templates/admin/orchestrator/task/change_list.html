@@ -1,18 +1,19 @@
 {% extends "admin/change_list.html" %}
 
-{% block object-tools %}
-    <ul class="object-tools">
-        {% block object-tools-items %}
-            <li>
-                <a href="{% url 'admin:benchmark' %}?cluster={{ request.GET.cluster|default:'all' }}"
-                   class="export_link">Latency Benchmark</a>
-            </li>
-            <li>
-                <a href="{% url 'admin:benchmark_detail' %}?cluster={{ request.GET.cluster|default:'all' }}"
-                   class="export_link">Latency Details</a>
-            </li>
-            {{ block.super }}
-        {% endblock %}
-    </ul>
+{% block change_list_object_tools %}
+
+    {% block object-tools-items %}
+
+        <a href="{% url 'admin:benchmark' %}?cluster={{ request.GET.cluster|default:'all' }}"
+           class="btn {{ jazzmin_ui.button_classes.success }} float-right">Latency Benchmark</a>
+
+        <a href="{% url 'admin:benchmark_detail' %}?cluster={{ request.GET.cluster|default:'all' }}"
+           class="btn {{ jazzmin_ui.button_classes.success }} float-right">
+            Latency Details
+        </a>
+
+        {{ block.super }}
+    {% endblock %}
+
     {{ block.super }}
 {% endblock %}

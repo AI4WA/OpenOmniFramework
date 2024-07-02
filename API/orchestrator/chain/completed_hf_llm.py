@@ -30,6 +30,7 @@ def trigger_completed_hf_llm(sender, **kwargs):  # noqa
             track_id=track_id,
             current_component="completed_hf_llm",
             next_component_params={"text": text},
+            user=sender.user,
         )
 
     except Exception as e:

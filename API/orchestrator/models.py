@@ -135,6 +135,8 @@ class Task(models.Model):
             ("openai_speech2text", "OpenAI Speech2Text"),
             ("openai_gpt_4o", "OpenAI GPT4o"),
             ("openai_text2speech", "OpenAI Text2Speech"),
+            ("openai_gpt_4o_text_and_image", "OpenAI GPT4o Text and Image"),
+            ("openai_gpt_4o_text_only", "OpenAI GPT4o Text"),
         ]
 
 

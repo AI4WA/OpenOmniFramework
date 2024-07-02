@@ -66,6 +66,45 @@ CLUSTER_Q_ETE_CONVERSATION = {
         "task_name": "text2speech",
     },
 }
+"""
+Get rid of the emotion detection model
+"""
+CLUSTER_Q_NO_EMOTION_ETE_CONVERSATION_NAME = "CLUSTER_Q_NO_EMOTION_ETE_CONVERSATION"
+
+CLUSTER_Q_NO_EMOTION_ETE_CONVERSATION = {
+    "speech2text": {
+        "order": 0,
+        "extra_params": {},
+        "component_type": "task",
+        "task_name": "speech2text",
+    },
+    "completed_speech2text": {
+        "order": 1,
+        "extra_params": {},
+        "component_type": "signal",
+        "task_name": None,
+    },
+    "created_data_text": {
+        "order": 2,
+        "extra_params": {},
+        "component_type": "signal",
+        "task_name": None,
+    },
+    "completed_quantization_llm": {
+        "order": 4,
+        "extra_params": {
+            "llm_model_name": "SOLAR-10",
+        },
+        "component_type": "task",
+        "task_name": "quantization_llm",
+    },
+    "completed_text2speech": {
+        "order": 5,
+        "extra_params": {},
+        "component_type": "task",
+        "task_name": "text2speech",
+    },
+}
 
 """
 This is the pipeline using the HF LLM model for the ETE conversation
@@ -140,7 +179,7 @@ CLUSTER_GPT_4O_ETE_CONVERSATION = {
         "task_name": None,
     },
     # then will call the GPT-4o model to convert the text to speech
-    "completed_openai_gpt_4o": {
+    "completed_openai_gpt_4o_text_and_image": {
         "order": 2,
         "extra_params": {
             "sample_ratio": 10,
@@ -156,7 +195,49 @@ CLUSTER_GPT_4O_ETE_CONVERSATION = {
             """,
         },
         "component_type": "task",
-        "task_name": "openai_gpt_4o",
+        "task_name": "openai_gpt_4o_text_and_image",
+    },
+    # then the output should be directly the text, feed to speech 2 text
+    "completed_openai_text2speech": {
+        "order": 3,
+        "extra_params": {},
+        "component_type": "task",
+        "task_name": "openai_text2speech",
+    },
+}
+
+CLUSTER_GPT_4O_TEXT_ETE_CONVERSATION_NAME = "CLUSTER_GPT_4O_TEXT_ETE_CONVERSATION"
+CLUSTER_GPT_4O_TEXT_ETE_CONVERSATION = {
+    # first will call the openai model to convert the speech to text
+    "openai_speech2text": {
+        "order": 0,
+        "extra_params": {},
+        "component_type": "task",
+        "task_name": "openai_speech2text",
+    },
+    "completed_openai_speech2text": {
+        "order": 1,
+        "extra_params": {},
+        "component_type": "signal",
+        "task_name": None,
+    },
+    # then will call the GPT-4o model to convert the text to speech
+    "completed_openai_gpt_4o_text_only": {
+        "order": 2,
+        "extra_params": {
+            "sample_ratio": 10,
+            "prompt_template": """
+            You are a robot, and you are talking to a human.
+
+            Your task is to generate a response to the human based on the text
+
+            You response will be directly send to end user.
+
+            The text is: {text}
+            """,
+        },
+        "component_type": "task",
+        "task_name": "openai_gpt_4o_text_only",
     },
     # then the output should be directly the text, feed to speech 2 text
     "completed_openai_text2speech": {
@@ -171,6 +252,8 @@ CLUSTERS = {
     CLUSTER_Q_ETE_CONVERSATION_NAME: CLUSTER_Q_ETE_CONVERSATION,
     CLUSTER_HF_ETE_CONVERSATION_NAME: CLUSTER_HF_ETE_CONVERSATION,
     CLUSTER_GPT_4O_ETE_CONVERSATION_NAME: CLUSTER_GPT_4O_ETE_CONVERSATION,
+    CLUSTER_GPT_4O_TEXT_ETE_CONVERSATION_NAME: CLUSTER_GPT_4O_TEXT_ETE_CONVERSATION,
+    CLUSTER_Q_NO_EMOTION_ETE_CONVERSATION_NAME: CLUSTER_Q_NO_EMOTION_ETE_CONVERSATION,
 }
 
 
@@ -238,7 +321,8 @@ class ClusterManager:
         track_id: Optional[str],
         current_component: str,
         next_component_params: dict,
-        task_name: str = None,
+        name: str = None,
+        user=None,
     ):
         """
         Chain to the next component
@@ -247,7 +331,8 @@ class ClusterManager:
             current_component (str): The current component
             track_id (str): The track ID
             next_component_params (dict): The next component parameters
-            task_name (str): The task name, it will be used to aggregate the task
+            name (str): The task name, it will be used to aggregate the task
+            user (None): The user
         """
         cluster_name = track_id.split("-")[1]
         next_component_name, next_component = cls.get_next(
@@ -263,12 +348,13 @@ class ClusterManager:
             **next_component_params,
             **next_component.get("extra_params", {}),
         }
+        logger.info(next_parameters)
         logger.info(next_component_name)
 
         if next_component["component_type"] == "task":
             task = Task.create_task(
-                user=None,
-                name=task_name or next_component["task_name"],
+                user=user,
+                name=name or next_component["task_name"],
                 task_name=next_component["task_name"],
                 parameters=next_parameters,
                 track_id=track_id,
@@ -281,5 +367,6 @@ class ClusterManager:
                     sender=next_component_params.get("sender"),
                     data=next_component_params.get("data"),
                     track_id=track_id,
+                    user=user,
                 )
         return None

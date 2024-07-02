@@ -87,6 +87,8 @@ class AIOrchestrator:
             TaskName.openai_gpt4o.value: self.handle_openai_task,
             TaskName.openai_speech2text.value: self.handle_openai_task,
             TaskName.openai_text2speech.value: self.handle_openai_task,
+            TaskName.openai_gpt4o_text_only.value: self.handle_openai_task,
+            TaskName.openai_gpt_4o_text_and_image.value: self.handle_openai_task,
         }
 
     def authenticate_token(self):
@@ -273,6 +275,8 @@ if __name__ == "__main__":
                 TaskName.openai_text2speech.value,
                 TaskName.speech2text.value,
                 TaskName.text2speech.value,
+                TaskName.openai_gpt4o_text_only.value,
+                TaskName.openai_gpt_4o_text_and_image.value,
             ]
         else:
             task_names = args.task_name.split(",")

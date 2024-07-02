@@ -58,7 +58,8 @@ class QueueTaskViewSet(viewsets.ViewSet):
             track_id=track_id,
             current_component="init",
             next_component_params=serializer.validated_data["parameters"],
-            task_name=data.get("task_name", None),
+            name=data.get("name", None),
+            user=request.user,
         )
 
         return Response(
@@ -123,21 +124,28 @@ class QueueTaskViewSet(viewsets.ViewSet):
         """
         Endpoint to update the result of a task.
         """
-        data = request.data
-        task = Task.objects.filter(id=pk).first()
-        if task is None:
-            return Response(
-                {"error": f"Task with ID {pk} does not exist"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        try:
+            data = request.data
+            task = Task.objects.filter(id=pk).first()
+            if task is None:
+                return Response(
+                    {"error": f"Task with ID {pk} does not exist"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
-        serializer = TaskSerializer(data=data, instance=task, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            {"message": f"Task {task.id} updated successfully"},
-            status=status.HTTP_200_OK,
-        )
+            serializer = TaskSerializer(data=data, instance=task, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(
+                {"message": f"Task {task.id} updated successfully"},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            logger.error(f"Error updating task result: {e}")
+            return Response(
+                {"error": f"Error updating task result: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     @swagger_auto_schema(
         operation_summary="Worker: Register",

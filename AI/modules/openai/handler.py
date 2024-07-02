@@ -8,6 +8,7 @@ from models.parameters import (
     OpenAIGPT4OParameters,
     Speech2TextParameters,
     Text2SpeechParameters,
+    OpenAIGPT4OTextOnlyParameters,
 )
 from models.task import ResultStatus, Task
 from models.track_type import TrackType
@@ -41,9 +42,14 @@ class OpenAIHandler:
             text = self.speech2text(task)
             TimeLogger.log(latency_profile, "end_openai_speech2text")
             result_profile["text"] = text
-        if "gpt_4o" in task.task_name:
+        if "openai_gpt_4o_text_and_image" in task.task_name:
             TimeLogger.log(latency_profile, "start_openai_gpt_4o")
             text = self.gpt_4o_text_and_images(task)
+            TimeLogger.log(latency_profile, "end_openai_gpt_4o")
+            result_profile["text"] = text
+        if "openai_gpt_4o_text_only" in task.task_name:
+            TimeLogger.log(latency_profile, "start_openai_gpt_4o")
+            text = self.gpt_4o_text_only(task)
             TimeLogger.log(latency_profile, "end_openai_gpt_4o")
             result_profile["text"] = text
         if "text2speech" in task.task_name:
@@ -102,6 +108,40 @@ class OpenAIHandler:
             logger.error(f"Error transcribing audio file: {e}")
         return None
 
+    def gpt_4o_text_only(self, task: Task) -> str:
+        """
+        Get the text only
+        Args:
+            task:
+
+        Returns:
+
+        """
+        params = OpenAIGPT4OTextOnlyParameters(**task.parameters)
+        text = params.text
+        prompt_template = params.prompt_template
+        logger.info(f"Text: {text}")
+        prompt = prompt_template.format(text=text)
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                ],
+            }
+        ]
+
+        with time_tracker(
+            "gpt-4o-call",
+            task.result_json.latency_profile,
+            track_type=TrackType.MODEL.value,
+        ):
+            res = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+            )
+        return res.choices[0].message.content
+
     def gpt_4o_text_and_images(self, task: Task) -> Optional[str]:
         """
         Get the text and images
@@ -130,7 +170,11 @@ class OpenAIHandler:
         logger.info(f"Sampled length of images: {len(images_path_list)}")
 
         # read image data to the one gpt-4o can take, something like data:image/jpeg;base64
-        with time_tracker(label="encode_images", track_type=TrackType.TRANSFER.value):
+        with time_tracker(
+            label="encode_images",
+            profile=task.result_json.latency_profile,
+            track_type=TrackType.TRANSFER.value,
+        ):
             images = []
             for images_path in images_path_list:
                 folder = CLIENT_DATA_FOLDER / images_path

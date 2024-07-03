@@ -159,7 +159,7 @@ class AudioAcquire:
                     audio_index = audio_index_queue.queue[-1]
                     audio_index_queue.queue.clear()
 
-                    self.api.queue_speech_to_text(
+                    track_id = self.api.queue_speech_to_text(
                         self.uid,
                         audio_index=str(audio_index),
                         start_time=last_sample_start_time,
@@ -171,6 +171,7 @@ class AudioAcquire:
                         f"{audio_index}-{last_sample_time.strftime('%Y%m%d%H%M%S')}.wav",
                         last_sample_start_time,
                         last_sample_time,
+                        track_id=track_id,
                     )
                     last_sample_start_time = last_sample_time
 

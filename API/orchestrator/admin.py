@@ -7,7 +7,7 @@ from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
-from orchestrator.chain.manager import CLUSTERS, ClusterManager
+from orchestrator.chain.manager import CLUSTERS
 from orchestrator.chain.signals import completed_task
 from orchestrator.metrics.benchmark import Benchmark
 from orchestrator.models import Task, TaskWorker

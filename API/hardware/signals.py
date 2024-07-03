@@ -10,4 +10,6 @@ def add_data_multimodal_conversation_entry(sender, instance, created, **kwargs):
     Add data multimodal conversation
     """
     if created:
-        DataMultiModalConversation.objects.create(audio=instance)
+        DataMultiModalConversation.objects.create(
+            audio=instance, track_id=instance.track_id
+        )

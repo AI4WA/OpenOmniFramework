@@ -97,6 +97,12 @@ class DataAudio(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True, help_text="The updated time of the audio"
     )
+    track_id = models.CharField(
+        max_length=100,
+        help_text="The track id of the multimodal conversation",
+        null=True,
+        blank=True,
+    )
 
     @classmethod
     def create_obj(
@@ -108,6 +114,7 @@ class DataAudio(models.Model):
         audio_file: str,
         start_time: datetime,
         end_time: datetime,
+        track_id: str = None,
     ):
         """
         Create an audio data object
@@ -120,6 +127,7 @@ class DataAudio(models.Model):
             audio_file=audio_file,
             start_time=start_time,
             end_time=end_time,
+            track_id=track_id,
         )
 
     def __str__(self):
@@ -298,6 +306,13 @@ class DataMultiModalConversation(models.Model):
     )
     updated_at = models.DateTimeField(
         auto_now=True, help_text="The updated time of the multi-modal conversation"
+    )
+
+    track_id = models.CharField(
+        max_length=100,
+        help_text="The track id of the multimodal conversation",
+        null=True,
+        blank=True,
     )
 
     def __str__(self):

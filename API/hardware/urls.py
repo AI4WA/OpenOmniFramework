@@ -6,6 +6,9 @@ from hardware.views import (
     HardWareDeviceViewSet,
     Text2SpeechViewSet,
     VideoDataViewSet,
+    client_audio,
+    client_video,
+    ai_audio,
 )
 
 router = DefaultRouter()
@@ -27,4 +30,7 @@ urlpatterns = [
         name="text2speech",
     ),
     path("", include(router.urls)),
+    path("client_audio/<int:audio_id>", client_audio, name="client_audio"),
+    path("client_video/<int:conversation_id>", client_video, name="client_video"),
+    path("ai_audio/<int:audio_id>", ai_audio, name="ai_audio"),
 ]

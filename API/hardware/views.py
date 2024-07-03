@@ -2,19 +2,28 @@ import logging
 
 from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
+from moviepy.editor import VideoFileClip, concatenate_videoclips
 
 # Create your views here.
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
-from hardware.models import DataAudio, DataVideo, HardWareDevice, Home, ResSpeech
+from hardware.models import (
+    DataAudio,
+    DataVideo,
+    HardWareDevice,
+    Home,
+    ResSpeech,
+    DataMultiModalConversation,
+)
 from hardware.serializers import (
     AudioDataSerializer,
     HardWareDeviceSerializer,
     ResSpeechSerializer,
     VideoDataSerializer,
 )
+
+from django.http import HttpResponse
 
 logger = logging.getLogger(__name__)
 
@@ -240,3 +249,101 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
             return Response(
                 {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+# return audio data from local storage
+def client_audio(request, audio_id):
+    audio_obj = DataAudio.objects.filter(id=audio_id).first()
+    if audio_obj is None:
+        return Response(
+            {"message": "No audio data found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if settings.MEDIA_LOCAL:
+        audio_file = (
+            settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
+        )
+        logger.info(audio_file)
+        with open(audio_file, "rb") as f:
+            response = HttpResponse(f.read(), content_type="audio/mpeg")
+            response["Content-Disposition"] = (
+                f"attachment; filename={audio_obj.audio_file}"
+            )
+        return response
+    return Response(
+        {"message": "No audio data found."},
+        status=status.HTTP_404_NOT_FOUND,
+    )
+
+
+def ai_audio(request, audio_id):
+    logger.info(f"Audio id: {audio_id}")
+    res_audio_obj = ResSpeech.objects.filter(id=audio_id).first()
+    if res_audio_obj is None:
+        return Response(
+            {"message": "No audio data found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    if settings.MEDIA_LOCAL:
+        audio_file = (
+            settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
+        )
+        logger.info(audio_file)
+        with open(audio_file, "rb") as f:
+            response = HttpResponse(f.read(), content_type="audio/mpeg")
+            response["Content-Disposition"] = (
+                f"attachment; filename={res_audio_obj.text2speech_file}"
+            )
+        return response
+
+    return Response(
+        {"message": "No audio data found."},
+        status=status.HTTP_404_NOT_FOUND,
+    )
+
+
+def combine_videos(video1_paths, output_path):
+    clips = []
+    for video1_path in video1_paths:
+        clip = VideoFileClip(video1_path)
+        clips.append(clip)
+    final_clip = concatenate_videoclips([clip for clip in clips])
+    final_clip.write_videofile(output_path, codec="libx264")
+
+
+def client_video(request, conversation_id):
+    conversation = DataMultiModalConversation.objects.filter(id=conversation_id).first()
+    if conversation is None:
+        return Response(
+            {"message": "No video data found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    videos = conversation.video.all().order_by("start_time")
+    if len(videos) == 0:
+        return Response(
+            {"message": "No video data found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    video_paths = []
+    for video in videos:
+        video_paths.append(
+            (
+                settings.CLIENT_MEDIA_ROOT / "videos" / video.uid / video.video_file
+            ).as_posix()
+        )
+
+    output_path = (
+        settings.CLIENT_MEDIA_ROOT / "conversations" / f"{conversation.id}.mp4"
+    )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not output_path.exists():
+        output_path = output_path.as_posix()
+
+        combine_videos(video_paths, output_path)
+    with open(output_path, "rb") as f:
+        response = HttpResponse(f.read(), content_type="video/mp4")
+        response["Content-Disposition"] = f"attachment; filename={conversation.id}.mp4"
+    return response

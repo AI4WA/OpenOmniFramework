@@ -25,3 +25,4 @@ psutil
 openai
 plotly
 django-jazzmin
+moviepy

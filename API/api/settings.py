@@ -218,3 +218,10 @@ CSV_BUCKET = "wa-data-and-llm-platform"
 
 LOG_DIR = Path(BASE_DIR) / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+
+MEDIA_LOCAL = True
+CLIENT_MEDIA_ROOT = Path(BASE_DIR).parent / "client" / "Listener" / "data"
+CLIENT_MEDIA_URL = "/client/"
+AI_MEDIA_ROOT = Path(BASE_DIR).parent / "client" / "Responder" / "data"
+AI_MEDIA_URL = "/ai"

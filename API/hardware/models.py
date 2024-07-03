@@ -133,6 +133,14 @@ class DataAudio(models.Model):
     def __str__(self):
         return f"{self.uid} - {self.audio_file}"
 
+    def url(self):
+        """
+        get the file, and create media url
+        Returns:
+
+        """
+        return f"/hardware/client_audio/{self.id}"
+
     class Meta:
         verbose_name = "Data Audio"
         verbose_name_plural = "Data Audios"
@@ -254,6 +262,9 @@ class ResSpeech(models.Model):
         file_name = self.text2speech_file.split("/")[-1]
         return f"{file_name}|Played: {self.played}"
 
+    def url(self):
+        return f"/hardware/ai_audio/{self.id}"
+
     class Meta:
         verbose_name = "Res Speech"
         verbose_name_plural = "Res Speeches"
@@ -317,6 +328,9 @@ class DataMultiModalConversation(models.Model):
 
     def __str__(self):
         return f"{self.id}"
+
+    def video_url(self):
+        return f"/hardware/client_video/{self.id}"
 
     class Meta:
         verbose_name = "Conversation"

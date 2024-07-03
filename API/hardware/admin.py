@@ -15,6 +15,9 @@ from hardware.models import (
 )
 from orchestrator.chain.manager import CLUSTERS
 
+# import mark_safe
+from django.utils.safestring import mark_safe
+
 
 class ClusterFilter(admin.SimpleListFilter):
     title = _("Cluster")
@@ -136,26 +139,60 @@ class ContextEmotionDetectionAdmin(ImportExportModelAdmin):
 @admin.register(DataMultiModalConversation)
 class DataMultiModalConversationAdmin(ImportExportModelAdmin):
 
+    # form = DataMultiModalConversationAdminForm
+
     def audio__time_range(self, obj):
         # format it "%Y-%m-%d %H:%M:%S"
         if obj.audio is None:
-            return ""
+            return "No Audio"
         start_time_str = obj.audio.start_time.strftime("%Y-%m-%d %H:%M:%S")
         end_time_str = obj.audio.end_time.strftime("%Y-%m-%d %H:%M:%S")
         return f"{start_time_str} - {end_time_str}"
 
-    audio__time_range.short_description = "Audio Time Range"
+    audio__time_range.short_description = "Time Range: Audio"
 
     def video__time_range(self, obj):
         if len(obj.video.all()) == 0:
-            return ""
+            return "No Video"
         videos = obj.video.all().order_by("start_time")
         # get the first video start time and the last video end time
         start_time_str = videos.first().start_time.strftime("%Y-%m-%d %H:%M:%S")
         end_time_str = videos.last().end_time.strftime("%Y-%m-%d %H:%M:%S")
         return f"{start_time_str} - {end_time_str}"
 
-    video__time_range.short_description = "Video Time Range"
+    video__time_range.short_description = "Time Range: Video"
+
+    def play_audio(self, obj):
+        if obj.audio is None:
+            return "No Audio"
+
+        return mark_safe(
+            f'<audio controls name="media"><source src="{obj.audio.url()}" type="audio/mpeg"></audio>'
+        )
+
+    def play_video(self, obj):
+        if obj.video is None:
+            return "No Video"
+        return mark_safe(
+            f'<video width="320" height="240" controls><source src="{obj.video_url()}" type="video/mp4"></video>'
+        )
+
+    def play_res_speech(self, obj):
+        if obj.res_speech is None:
+            return "No Res Speech"
+        return mark_safe(
+            f'<audio controls name="media"><source src="{obj.res_speech.url()}" type="audio/mpeg"></audio>'
+        )
+
+    def speech_to_text(self, obj):
+        if obj.text is None:
+            return "No Text"
+        return obj.text.text
+
+    def response_text(self, obj):
+        if obj.res_text is None:
+            return "No Res Text"
+        return obj.res_text.text
 
     list_display = (
         "id",
@@ -165,6 +202,29 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
         "res_text",
         "res_speech",
     )
-    search_fields = ("text__text", "res_text__text", "track_id")
-    readonly_fields = ("created_at", "updated_at")
+    exclude = (
+        "audio",
+        "video",
+        "res_speech",
+        "res_text",
+        "text",
+    )
+    search_fields = (
+        "text__text",
+        "res_text__text",
+        "track_id",
+        "text",
+    )
+    readonly_fields = (
+        "track_id",
+        "play_audio",
+        "audio__time_range",
+        "speech_to_text",
+        "play_video",
+        "video__time_range",
+        "response_text",
+        "play_res_speech",
+        "created_at",
+        "updated_at",
+    )
     list_filter = ("created_at", ClusterFilter)

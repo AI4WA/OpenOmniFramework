@@ -1,4 +1,7 @@
 from django.contrib import admin
+
+# import mark_safe
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
@@ -14,9 +17,6 @@ from hardware.models import (
     ResText,
 )
 from orchestrator.chain.manager import CLUSTERS
-
-# import mark_safe
-from django.utils.safestring import mark_safe
 
 
 class ClusterFilter(admin.SimpleListFilter):
@@ -171,7 +171,7 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
         )
 
     def play_video(self, obj):
-        if obj.video is None:
+        if obj.video is None or len(obj.video.all()) == 0:
             return "No Video"
         return mark_safe(
             f'<video width="320" height="240" controls><source src="{obj.video_url()}" type="video/mp4"></video>'

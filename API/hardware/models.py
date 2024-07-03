@@ -330,6 +330,8 @@ class DataMultiModalConversation(models.Model):
         return f"{self.id}"
 
     def video_url(self):
+        if len(self.video.all()) == 0:
+            return "No Video"
         return f"/hardware/client_video/{self.id}"
 
     class Meta:

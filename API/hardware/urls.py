@@ -6,9 +6,9 @@ from hardware.views import (
     HardWareDeviceViewSet,
     Text2SpeechViewSet,
     VideoDataViewSet,
+    ai_audio,
     client_audio,
     client_video,
-    ai_audio,
 )
 
 router = DefaultRouter()

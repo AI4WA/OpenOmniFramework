@@ -28,7 +28,7 @@ class LLMConfigViewSet(viewsets.ModelViewSet):
 
     @swagger_auto_schema(
         operation_summary="List LLM Model",
-        operation_description="Obtain the list of available LLM models and their status, need to have a token to access",
+        operation_description="Obtain the list of available LLM models and their status, need to have a token",
         responses={200: LLMConfigRecordsSerializer(many=True)},
         tags=["llm"],
     )

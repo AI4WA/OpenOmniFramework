@@ -13,7 +13,7 @@ from hardware.models import (
     ResText,
 )
 from django.utils.translation import gettext_lazy as _
-from orchestrator.chain.manager import CLUSTERS, ClusterManager
+from orchestrator.chain.manager import CLUSTERS
 
 
 class ClusterFilter(admin.SimpleListFilter):

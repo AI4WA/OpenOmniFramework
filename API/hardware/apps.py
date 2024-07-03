@@ -6,4 +6,4 @@ class HardwareConfig(AppConfig):
     name = "hardware"
 
     def ready(self):
-        import hardware.signals
+        import hardware.signals  # noqa

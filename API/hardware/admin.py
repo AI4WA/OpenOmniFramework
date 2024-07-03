@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
 from hardware.models import (
@@ -12,7 +13,6 @@ from hardware.models import (
     ResSpeech,
     ResText,
 )
-from django.utils.translation import gettext_lazy as _
 from orchestrator.chain.manager import CLUSTERS
 
 

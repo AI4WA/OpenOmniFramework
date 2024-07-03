@@ -5,7 +5,7 @@ class WorkerConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "orchestrator"
 
-    def ready(self): # noqa
+    def ready(self):  # noqa
         # Import signals
         import orchestrator.chain.completed_emotion_detection
         import orchestrator.chain.completed_hf_llm

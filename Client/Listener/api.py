@@ -98,6 +98,7 @@ class API:
         audio_file: str,
         start_time: datetime,
         end_time: datetime,
+        track_id: str = None,
     ):
         """
         Post metadata of the audio to the API.
@@ -123,6 +124,7 @@ class API:
                 "start_time": start_time,
                 "end_time": end_time,
                 "hardware_device_mac_address": self.mac_address,
+                "track_id": track_id,
             },
             headers={"Authorization": f"Token {self.token}"},
             timeout=30,
@@ -166,7 +168,7 @@ class API:
 
     def queue_speech_to_text(
         self, uid: str, audio_index: str, start_time: datetime, end_time: datetime
-    ):
+    ) -> str:
         """
         Optional, used to queue the speech to text task
         Args:
@@ -176,8 +178,10 @@ class API:
             end_time (datetime): The end time of the audio
 
         Returns:
+            (str): The track id of the task
 
         """
+        track_id = self.set_track_id()
         url = f"{self.domain}/queue_task/ai_task/"
         data = {
             "name": "speech_to_text",
@@ -192,7 +196,7 @@ class API:
                     "hardware_device_mac_address": self.mac_address,
                 }
             ),
-            "track_id": self.set_track_id(),
+            "track_id": track_id,
         }
         r = requests.post(
             url, data=data, headers={"Authorization": f"Token {self.token}"}, timeout=30
@@ -202,4 +206,4 @@ class API:
             logger.info(data)
             return None
         logger.info(r.json())
-        return r.json()
+        return track_id

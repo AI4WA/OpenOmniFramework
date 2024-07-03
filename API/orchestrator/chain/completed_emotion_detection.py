@@ -1,7 +1,6 @@
 from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
-from hardware.models import ContextEmotionDetection
 from orchestrator.chain.manager import ClusterManager
 from orchestrator.chain.models import TaskData
 from orchestrator.chain.signals import completed_emotion_detection
@@ -54,10 +53,10 @@ def trigger_completed_emotion_detection(sender, **kwargs):
             Your friend said: {text}.
             And his emotion is detected like this:
             {emotion_text}
-            
+
             Respond to him.
             Your response will directly send to him.
-            
+
             """
 
         ClusterManager.chain_next(

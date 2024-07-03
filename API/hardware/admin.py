@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
 from hardware.models import (
@@ -12,6 +13,20 @@ from hardware.models import (
     ResSpeech,
     ResText,
 )
+from orchestrator.chain.manager import CLUSTERS
+
+
+class ClusterFilter(admin.SimpleListFilter):
+    title = _("Cluster")
+    parameter_name = "cluster"
+
+    def lookups(self, request, model_admin):
+        return [(cluster, cluster) for cluster in CLUSTERS]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(track_id__startswith=f"T-{self.value()}")
+        return queryset
 
 
 @admin.register(Home)
@@ -47,7 +62,7 @@ class DataAudioAdmin(ImportExportModelAdmin):
         "end_time",
     )
     search_fields = ("uid", "text", "sequence_index")
-    list_filter = ("uid", "start_time", "end_time")
+    list_filter = ("uid", "start_time", "end_time", ClusterFilter)
 
     @admin.display(description="record_create_time")
     def created_at_seconds(self, obj):
@@ -150,5 +165,6 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
         "res_text",
         "res_speech",
     )
-    search_fields = ("text__text", "res_text__text")
+    search_fields = ("text__text", "res_text__text", "track_id")
     readonly_fields = ("created_at", "updated_at")
+    list_filter = ("created_at", ClusterFilter)

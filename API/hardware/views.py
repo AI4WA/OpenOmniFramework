@@ -1,7 +1,5 @@
 import logging
-from datetime import datetime
 
-import pytz
 from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
 

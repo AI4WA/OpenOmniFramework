@@ -1,7 +1,6 @@
 from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
-from hardware.models import ResSpeech
 from orchestrator.chain.models import TaskData
 from orchestrator.chain.signals import completed_text2speech
 from orchestrator.chain.utils import data_multimodal_conversation_log_res_speech
@@ -39,6 +38,7 @@ def trigger_completed_text2speech(sender, **kwargs):
             logger.error("No speech2text task found")
             return
         text = speech2text_task.result_json["result_profile"].get("text", "")
+        logger.info(text)
         logger.info(speech2text_task.parameters)
         text2speech_file = task_data.result_json["result_profile"].get(
             "audio_file_path", ""

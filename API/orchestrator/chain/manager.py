@@ -192,11 +192,11 @@ CLUSTER_GPT_4O_ETE_CONVERSATION = {
             "prompt_template": """
             You are a robot, and you are talking to a human.
             You will be provided with text and some flow of images, which actually are the video frames.
-            
+
             Your task is to generate a response to the human based on the text and the images.
-            
+
             You response will be directly send to end user.
-            
+
             The text is: {text}
             """,
         },

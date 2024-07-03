@@ -7,11 +7,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-    TokenVerifyView,
-)
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from authenticate.serializers import (
     APIReturnTokenSerializer,
@@ -55,7 +51,7 @@ class APITokenVerifyView(APIView):
     def post(self, request, *args, **kwargs):
         token = request.data.get("token")
         try:
-            token_obj = Token.objects.get(key=token)
+            Token.objects.get(key=token)
             return Response({"detail": "Token is valid."}, status=status.HTTP_200_OK)
         except Token.DoesNotExist:
             return Response(

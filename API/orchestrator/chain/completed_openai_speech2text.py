@@ -1,9 +1,7 @@
-from datetime import timedelta
-
 from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
-from hardware.models import DataAudio, DataVideo
+from hardware.models import DataAudio, DataMultiModalConversation, DataText
 from orchestrator.chain.manager import ClusterManager
 from orchestrator.chain.models import TaskData
 from orchestrator.chain.signals import completed_openai_speech2text
@@ -53,38 +51,27 @@ def trigger_completed_openai_speech2text(sender, **kwargs):
         return
     audio_obj = audio.first()
 
-    start_time = audio_obj.start_time
-    end_time = audio_obj.end_time
+    data_text_obj = DataText.objects.filter(audio=audio_obj).first()
+    if data_text_obj:
+        data_text_obj.text = text
+        data_text_obj.save()
+    else:
+        data_text_obj = DataText(
+            audio=audio_obj,
+            text=text,
+        )
+        data_text_obj.save()
 
-    # get the video data based on the audio data time range
-    start_time = start_time.replace(second=0, microsecond=0)
-    end_time = end_time.replace(second=0, microsecond=0) + timedelta(minutes=1)
-    logger.info(f"Start time: {start_time}, End time: {end_time}")
+    if not hasattr(audio_obj, "multi_modal_conversation"):
+        DataMultiModalConversation.objects.create(
+            audio=audio_obj,
+        )
+    audio_obj.multi_modal_conversation.text = data_text_obj
+    audio_obj.multi_modal_conversation.save()
 
-    video_data = DataVideo.objects.filter(
-        video_record_minute__range=[start_time, end_time]
-    )
-    logger.info(video_data)
-
-    images_path = []
-    for video in video_data:
-        image_folder_name = video.video_file.split(".")[0].rsplit("-", 1)[0]
-        images_path.append(f"{video.uid}/frames/{image_folder_name}")
-
-    images_path_list = []
-    for image_path in images_path:
-        folder = f"videos/{image_path}"
-        images_path_list.append(folder)
-
-    logger.info(f"Text: {text}, Images: {len(images_path_list)}")
-
-    task_params = {
-        "text": text,
-        "images_path_list": images_path_list,
-    }
     ClusterManager.chain_next(
         track_id=track_id,
         current_component="completed_openai_speech2text",
-        next_component_params=task_params,
+        next_component_params={"sender": data_text_obj, "data": data_text_obj.__dict__},
         user=sender.user,
     )

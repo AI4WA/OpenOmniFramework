@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from hardware.models import DataAudio, DataVideo, HardWareDevice, Text2Speech
+from hardware.models import DataAudio, DataVideo, HardWareDevice, ResSpeech
 
 
 class HardWareDeviceSerializer(serializers.ModelSerializer):
@@ -25,7 +25,7 @@ class VideoDataSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class Text2SpeechSerializer(serializers.ModelSerializer):
+class ResSpeechSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Text2Speech
+        model = ResSpeech
         fields = "__all__"

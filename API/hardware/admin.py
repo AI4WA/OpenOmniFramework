@@ -2,14 +2,15 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
 from hardware.models import (
+    ContextEmotionDetection,
     DataAudio,
+    DataMultiModalConversation,
     DataText,
     DataVideo,
-    EmotionDetection,
     HardWareDevice,
     Home,
-    LLMResponse,
-    Text2Speech,
+    ResSpeech,
+    ResText,
 )
 
 
@@ -43,8 +44,10 @@ class DataAudioAdmin(ImportExportModelAdmin):
         "sequence_index",
         "audio_file",
         "start_time",
+        "end_time",
     )
-    search_fields = ("uid", "text")
+    search_fields = ("uid", "text", "sequence_index")
+    list_filter = ("uid", "start_time", "end_time")
 
     @admin.display(description="record_create_time")
     def created_at_seconds(self, obj):
@@ -59,36 +62,93 @@ class DataAudioAdmin(ImportExportModelAdmin):
 
 @admin.register(DataVideo)
 class DataVideoAdmin(ImportExportModelAdmin):
-    list_display = ("id", "home", "video_file", "video_record_minute")
+    list_display = ("id", "home", "video_file", "start_time", "end_time")
     search_fields = ("uid", "video_file")
     readonly_fields = ("created_at", "updated_at")
+    list_filter = (
+        "uid",
+        "start_time",
+        "end_time",
+    )
 
 
 @admin.register(DataText)
 class DataTextAdmin(ImportExportModelAdmin):
-    list_display = ("id", "home", "audio", "text", "pipeline_triggered")
+
+    def audio__sequence_index(self, obj):
+        return obj.audio.sequence_index
+
+    def audio__uid(self, obj):
+        return obj.audio.uid
+
+    list_display = (
+        "id",
+        "text",
+        "audio__sequence_index",
+        "audio__uid",
+        "model_name",
+    )
     search_fields = ("text",)
     readonly_fields = ("created_at", "updated_at")
-    list_filter = ("pipeline_triggered",)
+    list_filter = (
+        "model_name",
+        "audio__sequence_index",
+        "audio__uid",
+    )
 
 
-@admin.register(EmotionDetection)
-class EmotionDetectionAdmin(ImportExportModelAdmin):
-    list_display = ("id", "home", "result")
+@admin.register(ResText)
+class ResTextAdmin(ImportExportModelAdmin):
+    list_display = ("id", "text")
+    search_fields = ("text",)
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(ResSpeech)
+class ResSpeechAdmin(ImportExportModelAdmin):
+    list_display = ("id", "text2speech_file")
+    search_fields = ("text", "text2speech_file")
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(ContextEmotionDetection)
+class ContextEmotionDetectionAdmin(ImportExportModelAdmin):
+    list_display = ("id", "result")
     search_fields = ("result", "logs")
     readonly_fields = ("created_at", "updated_at")
 
 
-@admin.register(LLMResponse)
-class LLMResponseAdmin(ImportExportModelAdmin):
-    list_display = ("id", "home", "data_text", "result")
-    search_fields = ("result", "logs", "messages")
-    readonly_fields = ("created_at", "updated_at")
+@admin.register(DataMultiModalConversation)
+class DataMultiModalConversationAdmin(ImportExportModelAdmin):
 
+    def audio__time_range(self, obj):
+        # format it "%Y-%m-%d %H:%M:%S"
+        if obj.audio is None:
+            return ""
+        start_time_str = obj.audio.start_time.strftime("%Y-%m-%d %H:%M:%S")
+        end_time_str = obj.audio.end_time.strftime("%Y-%m-%d %H:%M:%S")
+        return f"{start_time_str} - {end_time_str}"
 
-@admin.register(Text2Speech)
-class Text2SpeechAdmin(ImportExportModelAdmin):
-    list_display = ("id", "text")
-    search_fields = ("text", "audio_file")
-    filter_fields = ("hardware_device_mac_address",)
+    audio__time_range.short_description = "Audio Time Range"
+
+    def video__time_range(self, obj):
+        if len(obj.video.all()) == 0:
+            return ""
+        videos = obj.video.all().order_by("start_time")
+        # get the first video start time and the last video end time
+        start_time_str = videos.first().start_time.strftime("%Y-%m-%d %H:%M:%S")
+        end_time_str = videos.last().end_time.strftime("%Y-%m-%d %H:%M:%S")
+        return f"{start_time_str} - {end_time_str}"
+
+    video__time_range.short_description = "Video Time Range"
+
+    list_display = (
+        "id",
+        "audio__time_range",
+        "video__time_range",
+        "text",
+        "res_text",
+        "res_speech",
+    )
+    search_fields = ("text__text", "res_text__text")
     readonly_fields = ("created_at", "updated_at")

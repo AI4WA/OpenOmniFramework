@@ -1,12 +1,12 @@
 from datetime import timedelta
 
+from django.db.models import Q
 from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
 from hardware.models import DataText, DataVideo
 from orchestrator.chain.manager import ClusterManager
 from orchestrator.chain.signals import created_data_text
-from orchestrator.models import Task
 
 logger = get_logger("Emotion-Detection-Chain")
 
@@ -33,16 +33,10 @@ def trigger_created_data_text(sender, **kwargs):
     if data_text_id:
         data_text = DataText.objects.get(id=data_text_id)
     else:
-        data_text = (
-            DataText.objects.filter(pipeline_triggered=False)
-            .order_by("-created_at")
-            .first()
-        )
-    if data_text is None:
-        logger.info("No text to act on found")
+        logger.error("No data_text_id found")
         return None, None, None, None
-    text = data_text.text
 
+    text = data_text.text
     data_audio = data_text.audio
 
     audio_file = f"audio/{data_audio.uid}/{data_audio.audio_file}"
@@ -59,10 +53,13 @@ def trigger_created_data_text(sender, **kwargs):
     logger.info(data_audio)
     # we will assume it comes from the same device
     # list all videos has overlap with [start_time, end_time]
+    # get start_time and end_time has overlap with [start_time, end_time]
     videos_data = DataVideo.objects.filter(
-        video_record_minute__range=[start_time, end_time]
+        Q(start_time__lt=end_time, end_time__gt=start_time)
     )
 
+    data_audio.multi_modal_conversation.video.add(*videos_data)
+    data_audio.multi_modal_conversation.save()
     images_path = []
     for video_data in videos_data:
         image_folder_name = video_data.video_file.split(".")[0].rsplit("-", 1)[0]

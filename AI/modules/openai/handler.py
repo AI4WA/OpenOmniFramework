@@ -6,9 +6,9 @@ from openai import OpenAI
 
 from models.parameters import (
     OpenAIGPT4OParameters,
+    OpenAIGPT4OTextOnlyParameters,
     Speech2TextParameters,
     Text2SpeechParameters,
-    OpenAIGPT4OTextOnlyParameters,
 )
 from models.task import ResultStatus, Task
 from models.track_type import TrackType

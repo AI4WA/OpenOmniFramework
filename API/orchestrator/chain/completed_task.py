@@ -8,6 +8,7 @@ from orchestrator.chain.signals import (
     completed_openai_gpt_4o_text_and_image,
     completed_openai_gpt_4o_text_only,
     completed_openai_speech2text,
+    completed_openai_text2speech,
     completed_quantization_llm,
     completed_speech2text,
     completed_task,
@@ -67,6 +68,12 @@ def trigger_completed_task(sender, **kwargs):
     if task_data.task_name == "openai_gpt_4o_text_only":
         logger.info("OpenAI GPT4O Text Only task completed")
         return completed_openai_gpt_4o_text_only.send(
+            sender=sender, data=data, track_id=task_data.track_id
+        )
+
+    if task_data.task_name == "openai_text2speech":
+        logger.info("OpenAI Text2Speech task completed")
+        return completed_openai_text2speech.send(
             sender=sender, data=data, track_id=task_data.track_id
         )
 

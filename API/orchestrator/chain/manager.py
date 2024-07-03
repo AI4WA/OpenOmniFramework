@@ -140,7 +140,7 @@ CLUSTER_HF_ETE_CONVERSATION = {
     "completed_hf_llm": {
         "order": 4,
         "extra_params": {
-            "hf_model_name": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+            "hf_model_name": "stabilityai/stablelm-3b-4e1t",
         },
         "component_type": "task",
         "task_name": "hf_llm",
@@ -174,6 +174,12 @@ CLUSTER_GPT_4O_ETE_CONVERSATION = {
     },
     "completed_openai_speech2text": {
         "order": 1,
+        "extra_params": {},
+        "component_type": "signal",
+        "task_name": None,
+    },
+    "created_data_text": {
+        "order": 2,
         "extra_params": {},
         "component_type": "signal",
         "task_name": None,
@@ -334,6 +340,8 @@ class ClusterManager:
             name (str): The task name, it will be used to aggregate the task
             user (None): The user
         """
+        logger.info(f"Current component: {current_component}")
+        logger.info(f"Next component params: {next_component_params}")
         cluster_name = track_id.split("-")[1]
         next_component_name, next_component = cls.get_next(
             cluster_name, current_component

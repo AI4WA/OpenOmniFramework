@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
 from orchestrator.chain.manager import CLUSTERS, ClusterManager
+from orchestrator.chain.signals import completed_task
 from orchestrator.metrics.benchmark import Benchmark
 from orchestrator.models import Task, TaskWorker
 
@@ -36,16 +37,23 @@ class TaskAdminForm(forms.ModelForm):
 @admin.action(description="Trigger Downstream Task")
 def trigger_downstream_task(modeladmin, request, queryset):
     for task in queryset:
-        ClusterManager.chain_next(
-            track_id=task.track_id,
-            current_component=f"completed_{task.task_name}",
-            next_component_params={},
-            user=request.user,
-        )
+        completed_task.send(sender=task, data=task.__dict__)
         messages.add_message(
             request,
             messages.INFO,
             f"Triggered downstream task for {task.track_id} with current component completed_{task.task_name}",
+        )
+
+
+@admin.action(description="Reprocess Task")
+def reprocess_task(modeladmin, request, queryset):
+    for task in queryset:
+        task.result_status = "pending"
+        task.save()
+        messages.add_message(
+            request,
+            messages.INFO,
+            f"Reprocessed task for {task.track_id} with current component {task.task_name}",
         )
 
 
@@ -66,7 +74,7 @@ class TaskAdmin(admin.ModelAdmin):
     )
     search_fields = ("user__email", "name", "task_name", "result_status", "track_id")
     list_filter = ("task_name", "result_status", "user", ClusterFilter)
-    actions = [trigger_downstream_task]
+    actions = [trigger_downstream_task, reprocess_task]
 
     readonly_fields = ("created_at", "updated_at")
 

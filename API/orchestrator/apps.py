@@ -12,6 +12,7 @@ class WorkerConfig(AppConfig):
         import orchestrator.chain.completed_openai_gpt_4o_text_and_image
         import orchestrator.chain.completed_openai_gpt_4o_text_only
         import orchestrator.chain.completed_openai_speech2text
+        import orchestrator.chain.completed_openai_text2speech
         import orchestrator.chain.completed_quantization_llm
         import orchestrator.chain.completed_speech2text
         import orchestrator.chain.completed_task

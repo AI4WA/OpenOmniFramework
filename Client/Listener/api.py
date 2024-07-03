@@ -132,14 +132,17 @@ class API:
             return None
         return r.json()
 
-    def post_video(self, uid: str, video_file: str):
+    def post_video(
+        self, uid: str, video_file: str, start_time: datetime, end_time: datetime
+    ):
         """
         Post metadata of the video to the API.
         Args:
             uid (str): uuid of this video section
             video_file (str): Path to the video file, which will be synced to the API disk storage via another parameter
                               it will also hold the information in the file name about the start/end time
-
+            start_time (datetime): The start time of the video
+            end_time (datetime): The end time of the video
         Returns:
 
         """
@@ -149,6 +152,8 @@ class API:
             "uid": uid,
             "hardware_device_mac_address": self.mac_address,
             "video_file": video_file,
+            "start_time": start_time.isoformat(),
+            "end_time": end_time.isoformat(),
         }
         logger.info(data)
         r = requests.post(

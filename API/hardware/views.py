@@ -10,11 +10,11 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from hardware.models import DataAudio, DataVideo, HardWareDevice, Home, Text2Speech
+from hardware.models import DataAudio, DataVideo, HardWareDevice, Home, ResSpeech
 from hardware.serializers import (
     AudioDataSerializer,
     HardWareDeviceSerializer,
-    Text2SpeechSerializer,
+    ResSpeechSerializer,
     VideoDataSerializer,
 )
 
@@ -86,23 +86,6 @@ class VideoDataViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             logger.critical(serializer.data)
             data = serializer.data
-
-            video_record_minute = data["video_file"].split("/")[-1].split(".")[0]
-
-            video_record_minute = datetime.strptime(
-                video_record_minute, "%Y-%m-%d_%H-%M-%S"
-            )
-            # get it to be timezone aware
-            # Specify the timezone: Australia/Perth
-            perth_timezone = pytz.timezone("Australia/Perth")
-            # Make the datetime object timezone-aware
-            video_record_minute_aware = perth_timezone.localize(video_record_minute)
-
-            # only get it to the minute level, and ignore the second level
-            video_record_minute = video_record_minute_aware.replace(second=0)
-            # get it timezone aware
-
-            data["video_record_minute"] = video_record_minute
             serializer = VideoDataSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -156,12 +139,12 @@ class VideoDataViewSet(viewsets.ModelViewSet):
 
 
 class Text2SpeechViewSet(viewsets.ModelViewSet):
-    queryset = Text2Speech.objects.all()
-    serializer_class = Text2SpeechSerializer
+    queryset = ResSpeech.objects.all()
+    serializer_class = ResSpeechSerializer
 
     # retrieve it based on the mac address
     def get_queryset(self):
-        queryset = Text2Speech.objects.filter(
+        queryset = ResSpeech.objects.filter(
             played=False, text2speech_file__isnull=False
         )
         home_id = self.request.query_params.get("home_id", None)
@@ -210,7 +193,7 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
 
             except Exception as e:
                 logger.error(e)
-        data = Text2SpeechSerializer(item).data
+        data = ResSpeechSerializer(item).data
         data["tts_url"] = s3_url
         logger.info(s3_url)
         return Response(data, status=status.HTTP_200_OK)
@@ -235,7 +218,7 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
                 {"message": "text2speech_id is required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        text2speech_obj = Text2Speech.objects.filter(id=text2speech_id).first()
+        text2speech_obj = ResSpeech.objects.filter(id=text2speech_id).first()
         if text2speech_obj is None:
             return Response(
                 {"message": "No text to speech found."},

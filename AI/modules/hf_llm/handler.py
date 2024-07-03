@@ -1,5 +1,7 @@
 import torch
-import transformers
+
+# Load model directly
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from models.parameters import HFParameters
 from models.task import ResultStatus, Task
@@ -15,6 +17,7 @@ logger = get_logger("HFHandler")
 class HFLLM:
     def __init__(self):
         self.avail_models = {}
+        self.avail_tokenizers = {}
 
     def handle_task(self, task: Task) -> Task:
         """
@@ -38,25 +41,31 @@ class HFLLM:
             with time_tracker(
                 "init_model", latency_profile, track_type=TrackType.TRANSFER.value
             ):
-                hf_model = transformers.pipeline(
-                    task=hf_parameters.task,  # default is "text-generation"
-                    model=hf_model_name,
-                    torch_dtype=torch.float16,
-                    device=device,
-                )
+                hf_tokenizer = AutoTokenizer.from_pretrained(hf_model_name)
+                hf_model = AutoModelForCausalLM.from_pretrained(hf_model_name)
+                hf_model.to(device)
                 self.avail_models[hf_model_name] = hf_model
+                self.avail_tokenizers[hf_model_name] = hf_tokenizer
 
-        messages = [
-            {"role": "user", "content": text},
-        ]
         with timer(logger, f"Model infer {hf_model_name}"):
             with time_tracker(
                 "infer", latency_profile, track_type=TrackType.MODEL.value
             ):
-                res = hf_model(messages)
-        text = res[0]["generated_text"][-1]["content"]
-        result_profile["text"] = text
-        result_profile["logs"] = res
+                inputs = self.avail_tokenizers[hf_model_name](
+                    text,
+                    return_tensors="pt",
+                    max_length=1024,
+                    truncation=True,
+                )
+                # to device
+                inputs = {k: v.to(hf_model.device) for k, v in inputs.items()}
+                num_of_tokens = len(inputs["input_ids"][0])
+                res = hf_model.generate(**inputs, max_new_tokens=num_of_tokens + 100)
+                generated_text = self.avail_tokenizers[hf_model_name].decode(
+                    res[0].cpu().tolist(), skip_special_tokens=True
+                )
+        result_profile["text"] = generated_text
+        result_profile["logs"] = res[0].tolist()
         task.result_status = ResultStatus.completed.value
         task.result_json.result_profile.update(result_profile)
         task.result_json.latency_profile.update(latency_profile)

@@ -1,9 +1,13 @@
 from django.dispatch import receiver
 
 from authenticate.utils.get_logger import get_logger
+from hardware.models import ContextEmotionDetection
 from orchestrator.chain.manager import ClusterManager
 from orchestrator.chain.models import TaskData
 from orchestrator.chain.signals import completed_emotion_detection
+from orchestrator.chain.utils import (
+    data_multimodal_conversation_log_context_emotion_detection,
+)
 
 logger = get_logger(__name__)
 
@@ -24,13 +28,18 @@ def trigger_completed_emotion_detection(sender, **kwargs):
         if track_id is None:
             logger.error("No track_id found")
             return
+        data_text_id = task_data.parameters.get("data_text_id", None)
 
         # get the text and emotion from the result
         text = task_data.parameters["text"]
         emotion = task_data.result_json["result_profile"].get("multi_modal_output", {})
+        data_multimodal_conversation_log_context_emotion_detection(
+            task_data=task_data, result=emotion
+        )
         emotion_text = (
             "Emotion value is from -1 to 1, -1 means negative, 1 means positive\n"
         )
+
         for key, value in emotion.items():
             if key == "A":
                 emotion_text += f"Audio emotion: {value}\n"
@@ -54,7 +63,7 @@ def trigger_completed_emotion_detection(sender, **kwargs):
         ClusterManager.chain_next(
             track_id=track_id,
             current_component="completed_emotion_detection",
-            next_component_params={"text": prompt},
+            next_component_params={"text": prompt, "data_text_id": data_text_id},
             user=sender.user,
         )
 

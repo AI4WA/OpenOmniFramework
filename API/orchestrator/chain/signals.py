@@ -9,4 +9,5 @@ completed_text2speech = Signal()  # task type
 completed_openai_speech2text = Signal()  # task type
 completed_openai_gpt_4o_text_and_image = Signal()  # task type
 completed_openai_gpt_4o_text_only = Signal()  # task type
+completed_openai_text2speech = Signal()  # task type
 created_data_text = Signal()

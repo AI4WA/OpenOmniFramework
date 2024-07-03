@@ -46,17 +46,19 @@ def trigger_completed_speech2text(sender, **kwargs):
     result_profile = result_json.get("result_profile", {})
     text = result_profile.get("text", "")
     logger.debug(result_json)
-    data_text_obj = DataText.objects.filter(audio=audio_obj, home_id=home_id).first()
+    data_text_obj = DataText.objects.filter(audio=audio_obj).first()
     if data_text_obj:
         data_text_obj.text = text
         data_text_obj.save()
     else:
         data_text_obj = DataText(
-            home_id=home_id,
             audio=audio_obj,
             text=text,
         )
         data_text_obj.save()
+
+    audio_obj.multi_modal_conversation.text = data_text_obj
+    audio_obj.multi_modal_conversation.save()
 
     ClusterManager.chain_next(
         track_id=track_id,

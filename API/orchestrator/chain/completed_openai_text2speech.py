@@ -3,15 +3,15 @@ from django.dispatch import receiver
 from authenticate.utils.get_logger import get_logger
 from hardware.models import ResSpeech
 from orchestrator.chain.models import TaskData
-from orchestrator.chain.signals import completed_text2speech
+from orchestrator.chain.signals import completed_openai_text2speech
 from orchestrator.chain.utils import data_multimodal_conversation_log_res_speech
 from orchestrator.models import Task
 
 logger = get_logger(__name__)
 
 
-@receiver(completed_text2speech)
-def trigger_completed_text2speech(sender, **kwargs):
+@receiver(completed_openai_text2speech)
+def trigger_completed_openai_text2speech(sender, **kwargs):
     """
     After the text2speech is done, save it to the database
 
@@ -19,7 +19,7 @@ def trigger_completed_text2speech(sender, **kwargs):
         sender: The sender of the signal
         kwargs: The data passed to the signal
     """
-    logger.info("Text2Speech completed triggerred")
+    logger.info("OpenAI Text2Speech completed triggerred")
     try:
         data = kwargs.get("data", {})
         track_id = kwargs.get("track_id", None)
@@ -38,11 +38,13 @@ def trigger_completed_text2speech(sender, **kwargs):
         if speech2text_task is None:
             logger.error("No speech2text task found")
             return
-        text = speech2text_task.result_json["result_profile"].get("text", "")
         logger.info(speech2text_task.parameters)
         text2speech_file = task_data.result_json["result_profile"].get(
             "audio_file_path", ""
         )
+        ResSpeech.objects.create(text2speech_file=text2speech_file)
+
+        # this is the end of the chain
         data_multimodal_conversation_log_res_speech(
             task_data=task_data,
             speech_file_path=text2speech_file,

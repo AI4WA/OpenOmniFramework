@@ -97,7 +97,12 @@ class VideoAcquire:
                     logger.info(f"the recording is finished, saved to file: {filename}")
                     out.release()
                     # TODO: post the video to the server
-                    self.api.post_video(self.uid, filename.as_posix().split("/")[-1])
+                    self.api.post_video(
+                        self.uid,
+                        filename.as_posix().split("/")[-1],
+                        start_time=start_time,
+                        end_time=datetime.now(),
+                    )
                     # resume the recording
                     start_time = datetime.now()
                     filename = self.data_dir / (

@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 # import mark_safe
 from django.utils.safestring import mark_safe
@@ -179,7 +181,7 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
 
     def play_res_speech(self, obj):
         if obj.res_speech is None:
-            return "No Res Speech"
+            return "No Response Speech"
         return mark_safe(
             f'<audio controls name="media"><source src="{obj.res_speech.url()}" type="audio/mpeg"></audio>'
         )
@@ -191,7 +193,7 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
 
     def response_text(self, obj):
         if obj.res_text is None:
-            return "No Res Text"
+            return "No Response Text"
         return obj.res_text.text
 
     list_display = (
@@ -228,3 +230,37 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
         "updated_at",
     )
     list_filter = ("created_at", ClusterFilter)
+
+    change_form_template = "admin/hardware/conversation/change_form.html"
+
+    def response_change(self, request, obj):
+        if "_saveandnext" in request.POST:
+            next_obj = self.get_next_obj(obj)
+            if next_obj:
+                return HttpResponseRedirect(
+                    reverse(
+                        "admin:%s_%s_change"
+                        % (obj._meta.app_label, obj._meta.model_name),
+                        args=[next_obj.pk],
+                    )
+                )
+        return super().response_change(request, obj)
+
+    def get_next_obj(self, obj):
+        # Define your logic to get the next object
+        next_obj = (
+            DataMultiModalConversation.objects.filter(pk__gt=obj.pk)
+            .order_by("pk")
+            .first()
+        )
+        return next_obj
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        if extra_context is None:
+            extra_context = {}
+
+        extra_context["additional_save_buttons"] = [
+            {"name": "_saveandnext", "value": "Save and Next"}
+        ]
+
+        return super().change_view(request, object_id, form_url, extra_context)

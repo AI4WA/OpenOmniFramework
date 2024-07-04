@@ -1,0 +1,12 @@
+{% extends "admin/change_form.html" %}
+
+{% block  extra_actions %}
+    {{ block.super }}
+    <div class="form-group"></div>
+    {% for button in additional_save_buttons %}
+        <div class="form-group">
+            <button type="submit" name="{{ button.name }}"
+                    class="btn btn-block {{ jazzmin_ui.button_classes.primary }} btn-sm">{{ button.value }}</button>
+        </div>
+    {% endfor %}
+{% endblock %}

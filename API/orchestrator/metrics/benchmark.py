@@ -502,7 +502,7 @@ class Benchmark:
             #     update margin to be 0
             margin=dict(l=10, r=10, b=0),
             # get the height to be whatever it requires
-            height=len(df) * 35,
+            height=max((len(df) * 35), 300),
         )
         # Update layout for better appearance
         desc_html = fig.to_html(full_html=False)
@@ -597,7 +597,7 @@ class Benchmark:
             xaxis_title="Relative in Seconds to Start Time",
             yaxis_title="Track ID",
             barmode="stack",
-            height=(len(df) * 35),
+            height=max((len(df) * 35), 300),
         )
 
         # Convert Plotly figure to HTML
@@ -681,7 +681,7 @@ class Benchmark:
             ),
             showlegend=True,
             shapes=shapes,
-            height=(len(df) * 35),
+            height=max((len(df) * 35), 300),
         )
         # Convert Plotly figure to HTML
         plot_html = fig.to_html(full_html=False)
@@ -771,7 +771,7 @@ class Benchmark:
         return task_groups, required_tasks_count, tasks
 
     @staticmethod
-    def get_task_names_order(track_id: str) -> str:
+    def get_task_names_order(track_id: str) -> List[str]:
         """
         Get the task names order
         Args:

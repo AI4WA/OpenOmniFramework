@@ -20,6 +20,8 @@ services:
     volumes:
       - .:/usr/src/app
       - .aws:/root/.aws
+      - ../Client/Listener/data:/usr/src/client/Listener/data
+      - ../AI/data/tts:/usr/src/client/Responder/data
     ports:
       - "8000:8000"
     environment:

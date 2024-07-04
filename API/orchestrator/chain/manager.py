@@ -140,7 +140,7 @@ CLUSTER_HF_ETE_CONVERSATION = {
     "completed_hf_llm": {
         "order": 4,
         "extra_params": {
-            "hf_model_name": "stabilityai/stablelm-3b-4e1t",
+            "hf_model_name": "Qwen/Qwen2-7B-Instruct",
         },
         "component_type": "task",
         "task_name": "hf_llm",

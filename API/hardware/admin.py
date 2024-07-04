@@ -1,14 +1,18 @@
-from django import forms
 from django.contrib import admin
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.shortcuts import render
+from django.urls import path, reverse
 
 # import mark_safe
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from import_export.admin import ImportExportModelAdmin
+from import_export.admin import ImportExportMixin, ImportExportModelAdmin
 
 from authenticate.models import User
+from hardware.forms import (
+    MultiModalAnnotationForm,
+    MultiModalFKEmotionDetectionAnnotationForm,
+)
 from hardware.models import (
     ContextEmotionDetection,
     DataAudio,
@@ -21,6 +25,7 @@ from hardware.models import (
     ResText,
 )
 from orchestrator.chain.manager import CLUSTERS
+from orchestrator.metrics.accuracy_benchmark import AccuracyBenchmark
 
 
 class ClusterFilter(admin.SimpleListFilter):
@@ -133,63 +138,44 @@ class ResSpeechAdmin(ImportExportModelAdmin):
     readonly_fields = ("created_at", "updated_at")
 
 
-class MultiModalAnnotationForm(forms.ModelForm):
-    annotation_speech2text = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={"rows": 1})
-    )
-    annotation_speech2text_score = forms.IntegerField(
-        initial=0,
-        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
-        required=False,
-    )
-    annotation_text_generation = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={"rows": 1})
-    )
-
-    annotation_text_generation_score = forms.IntegerField(
-        initial=0,
-        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
-        required=False,
-    )
-
-    annotation_text2speech = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={"rows": 1})
-    )
-
-    annotation_text2speech_score = forms.IntegerField(
-        initial=0,
-        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
-        required=False,
-    )
-
-    annotation_overall_score = forms.IntegerField(
-        initial=0,
-        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
-        required=False,
-    )
-
-    annotation_overall_comment = forms.CharField(
-        required=False, widget=forms.Textarea(attrs={"rows": 1})
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance.annotations:
-            current_user_annotation = self.instance.annotations.get(
-                str(self.current_user.id), {}
-            )
-            for key, value in current_user_annotation.items():
-                if key in self.fields:
-                    self.fields[key].initial = value
-
-    class Meta:
-        model = DataMultiModalConversation
-        fields = "__all__"
-
-
 @admin.register(DataMultiModalConversation)
-class DataMultiModalConversationAdmin(ImportExportModelAdmin):
+class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
+    import_export_change_list_template = "admin/hardware/conversation/change_list.html"
     form = MultiModalAnnotationForm
+
+    def get_urls(self):
+        # the custom urls will be changed when ClusterFilter is changed, how can I implement it?
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "accuracy_benchmark/",
+                self.admin_site.admin_view(self.accuracy_benchmark),
+                name="accuracy_benchmark",
+            ),
+            path(
+                "accuracy_detail/",
+                self.admin_site.admin_view(self.accuracy_detail),
+                name="accuracy_detail",
+            ),
+        ]
+        return custom_urls + urls
+
+    @staticmethod
+    def accuracy_benchmark(request):
+        # get parameter from request url
+        cluster = request.GET.get("cluster", "all")
+        benchmark = AccuracyBenchmark(benchmark_cluster=cluster)
+        html_content = benchmark.benchmark_run()
+        context = {"content": html_content, "benchmark_type": "Accuracy Overall"}
+        return render(request, "admin/orchestrator/task/benchmark.html", context)
+
+    @staticmethod
+    def accuracy_detail(request):
+        cluster = request.GET.get("cluster", "all")
+        benchmark = AccuracyBenchmark(benchmark_cluster=cluster)
+        html_content = benchmark.detail_run()
+        context = {"content": html_content, "benchmark_type": "Accuracy Detail"}
+        return render(request, "admin/orchestrator/task/benchmark.html", context)
 
     def audio__time_range(self, obj):
         # format it "%Y-%m-%d %H:%M:%S"
@@ -556,39 +542,9 @@ class DataMultiModalConversationFKAdmin(ImportExportModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-class MultiModalFKAnnotationForm(forms.ModelForm):
-
-    annotation_overall = forms.IntegerField(initial=0)
-    annotation_overall.widget.attrs.update({"min": -10, "max": 10})
-
-    annotation_text_modality = forms.IntegerField(initial=0)
-    annotation_text_modality.widget.attrs.update({"min": -10, "max": 10})
-
-    annotation_audio_modality = forms.IntegerField(initial=0)
-    annotation_audio_modality.widget.attrs.update({"min": -10, "max": 10})
-
-    annotation_video_modality = forms.IntegerField(initial=0)
-    annotation_video_modality.widget.attrs.update({"min": -10, "max": 10})
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if self.instance.annotations:
-            current_user_annotation = self.instance.annotations.get(
-                str(self.current_user.id), {}
-            )
-            for key, value in current_user_annotation.items():
-                if key in self.fields:
-                    self.fields[key].initial = value
-
-    class Meta:
-        model = ContextEmotionDetection
-        fields = "__all__"
-
-
 @admin.register(ContextEmotionDetection)
 class ContextEmotionDetectionAdmin(DataMultiModalConversationFKAdmin):
-    form = MultiModalFKAnnotationForm
+    form = MultiModalFKEmotionDetectionAnnotationForm
 
     def emotion_overall(self, obj):
         return obj.result.get("M", "No Result")

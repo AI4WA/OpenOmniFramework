@@ -4,12 +4,12 @@
 
     {% block object-tools-items %}
 
-        <a href="{% url 'admin:benchmark' %}?cluster={{ request.GET.cluster|default:'all' }}"
-           class="btn {{ jazzmin_ui.button_classes.success }} float-right">Latency Benchmark</a>
+        <a href="{% url 'admin:accuracy_benchmark' %}?cluster={{ request.GET.cluster|default:'all' }}"
+           class="btn {{ jazzmin_ui.button_classes.success }} float-right">Accuracy Benchmark</a>
 
-        <a href="{% url 'admin:benchmark_detail' %}?cluster={{ request.GET.cluster|default:'all' }}"
+        <a href="{% url 'admin:accuracy_detail' %}?cluster={{ request.GET.cluster|default:'all' }}"
            class="btn {{ jazzmin_ui.button_classes.success }} float-right">
-            Latency Details
+            Accuracy Details
         </a>
         {% include "admin/import_export/change_list_import_item.html" %}
         {% include "admin/import_export/change_list_export_item.html" %}

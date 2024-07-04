@@ -139,6 +139,22 @@ class Task(models.Model):
             ("openai_gpt_4o_text_only", "OpenAI GPT4o Text"),
         ]
 
+    @staticmethod
+    def task_ml_task_mapping() -> dict:
+        return {
+            "quantization_llm": "text_generation",
+            "hf_llm": "text_generation",
+            "emotion_detection": "emotion_detection",
+            "speech2text": "speech2text",
+            "text2speech": "text2speech",
+            "general_ml": "general_ml",
+            "openai_speech2text": "speech2text",
+            "openai_gpt_4o": "text_generation",
+            "openai_text2speech": "text2speech",
+            "openai_gpt_4o_text_and_image": "text_generation",
+            "openai_gpt_4o_text_only": "text_generation",
+        }
+
 
 class TaskWorker(models.Model):
     uuid = models.CharField(max_length=100, unique=True)

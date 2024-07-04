@@ -23,7 +23,7 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
 admin.site.site_header = "UWA NLP TLP"
-admin.site.site_title = "WA Data & LLM Platform Admin Portal"
+admin.site.site_title = "UWA NLP TLP Data & LLM Platform Admin Portal"
 admin.site.index_title = "UWA NLP TLP"
 
 schema_view = get_schema_view(

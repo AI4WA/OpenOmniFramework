@@ -5,11 +5,11 @@ from django.contrib import admin, messages
 from django.shortcuts import render
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
-from import_export.admin import ImportExportModelAdmin
+from import_export.admin import ImportExportMixin, ImportExportModelAdmin
 
 from orchestrator.chain.manager import CLUSTERS
 from orchestrator.chain.signals import completed_task
-from orchestrator.metrics.benchmark import Benchmark
+from orchestrator.metrics.latency_benchmark import LatencyBenchmark
 from orchestrator.models import Task, TaskWorker
 
 
@@ -58,8 +58,9 @@ def reprocess_task(modeladmin, request, queryset):
 
 
 @admin.register(Task)
-class TaskAdmin(admin.ModelAdmin):
+class TaskAdmin(ImportExportMixin, admin.ModelAdmin):
     change_list_template = "admin/orchestrator/task/change_list.html"
+    import_export_change_list_template = "admin/orchestrator/task/change_list.html"
 
     # get task_name to be the choices field
     form = TaskAdminForm
@@ -99,7 +100,7 @@ class TaskAdmin(admin.ModelAdmin):
     def benchmark(request):
         # get parameter from request url
         cluster = request.GET.get("cluster", "all")
-        benchmark = Benchmark(benchmark_cluster=cluster)
+        benchmark = LatencyBenchmark(benchmark_cluster=cluster)
         html_content = benchmark.run()
         context = {"content": html_content, "benchmark_type": "Latency Overall"}
         return render(request, "admin/orchestrator/task/benchmark.html", context)
@@ -107,7 +108,7 @@ class TaskAdmin(admin.ModelAdmin):
     @staticmethod
     def benchmark_detail(request):
         cluster = request.GET.get("cluster", "all")
-        benchmark = Benchmark(benchmark_cluster=cluster)
+        benchmark = LatencyBenchmark(benchmark_cluster=cluster)
         html_content = benchmark.run_detail()
         context = {"content": html_content, "benchmark_type": "Latency Details"}
         return render(request, "admin/orchestrator/task/benchmark.html", context)

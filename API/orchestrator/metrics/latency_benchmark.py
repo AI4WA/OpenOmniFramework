@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import List
 
 import pandas as pd
 import plotly.colors as pcolors
@@ -8,12 +7,17 @@ from django.conf import settings
 
 from authenticate.utils.get_logger import get_logger
 from orchestrator.chain.manager import CLUSTER_Q_ETE_CONVERSATION_NAME, CLUSTERS
+from orchestrator.metrics.utils import (
+    extract_task_group,
+    get_task_names_order,
+    str_to_datetime,
+)
 from orchestrator.models import Task
 
 logger = get_logger(__name__)
 
 
-class Benchmark:
+class LatencyBenchmark:
     """
     For each component, we will generally have two values:
     - model_latency: The time taken by the model to process the data
@@ -36,7 +40,6 @@ class Benchmark:
         """
         # if it is a specific name, gather this metric, otherwise, report all existing cluster
         self.benchmark_cluster = benchmark_cluster
-        self.benchmark = {}
 
     def run(self):
         """
@@ -75,8 +78,9 @@ class Benchmark:
         Args:
             cluster_name (str): The cluster name
         """
-        task_groups, required_tasks_count, tasks = self.extract_task_group(cluster_name)
-
+        task_groups, required_tasks_count, tasks = extract_task_group(cluster_name)
+        general_desc = f"<h2>Cluster: {cluster_name}</h2>"
+        general_desc += f"<p>Required tasks: {required_tasks_count} | Total tasks groups: {len(task_groups)}</p>"
         # loop through the task groups, if the success task is not == required_tasks_count, then we will skip
         success_pipeline = 0
         cluster_latency = []
@@ -124,8 +128,8 @@ class Benchmark:
             desc_html = self.plot_table(desc, title=f" ({general_title})")
             plot_html = self.plot_distribution(result_df, title=f" ({general_title})")
 
-            return desc_html + plot_html
-        return ""
+            return general_desc + desc_html + plot_html
+        return general_desc
 
     def process_cluster_detail(self, cluster_name: str) -> str:
         """
@@ -137,8 +141,9 @@ class Benchmark:
         Returns:
 
         """
-        task_groups, required_tasks_count, tasks = self.extract_task_group(cluster_name)
-
+        task_groups, required_tasks_count, tasks = extract_task_group(cluster_name)
+        general_desc = f"<h2>Cluster: {cluster_name}</h2>"
+        general_desc += f"<p>Required tasks: {required_tasks_count} | Total tasks groups: {len(task_groups)}</p>"
         # loop through the task groups, if the success task is not == required_tasks_count, then we will skip
         success_pipeline = 0
         cluster_latency = []
@@ -161,7 +166,7 @@ class Benchmark:
         general_title = f"Cluster: <b>{cluster_name}</b>, Completed Ratio: {success_pipeline}/{len(task_groups)}"
         result_df = pd.DataFrame(cluster_latency)
         if len(result_df) == 0:
-            return ""
+            return general_desc
 
         # only keep the last element in the track_id
         result_df["track_id"] = result_df["track_id"].str.split("-").str[-1]
@@ -191,7 +196,7 @@ class Benchmark:
         ts_timepoint_html = self.plot_timestamp_timeline_depth(
             result_tp_df, title=general_title
         )
-        return track_tasks_html + ts_stacked_html + ts_timepoint_html
+        return general_desc + track_tasks_html + ts_stacked_html + ts_timepoint_html
 
     @staticmethod
     def process_task_group(task_track: List[Task]):
@@ -207,7 +212,7 @@ class Benchmark:
         result = {
             "track_id": task_track[0].track_id,
         }
-        task_names = Benchmark.get_task_names_order(result["track_id"])
+        task_names = get_task_names_order(result["track_id"])
         for task in task_track:
             latency_profile = task.result_json.get("latency_profile", {})
             # NOTE: this will require client side do not log overlap durations
@@ -232,8 +237,8 @@ class Benchmark:
             # process time into datetime object
             # ts_end_trigger_emotion_model 2024-07-01T14:58:36.419352
             if task_start_time and task_end_time:
-                task_start_time_dt = Benchmark.str_to_datetime(task_start_time)
-                task_end_time_dt = Benchmark.str_to_datetime(task_end_time)
+                task_start_time_dt = str_to_datetime(task_start_time)
+                task_end_time_dt = str_to_datetime(task_end_time)
                 result[f"{task.task_name}_overall_latency"] = (  # noqa
                     task_end_time_dt - task_start_time_dt
                 ).total_seconds()
@@ -284,7 +289,7 @@ class Benchmark:
         result = {
             "track_id": task_track[0].track_id,
         }
-        task_names = Benchmark.get_task_names_order(result["track_id"])
+        task_names = get_task_names_order(result["track_id"])
         for task in task_track:
             if task.result_status != "completed":
                 result[f"{task.task_name}_model_latency"] = task.result_status
@@ -314,8 +319,8 @@ class Benchmark:
             # process time into datetime object
             # ts_end_trigger_emotion_model 2024-07-01T14:58:36.419352
             if task_start_time and task_end_time:
-                task_start_time_dt = Benchmark.str_to_datetime(task_start_time)
-                task_end_time_dt = Benchmark.str_to_datetime(task_end_time)
+                task_start_time_dt = str_to_datetime(task_start_time)
+                task_end_time_dt = str_to_datetime(task_end_time)
                 result[f"{task.task_name}_overall_latency"] = (  # noqa
                     task_end_time_dt - task_start_time_dt
                 ).total_seconds()
@@ -387,7 +392,7 @@ class Benchmark:
             "track_id": task_track[0].track_id,
         }
 
-        task_names = Benchmark.get_task_names_order(result["track_id"])
+        task_names = get_task_names_order(result["track_id"])
 
         task_results = {}
         for task in task_track:
@@ -397,7 +402,7 @@ class Benchmark:
             task_result = {}
             for key, value in latency_profile.items():
                 if key.startswith("ts"):
-                    task_result[key] = Benchmark.str_to_datetime(value)
+                    task_result[key] = str_to_datetime(value)
 
             if timeline is False:
                 # sort out the whole task_result based on time timestamp
@@ -728,76 +733,3 @@ class Benchmark:
         # Convert Plotly figure to HTML
         plot_html = fig.to_html(full_html=False)
         return plot_html
-
-    @staticmethod
-    def extract_task_group(
-        cluster_name: str,
-    ) -> Tuple[Dict[str, List[Task]], int, List[Task]]:
-        """
-        Extract the task group
-        Args:
-            cluster_name (str): The cluster name
-
-        Returns:
-
-        """
-        cluster = CLUSTERS.get(cluster_name, None)
-        if cluster is None:
-            raise ValueError(f"Cluster {cluster_name} not found")
-
-        required_tasks = [
-            item for item in cluster.values() if item["component_type"] == "task"
-        ]
-        required_tasks_count = len(required_tasks)
-        logger.info(f"Cluster: {cluster_name}, Required tasks: {required_tasks_count}")
-        # get all related tasks, the track_id is like T_{cluster_name}_XXX
-        tasks = Task.objects.filter(track_id__startswith=f"T-{cluster_name}-")
-        logger.info(f"Cluster: {cluster_name}, Total tasks: {len(tasks)}")
-        # group the tasks by the track_id
-        task_groups = {}
-        for task in tasks:
-            track_id = task.track_id
-            if track_id not in task_groups:
-                task_groups[track_id] = []
-            task_groups[track_id].append(task)
-
-        # sort the task groups by the first task created time
-        task_groups = dict(
-            sorted(
-                task_groups.items(),
-                key=lambda x: x[1][0].created_at if len(x[1]) > 0 else None,
-            )
-        )
-        return task_groups, required_tasks_count, tasks
-
-    @staticmethod
-    def get_task_names_order(track_id: str) -> List[str]:
-        """
-        Get the task names order
-        Args:
-            track_id (str): The track ID
-
-        Returns:
-            str: The task names order
-
-        """
-        cluster_name = track_id.split("-")[1]
-        cluster = CLUSTERS.get(cluster_name)
-        task_name_order = [
-            item for item in cluster.values() if item["component_type"] == "task"
-        ]
-        task_name_order = sorted(task_name_order, key=lambda x: x["order"])
-        task_names = [item["task_name"] for item in task_name_order]
-        return task_names
-
-    @staticmethod
-    def str_to_datetime(datetime_str: str) -> datetime:
-        """
-        Convert the datetime string to datetime object
-        Args:
-            datetime_str (str): the string datetime, like this: 2024-07-01T14:58:36.419352
-
-        Returns:
-            datetime: The datetime object
-        """
-        return datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%f")

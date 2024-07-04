@@ -131,17 +131,8 @@ class ResSpeechAdmin(ImportExportModelAdmin):
     readonly_fields = ("created_at", "updated_at")
 
 
-@admin.register(ContextEmotionDetection)
-class ContextEmotionDetectionAdmin(ImportExportModelAdmin):
-    list_display = ("id", "result")
-    search_fields = ("result", "logs")
-    readonly_fields = ("created_at", "updated_at")
-
-
 @admin.register(DataMultiModalConversation)
 class DataMultiModalConversationAdmin(ImportExportModelAdmin):
-
-    # form = DataMultiModalConversationAdminForm
 
     def audio__time_range(self, obj):
         # format it "%Y-%m-%d %H:%M:%S"
@@ -264,3 +255,158 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
         ]
 
         return super().change_view(request, object_id, form_url, extra_context)
+
+
+class DataMultiModalConversationFKAdmin(ImportExportModelAdmin):
+    """
+    All the obj above will be self.multi_modal_conversation
+    """
+
+    def audio__time_range(self, obj):
+        # format it "%Y-%m-%d %H:%M:%S"
+        if obj.multi_modal_conversation.audio is None:
+            return "No Audio"
+        start_time_str = obj.multi_modal_conversation.audio.start_time.strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+        end_time_str = obj.multi_modal_conversation.audio.end_time.strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+        return f"{start_time_str} - {end_time_str}"
+
+    audio__time_range.short_description = "Time Range: Audio"
+
+    def video__time_range(self, obj):
+        if len(obj.multi_modal_conversation.video.all()) == 0:
+            return "No Video"
+        videos = obj.multi_modal_conversation.video.all().order_by("start_time")
+        # get the first video start time and the last video end time
+        start_time_str = videos.first().start_time.strftime("%Y-%m-%d %H:%M:%S")
+        end_time_str = videos.last().end_time.strftime("%Y-%m-%d %H:%M:%S")
+        return f"{start_time_str} - {end_time_str}"
+
+    video__time_range.short_description = "Time Range: Video"
+
+    def play_audio(self, obj):
+        if obj.multi_modal_conversation.audio is None:
+            return "No Audio"
+
+        return mark_safe(
+            f'<audio controls name="media">'
+            f'<source src="{obj.multi_modal_conversation.audio.url()}" type="audio/mpeg"></audio>'
+        )
+
+    def play_video(self, obj):
+        if (
+            obj.multi_modal_conversation.video is None
+            or len(obj.multi_modal_conversation.video.all()) == 0
+        ):
+            return "No Video"
+        return mark_safe(
+            f'<video width="320" height="240" controls>'
+            f'<source src="{obj.multi_modal_conversation.video_url()}" type="video/mp4"></video>'
+        )
+
+    def play_res_speech(self, obj):
+        if obj.multi_modal_conversation.res_speech is None:
+            return "No Response Speech"
+        return mark_safe(
+            f'<audio controls name="media">'
+            f'<source src="{obj.multi_modal_conversation.res_speech.url()}" type="audio/mpeg"></audio>'
+        )
+
+    def speech_to_text(self, obj):
+        if obj.multi_modal_conversation.text is None:
+            return "No Text"
+        return obj.multi_modal_conversation.text.text
+
+    def response_text(self, obj):
+        if obj.multi_modal_conversation.res_text is None:
+            return "No Response Text"
+        return obj.multi_modal_conversation.res_text.text
+
+    list_display = (
+        "id",
+        "audio__time_range",
+        "video__time_range",
+        # "text",
+        # "multi_modal_conversation__res_text",
+        # "multi_modal_conversation__res_speech",
+    )
+    exclude = (
+        "audio",
+        "video",
+        # "res_speech",
+        # "res_text",
+        "text",
+    )
+    search_fields = (
+        "text__text",
+        "res_text__text",
+        "track_id",
+        "text",
+    )
+    readonly_fields = (
+        # "track_id",
+        "play_audio",
+        "audio__time_range",
+        "speech_to_text",
+        "play_video",
+        "video__time_range",
+        "response_text",
+        "play_res_speech",
+        "created_at",
+        "updated_at",
+    )
+    list_filter = ("created_at", ClusterFilter)
+
+    change_form_template = "admin/hardware/conversation/change_form.html"
+
+    def response_change(self, request, obj):
+        if "_saveandnext" in request.POST:
+            next_obj = self.get_next_obj(obj)
+            if next_obj:
+                return HttpResponseRedirect(
+                    reverse(
+                        "admin:%s_%s_change"
+                        % (
+                            obj._meta.app_label,
+                            obj._meta.model_name,
+                        ),
+                        args=[next_obj.pk],
+                    )
+                )
+        return super().response_change(request, obj)
+
+    def get_next_obj(self, obj):
+        # Define your logic to get the next object
+        # use self model to get the next object
+        obj_model = obj.__class__
+        next_obj = obj_model.objects.filter(pk__gt=obj.pk).order_by("pk").first()
+        return next_obj
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        if extra_context is None:
+            extra_context = {}
+
+        extra_context["additional_save_buttons"] = [
+            {"name": "_saveandnext", "value": "Save and Next"}
+        ]
+
+        return super().change_view(request, object_id, form_url, extra_context)
+
+
+@admin.register(ContextEmotionDetection)
+class ContextEmotionDetectionAdmin(DataMultiModalConversationFKAdmin):
+    def emotion_overall(self, obj):
+        return obj.result.get("M", "No Result")
+
+    list_display = DataMultiModalConversationFKAdmin.list_display + ("emotion_overall",)
+    readonly_fields = (
+        "emotion_overall",
+    ) + DataMultiModalConversationFKAdmin.readonly_fields
+    exclude = DataMultiModalConversationFKAdmin.exclude + (
+        "result",
+        "logs",
+        "multi_modal_conversation",
+    )

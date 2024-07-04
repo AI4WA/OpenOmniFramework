@@ -7,7 +7,7 @@ class MultiModalAnnotationForm(forms.ModelForm):
     )
     annotation_speech2text_score = forms.IntegerField(
         initial=0,
-        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        widget=forms.NumberInput(attrs={"min": 0, "max": 5}),
         required=False,
     )
     annotation_text_generation = forms.CharField(
@@ -16,19 +16,19 @@ class MultiModalAnnotationForm(forms.ModelForm):
 
     annotation_text_generation_score = forms.IntegerField(
         initial=0,
-        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        widget=forms.NumberInput(attrs={"min": 0, "max": 5}),
         required=False,
     )
 
     annotation_text2speech_score = forms.IntegerField(
         initial=0,
-        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        widget=forms.NumberInput(attrs={"min": 0, "max": 5}),
         required=False,
     )
 
     annotation_overall_score = forms.IntegerField(
         initial=0,
-        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        widget=forms.NumberInput(attrs={"min": 0, "max": 5}),
         required=False,
     )
 
@@ -50,16 +50,16 @@ class MultiModalAnnotationForm(forms.ModelForm):
 class MultiModalFKEmotionDetectionAnnotationForm(forms.ModelForm):
 
     annotation_overall = forms.IntegerField(initial=0)
-    annotation_overall.widget.attrs.update({"min": -10, "max": 10})
+    annotation_overall.widget.attrs.update({"min": 0, "max": 5})
 
     annotation_text_modality = forms.IntegerField(initial=0)
-    annotation_text_modality.widget.attrs.update({"min": -10, "max": 10})
+    annotation_text_modality.widget.attrs.update({"min": 0, "max": 5})
 
     annotation_audio_modality = forms.IntegerField(initial=0)
-    annotation_audio_modality.widget.attrs.update({"min": -10, "max": 10})
+    annotation_audio_modality.widget.attrs.update({"min": 0, "max": 5})
 
     annotation_video_modality = forms.IntegerField(initial=0)
-    annotation_video_modality.widget.attrs.update({"min": -10, "max": 10})
+    annotation_video_modality.widget.attrs.update({"min": 0, "max": 5})
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

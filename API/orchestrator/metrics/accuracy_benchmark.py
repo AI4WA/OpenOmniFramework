@@ -12,6 +12,7 @@ from hardware.models import ContextEmotionDetection, DataMultiModalConversation
 from orchestrator.chain.manager import CLUSTER_Q_ETE_CONVERSATION_NAME, CLUSTERS
 from orchestrator.metrics.utils import extract_task_group
 from orchestrator.models import Task
+import jiwer
 
 logger = get_logger(__name__)
 
@@ -89,10 +90,12 @@ class AccuracyBenchmark:
             conversation_annotation = conversation.annotations
             annotated = False
             for user_id, annotation in conversation_annotation.items():
+                logger.info(conversation.text.text)
                 annotations.append(
                     {
                         "track_id": conversation.track_id,
                         "user_id": user_id,
+                        "predict_text": conversation.text.text,
                         **annotation_pending_default,
                         **annotation,
                     }
@@ -118,12 +121,24 @@ class AccuracyBenchmark:
         conversation_annotation_df.columns = [
             col.replace("annotation_", "") for col in conversation_annotation_df.columns
         ]
+        conversation_annotation_df = self.calculate_speech2text_accuracy(
+            conversation_annotation_df
+        )
 
+        # TODO: add automatic calculation for some tasks, for example, speech2text
         if detailed:
             # then we will present them into multiple tables: speech2text, text_generation, text2speech, overall
             if "speech2text" in required_annotation_task:
                 speech2text_df = conversation_annotation_df[
-                    ["track_id", "user_id", "speech2text", "speech2text_score"]
+                    [
+                        "track_id",
+                        "user_id",
+                        "predict_text",
+                        "speech2text",
+                        "wer",
+                        "cer",
+                        "speech2text_score",
+                    ]
                 ].copy(deep=True)
                 html_content += self.plot_table(speech2text_df, "Speech2Text")
             if "text_generation" in required_annotation_task:
@@ -143,7 +158,16 @@ class AccuracyBenchmark:
             html_content += self.plot_table(
                 overall_conversation_df, "Overall Conversation Quality"
             )
-
+        else:
+            # then we will try to calculate the overall accuracy for each annotation task
+            if "speech2text" in required_annotation_task:
+                desc_df = self.summary_speech2text(
+                    conversation_annotation_df[
+                        ["track_id", "user_id", "wer", "cer", "speech2text_score"]
+                    ].copy(deep=True)
+                )
+                html_content += self.plot_table(desc_df, "Speech2Text Overall Quality")
+        # summary the emotion detection task
         if "emotion_detection" in required_annotation_task:
             # load the emotion detection results
             emotion_detection_results = ContextEmotionDetection.objects.filter(
@@ -292,6 +316,69 @@ class AccuracyBenchmark:
         required_annotation_task = list(filter(None, required_annotation_task))
         # remove the duplicate
         return list(set(required_annotation_task))
+
+    def calculate_speech2text_accuracy(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Calculate the speech2text accuracy
+        Args:
+            df (pd.DataFrame): The dataframe
+
+        Returns:
+            float: The accuracy
+        """
+        df.to_csv("speech2text.csv", index=False)
+        # both predict_text and speech2text can be null
+        # if the predict_text is null, then we will consider it as 0
+        # if the speech2text is null, then we will consider it as 0
+        df["speech2text"] = df["speech2text"].fillna("")
+        df["predict_text"] = df["predict_text"].fillna("")
+        # calculate the accuracy
+        df["wer"] = df.apply(
+            lambda x: (
+                round(
+                    jiwer.wer(
+                        x["speech2text"],
+                        x["predict_text"],
+                    ),
+                    2,
+                )
+                if len(x["speech2text"]) > 0
+                else 0
+            ),
+            axis=1,
+        )
+
+        df["cer"] = df.apply(
+            lambda x: (
+                round(
+                    jiwer.cer(
+                        x["speech2text"],
+                        x["predict_text"],
+                    ),
+                    2,
+                )
+                if len(x["speech2text"]) > 0
+                else 0
+            ),
+            axis=1,
+        )
+
+        return df
+
+    def summary_speech2text(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Summary the speech2text
+
+        Args:
+            df (pd.DataFrame): The dataframe
+
+        Returns:
+            str: The HTML content
+        """
+        logger.info(df.describe())
+        desc_df = df.describe()
+        desc_df.reset_index(inplace=True)
+        return df.describe()
 
     def detail_run(self):
         logger.info(f"Running accuracy benchmark for cluster {self.benchmark_cluster}")

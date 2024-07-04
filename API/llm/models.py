@@ -37,6 +37,10 @@ class LLMRequestResultDownload(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name = "LLM Result Download"
+        verbose_name_plural = "LLM Result Downloads"
+
 
 class LLMRequestRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
@@ -65,6 +69,10 @@ class LLMRequestRecord(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.model_name} - {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
+
+    class Meta:
+        verbose_name = "LLM Request Record"
+        verbose_name_plural = "LLM Request Records"
 
 
 class LLMConfigRecords(models.Model):
@@ -135,3 +143,7 @@ class LLMConfigRecords(models.Model):
             logger.error("ERROR, something went wrong")
             return False
         return True
+
+    class Meta:
+        verbose_name = "LLM Config Record"
+        verbose_name_plural = "LLM Config Records"

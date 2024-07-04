@@ -325,6 +325,12 @@ class DataMultiModalConversation(models.Model):
         null=True,
         blank=True,
     )
+    annotations = models.JSONField(
+        help_text="The annotations of the emotion detection",
+        null=True,
+        blank=True,
+        default=dict,
+    )
 
     def __str__(self):
         return f"{self.id}"
@@ -361,6 +367,13 @@ class ContextEmotionDetection(models.Model):
     )
     updated_at = models.DateTimeField(
         auto_now=True, help_text="The updated time of the emotion detection"
+    )
+
+    annotations = models.JSONField(
+        help_text="The annotations of the emotion detection",
+        null=True,
+        blank=True,
+        default=dict,
     )
 
     class Meta:

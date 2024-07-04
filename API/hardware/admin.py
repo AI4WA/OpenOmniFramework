@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -7,6 +8,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
+from authenticate.models import User
 from hardware.models import (
     ContextEmotionDetection,
     DataAudio,
@@ -131,8 +133,63 @@ class ResSpeechAdmin(ImportExportModelAdmin):
     readonly_fields = ("created_at", "updated_at")
 
 
+class MultiModalAnnotationForm(forms.ModelForm):
+    annotation_speech2text = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"rows": 1})
+    )
+    annotation_speech2text_score = forms.IntegerField(
+        initial=0,
+        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        required=False,
+    )
+    annotation_text_generation = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"rows": 1})
+    )
+
+    annotation_text_generation_score = forms.IntegerField(
+        initial=0,
+        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        required=False,
+    )
+
+    annotation_text2speech = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"rows": 1})
+    )
+
+    annotation_text2speech_score = forms.IntegerField(
+        initial=0,
+        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        required=False,
+    )
+
+    annotation_overall_score = forms.IntegerField(
+        initial=0,
+        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        required=False,
+    )
+
+    annotation_overall_comment = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"rows": 1})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.annotations:
+            current_user_annotation = self.instance.annotations.get(
+                str(self.current_user.id), {}
+            )
+            for key, value in current_user_annotation.items():
+                if key in self.fields:
+                    self.fields[key].initial = value
+
+    class Meta:
+        model = DataMultiModalConversation
+        fields = "__all__"
+
+
 @admin.register(DataMultiModalConversation)
 class DataMultiModalConversationAdmin(ImportExportModelAdmin):
+    form = MultiModalAnnotationForm
 
     def audio__time_range(self, obj):
         # format it "%Y-%m-%d %H:%M:%S"
@@ -187,6 +244,37 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
             return "No Response Text"
         return obj.res_text.text
 
+    def annotation_records(self, obj):
+        annotations = obj.annotations
+        if not annotations:
+            return "No Annotations"
+        """
+        Get this presentation into a html like this:
+
+        User: {username}
+        Annotation Overall: {annotation_overall}
+        Annotation Text Modality: {annotation_text_modality}
+        Annotation Audio Modality: {annotation_audio_modality}
+        ----
+        User: {username}
+        ....
+
+        """
+
+        return_html = "<div>"
+        return_html += f"<h5>Total Annotator: {len(annotations.items())} </h5>"
+        return_html += "<hr>"
+        for user_id, annotation in annotations.items():
+            user = User.objects.get(pk=user_id)
+            return_html += f"<h6>User: {user.username}</h6>"
+            return_html += "<ul>"
+            for annotation_key, annotation_value in annotation.items():
+                return_html += f"<li>{annotation_key}: {annotation_value}</li>"
+            return_html += "</ul>"
+            return_html += "<hr>"
+        return_html += "</div>"
+        return mark_safe(return_html)
+
     list_display = (
         "id",
         "audio__time_range",
@@ -201,6 +289,7 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
         "res_speech",
         "res_text",
         "text",
+        "annotations",
     )
     search_fields = (
         "text__text",
@@ -219,6 +308,7 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
         "play_res_speech",
         "created_at",
         "updated_at",
+        "annotation_records",
     )
     list_filter = ("created_at", ClusterFilter)
 
@@ -255,6 +345,27 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
         ]
 
         return super().change_view(request, object_id, form_url, extra_context)
+
+    def get_form(self, request, *args, **kwargs):
+        form = super().get_form(request, *args, **kwargs)
+        form.current_user = request.user
+        return form
+
+    def save_model(self, request, obj, form, change):
+        annotation_data = {}
+        for key, value in form.cleaned_data.items():
+            if key.startswith("annotation_"):
+                annotation_data[key] = value
+
+        if not obj.annotations:
+            obj.annotations = {}
+        current_annotations = obj.annotations.get(request.user.id, {})
+        obj.annotations[request.user.id] = {
+            **annotation_data,
+            **current_annotations,
+        }
+
+        super().save_model(request, obj, form, change)
 
 
 class DataMultiModalConversationFKAdmin(ImportExportModelAdmin):
@@ -325,20 +436,47 @@ class DataMultiModalConversationFKAdmin(ImportExportModelAdmin):
             return "No Response Text"
         return obj.multi_modal_conversation.res_text.text
 
+    def annotation_records(self, obj):
+        annotations = obj.annotations
+        if not annotations:
+            return "No Annotations"
+        """
+        Get this presentation into a html like this:
+
+        User: {username}
+        Annotation Overall: {annotation_overall}
+        Annotation Text Modality: {annotation_text_modality}
+        Annotation Audio Modality: {annotation_audio_modality}
+        ----
+        User: {username}
+        ....
+
+        """
+
+        return_html = "<div>"
+        return_html += f"<h5>Total Annotator: {len(annotations.items())} </h5>"
+        return_html += "<hr>"
+        for user_id, annotation in annotations.items():
+            user = User.objects.get(pk=user_id)
+            return_html += f"<h6>User: {user.username}</h6>"
+            return_html += "<ul>"
+            for annotation_key, annotation_value in annotation.items():
+                return_html += f"<li>{annotation_key}: {annotation_value}</li>"
+            return_html += "</ul>"
+            return_html += "<hr>"
+        return_html += "</div>"
+        return mark_safe(return_html)
+
     list_display = (
         "id",
         "audio__time_range",
         "video__time_range",
-        # "text",
-        # "multi_modal_conversation__res_text",
-        # "multi_modal_conversation__res_speech",
     )
     exclude = (
         "audio",
         "video",
-        # "res_speech",
-        # "res_text",
         "text",
+        "annotations",
     )
     search_fields = (
         "text__text",
@@ -357,6 +495,7 @@ class DataMultiModalConversationFKAdmin(ImportExportModelAdmin):
         "play_res_speech",
         "created_at",
         "updated_at",
+        "annotation_records",
     )
     list_filter = ("created_at", ClusterFilter)
 
@@ -395,15 +534,88 @@ class DataMultiModalConversationFKAdmin(ImportExportModelAdmin):
 
         return super().change_view(request, object_id, form_url, extra_context)
 
+    def get_form(self, request, *args, **kwargs):
+        form = super().get_form(request, *args, **kwargs)
+        form.current_user = request.user
+        return form
+
+    def save_model(self, request, obj, form, change):
+        annotation_data = {}
+        for key, value in form.cleaned_data.items():
+            if key.startswith("annotation_"):
+                annotation_data[key] = value
+
+        if not obj.annotations:
+            obj.annotations = {}
+        current_annotations = obj.annotations.get(request.user.id, {})
+        obj.annotations[request.user.id] = {
+            **annotation_data,
+            **current_annotations,
+        }
+
+        super().save_model(request, obj, form, change)
+
+
+class MultiModalFKAnnotationForm(forms.ModelForm):
+
+    annotation_overall = forms.IntegerField(initial=0)
+    annotation_overall.widget.attrs.update({"min": -10, "max": 10})
+
+    annotation_text_modality = forms.IntegerField(initial=0)
+    annotation_text_modality.widget.attrs.update({"min": -10, "max": 10})
+
+    annotation_audio_modality = forms.IntegerField(initial=0)
+    annotation_audio_modality.widget.attrs.update({"min": -10, "max": 10})
+
+    annotation_video_modality = forms.IntegerField(initial=0)
+    annotation_video_modality.widget.attrs.update({"min": -10, "max": 10})
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.annotations:
+            current_user_annotation = self.instance.annotations.get(
+                str(self.current_user.id), {}
+            )
+            for key, value in current_user_annotation.items():
+                if key in self.fields:
+                    self.fields[key].initial = value
+
+    class Meta:
+        model = ContextEmotionDetection
+        fields = "__all__"
+
 
 @admin.register(ContextEmotionDetection)
 class ContextEmotionDetectionAdmin(DataMultiModalConversationFKAdmin):
+    form = MultiModalFKAnnotationForm
+
     def emotion_overall(self, obj):
         return obj.result.get("M", "No Result")
+
+    emotion_overall.short_description = "Emotion Overall"
+
+    def emotion_text_modality(self, obj):
+        return obj.result.get("T", "No Result")
+
+    emotion_text_modality.short_description = "Emotion Text Modality"
+
+    def emotion_audio_modality(self, obj):
+        return obj.result.get("A", "No Result")
+
+    emotion_audio_modality.short_description = "Emotion Audio Modality"
+
+    def emotion_video_modality(self, obj):
+        return obj.result.get("V", "No Result")
+
+    emotion_video_modality.short_description = "Emotion Video Modality"
 
     list_display = DataMultiModalConversationFKAdmin.list_display + ("emotion_overall",)
     readonly_fields = (
         "emotion_overall",
+        "emotion_text_modality",
+        "emotion_audio_modality",
+        "emotion_video_modality",
     ) + DataMultiModalConversationFKAdmin.readonly_fields
     exclude = DataMultiModalConversationFKAdmin.exclude + (
         "result",

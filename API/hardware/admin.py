@@ -6,7 +6,7 @@ from django.urls import reverse
 # import mark_safe
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from import_export.admin import ImportExportModelAdmin
+from import_export.admin import ImportExportMixin, ImportExportModelAdmin
 
 from authenticate.models import User
 from hardware.models import (
@@ -188,7 +188,8 @@ class MultiModalAnnotationForm(forms.ModelForm):
 
 
 @admin.register(DataMultiModalConversation)
-class DataMultiModalConversationAdmin(ImportExportModelAdmin):
+class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
+    import_export_change_list_template = "admin/hardware/conversation/change_list.html"
     form = MultiModalAnnotationForm
 
     def audio__time_range(self, obj):

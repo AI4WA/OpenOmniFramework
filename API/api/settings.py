@@ -150,7 +150,10 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 CLIENT_DATA_FOLDER = Path(BASE_DIR).parent / "Client"
 TMP_FOLDER = Path(BASE_DIR) / "tmp"
 TMP_FOLDER.mkdir(parents=True, exist_ok=True)
@@ -225,3 +228,34 @@ CLIENT_MEDIA_ROOT = Path(BASE_DIR).parent / "client" / "Listener" / "data"
 CLIENT_MEDIA_URL = "/client/"
 AI_MEDIA_ROOT = Path(BASE_DIR).parent / "client" / "Responder" / "data"
 AI_MEDIA_URL = "/ai"
+
+
+JAZZMIN_SETTINGS = {
+    "site_logo": "admin/imgs/nlptlp.png",
+    "site_icon": "https://nlp-tlp.org/static/media/nlp-tlp-logo.070802fa.png",
+    # Copyright on the footer
+    "copyright": "UWA NLP TLP GROUP",
+    "topmenu_links": [
+        # Url that gets reversed (Permissions can be added)
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        # external url that opens in a new window (Permissions can be added)
+        {
+            "name": "Latency: Benchmark",
+            "url": "/orchestrator/task/benchmark/?cluster=all",
+            "new_window": True,
+        },
+        {
+            "name": "Latency: Details",
+            "url": "/orchestrator/task/benchmark_detail/?cluster=all",
+            "new_window": True,
+        },
+    ],
+    # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
+    "order_with_respect_to": [
+        "hardware",
+        "orchestrator",
+        "llm",
+        "authenticate",
+        "group",
+    ],
+}

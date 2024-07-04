@@ -13,7 +13,7 @@ from orchestrator.models import Task
 logger = get_logger(__name__)
 
 
-class Benchmark:
+class LatencyBenchmark:
     """
     For each component, we will generally have two values:
     - model_latency: The time taken by the model to process the data
@@ -36,7 +36,6 @@ class Benchmark:
         """
         # if it is a specific name, gather this metric, otherwise, report all existing cluster
         self.benchmark_cluster = benchmark_cluster
-        self.benchmark = {}
 
     def run(self):
         """
@@ -207,7 +206,7 @@ class Benchmark:
         result = {
             "track_id": task_track[0].track_id,
         }
-        task_names = Benchmark.get_task_names_order(result["track_id"])
+        task_names = LatencyBenchmark.get_task_names_order(result["track_id"])
         for task in task_track:
             latency_profile = task.result_json.get("latency_profile", {})
             # NOTE: this will require client side do not log overlap durations
@@ -232,8 +231,8 @@ class Benchmark:
             # process time into datetime object
             # ts_end_trigger_emotion_model 2024-07-01T14:58:36.419352
             if task_start_time and task_end_time:
-                task_start_time_dt = Benchmark.str_to_datetime(task_start_time)
-                task_end_time_dt = Benchmark.str_to_datetime(task_end_time)
+                task_start_time_dt = LatencyBenchmark.str_to_datetime(task_start_time)
+                task_end_time_dt = LatencyBenchmark.str_to_datetime(task_end_time)
                 result[f"{task.task_name}_overall_latency"] = (  # noqa
                     task_end_time_dt - task_start_time_dt
                 ).total_seconds()
@@ -284,7 +283,7 @@ class Benchmark:
         result = {
             "track_id": task_track[0].track_id,
         }
-        task_names = Benchmark.get_task_names_order(result["track_id"])
+        task_names = LatencyBenchmark.get_task_names_order(result["track_id"])
         for task in task_track:
             if task.result_status != "completed":
                 result[f"{task.task_name}_model_latency"] = task.result_status
@@ -314,8 +313,8 @@ class Benchmark:
             # process time into datetime object
             # ts_end_trigger_emotion_model 2024-07-01T14:58:36.419352
             if task_start_time and task_end_time:
-                task_start_time_dt = Benchmark.str_to_datetime(task_start_time)
-                task_end_time_dt = Benchmark.str_to_datetime(task_end_time)
+                task_start_time_dt = LatencyBenchmark.str_to_datetime(task_start_time)
+                task_end_time_dt = LatencyBenchmark.str_to_datetime(task_end_time)
                 result[f"{task.task_name}_overall_latency"] = (  # noqa
                     task_end_time_dt - task_start_time_dt
                 ).total_seconds()
@@ -387,7 +386,7 @@ class Benchmark:
             "track_id": task_track[0].track_id,
         }
 
-        task_names = Benchmark.get_task_names_order(result["track_id"])
+        task_names = LatencyBenchmark.get_task_names_order(result["track_id"])
 
         task_results = {}
         for task in task_track:
@@ -397,7 +396,7 @@ class Benchmark:
             task_result = {}
             for key, value in latency_profile.items():
                 if key.startswith("ts"):
-                    task_result[key] = Benchmark.str_to_datetime(value)
+                    task_result[key] = LatencyBenchmark.str_to_datetime(value)
 
             if timeline is False:
                 # sort out the whole task_result based on time timestamp

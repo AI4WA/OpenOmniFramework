@@ -143,7 +143,16 @@ class AccuracyBenchmark:
             html_content += self.plot_table(
                 overall_conversation_df, "Overall Conversation Quality"
             )
+        else:
+            # then we will try to calculate the overall accuracy for each annotation task
+            if "speech2text" in required_annotation_task:
+                html_content += self.summary_speech2text(
+                    conversation_annotation_df[
+                        ["track_id", "user_id", "speech2text", "speech2text_score"]
+                    ].copy(deep=True)
+                )
 
+        # summary the emotion detection task
         if "emotion_detection" in required_annotation_task:
             # load the emotion detection results
             emotion_detection_results = ContextEmotionDetection.objects.filter(
@@ -292,6 +301,18 @@ class AccuracyBenchmark:
         required_annotation_task = list(filter(None, required_annotation_task))
         # remove the duplicate
         return list(set(required_annotation_task))
+
+    def summary_speech2text(self, df: pd.DataFrame) -> str:
+        """
+        Summary the speech2text
+
+        Args:
+            df (pd.DataFrame): The dataframe
+
+        Returns:
+            str: The HTML content
+        """
+        pass
 
     def detail_run(self):
         logger.info(f"Running accuracy benchmark for cluster {self.benchmark_cluster}")

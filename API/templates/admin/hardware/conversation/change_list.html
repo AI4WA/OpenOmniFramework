@@ -4,10 +4,10 @@
 
     {% block object-tools-items %}
 
-        <a href="{% url 'admin:benchmark' %}?cluster={{ request.GET.cluster|default:'all' }}"
+        <a href="{% url 'admin:accuracy_benchmark' %}?cluster={{ request.GET.cluster|default:'all' }}"
            class="btn {{ jazzmin_ui.button_classes.success }} float-right">Accuracy Benchmark</a>
 
-        <a href="{% url 'admin:benchmark_detail' %}?cluster={{ request.GET.cluster|default:'all' }}"
+        <a href="{% url 'admin:accuracy_detail' %}?cluster={{ request.GET.cluster|default:'all' }}"
            class="btn {{ jazzmin_ui.button_classes.success }} float-right">
             Accuracy Details
         </a>

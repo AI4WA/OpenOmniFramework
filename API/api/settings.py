@@ -232,7 +232,6 @@ AI_MEDIA_URL = "/ai"
 
 JAZZMIN_SETTINGS = {
     "site_logo": "admin/imgs/nlptlp.png",
-    "site_icon": "https://nlp-tlp.org/static/media/nlp-tlp-logo.070802fa.png",
     # Copyright on the footer
     "copyright": "UWA NLP TLP GROUP",
     "topmenu_links": [
@@ -240,13 +239,23 @@ JAZZMIN_SETTINGS = {
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
         # external url that opens in a new window (Permissions can be added)
         {
-            "name": "Latency: Benchmark",
+            "name": "Latency|Benchmark",
             "url": "/orchestrator/task/benchmark/?cluster=all",
             "new_window": True,
         },
         {
-            "name": "Latency: Details",
+            "name": "Latency|Details",
             "url": "/orchestrator/task/benchmark_detail/?cluster=all",
+            "new_window": True,
+        },
+        {
+            "name": "Accuracy|Benchmark",
+            "url": "/hardware/datamultimodalconversation/accuracy_benchmark/?cluster=all",
+            "new_window": True,
+        },
+        {
+            "name": "Accuracy|Details",
+            "url": "/hardware/datamultimodalconversation/accuracy_detail/?cluster=all",
             "new_window": True,
         },
     ],

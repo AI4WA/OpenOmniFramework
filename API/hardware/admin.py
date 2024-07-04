@@ -133,8 +133,63 @@ class ResSpeechAdmin(ImportExportModelAdmin):
     readonly_fields = ("created_at", "updated_at")
 
 
+class MultiModalAnnotationForm(forms.ModelForm):
+    annotation_speech2text = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"rows": 1})
+    )
+    annotation_speech2text_score = forms.IntegerField(
+        initial=0,
+        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        required=False,
+    )
+    annotation_text_generation = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"rows": 1})
+    )
+
+    annotation_text_generation_score = forms.IntegerField(
+        initial=0,
+        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        required=False,
+    )
+
+    annotation_text2speech = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"rows": 1})
+    )
+
+    annotation_text2speech_score = forms.IntegerField(
+        initial=0,
+        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        required=False,
+    )
+
+    annotation_overall_score = forms.IntegerField(
+        initial=0,
+        widget=forms.NumberInput(attrs={"min": -10, "max": 10}),
+        required=False,
+    )
+
+    annotation_overall_comment = forms.CharField(
+        required=False, widget=forms.Textarea(attrs={"rows": 1})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.annotations:
+            current_user_annotation = self.instance.annotations.get(
+                str(self.current_user.id), {}
+            )
+            for key, value in current_user_annotation.items():
+                if key in self.fields:
+                    self.fields[key].initial = value
+
+    class Meta:
+        model = DataMultiModalConversation
+        fields = "__all__"
+
+
 @admin.register(DataMultiModalConversation)
 class DataMultiModalConversationAdmin(ImportExportModelAdmin):
+    form = MultiModalAnnotationForm
 
     def audio__time_range(self, obj):
         # format it "%Y-%m-%d %H:%M:%S"
@@ -290,6 +345,27 @@ class DataMultiModalConversationAdmin(ImportExportModelAdmin):
         ]
 
         return super().change_view(request, object_id, form_url, extra_context)
+
+    def get_form(self, request, *args, **kwargs):
+        form = super().get_form(request, *args, **kwargs)
+        form.current_user = request.user
+        return form
+
+    def save_model(self, request, obj, form, change):
+        annotation_data = {}
+        for key, value in form.cleaned_data.items():
+            if key.startswith("annotation_"):
+                annotation_data[key] = value
+
+        if not obj.annotations:
+            obj.annotations = {}
+        current_annotations = obj.annotations.get(request.user.id, {})
+        obj.annotations[request.user.id] = {
+            **annotation_data,
+            **current_annotations,
+        }
+
+        super().save_model(request, obj, form, change)
 
 
 class DataMultiModalConversationFKAdmin(ImportExportModelAdmin):
@@ -480,7 +556,7 @@ class DataMultiModalConversationFKAdmin(ImportExportModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-class AnnotationForm(forms.ModelForm):
+class MultiModalFKAnnotationForm(forms.ModelForm):
 
     annotation_overall = forms.IntegerField(initial=0)
     annotation_overall.widget.attrs.update({"min": -10, "max": 10})
@@ -501,18 +577,9 @@ class AnnotationForm(forms.ModelForm):
             current_user_annotation = self.instance.annotations.get(
                 str(self.current_user.id), {}
             )
-            self.fields["annotation_overall"].initial = current_user_annotation.get(
-                "annotation_overall", 0
-            )
-            self.fields["annotation_text_modality"].initial = (
-                current_user_annotation.get("annotation_text_modality", 0)
-            )
-            self.fields["annotation_audio_modality"].initial = (
-                current_user_annotation.get("annotation_audio_modality", 0)
-            )
-            self.fields["annotation_video_modality"].initial = (
-                current_user_annotation.get("annotation_video_modality", 0)
-            )
+            for key, value in current_user_annotation.items():
+                if key in self.fields:
+                    self.fields[key].initial = value
 
     class Meta:
         model = ContextEmotionDetection
@@ -521,7 +588,7 @@ class AnnotationForm(forms.ModelForm):
 
 @admin.register(ContextEmotionDetection)
 class ContextEmotionDetectionAdmin(DataMultiModalConversationFKAdmin):
-    form = AnnotationForm
+    form = MultiModalFKAnnotationForm
 
     def emotion_overall(self, obj):
         return obj.result.get("M", "No Result")

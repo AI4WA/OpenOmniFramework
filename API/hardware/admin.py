@@ -169,6 +169,54 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
     import_export_change_list_template = "admin/hardware/conversation/change_list.html"
     form = MultiModalAnnotationForm
 
+    list_display = (
+        "id",
+        "audio__time_range",
+        "video__time_range",
+        "text",
+        "res_text",
+        "res_speech",
+        "tag_list",
+    )
+    exclude = (
+        "audio",
+        "video",
+        "res_speech",
+        "res_text",
+        "text",
+        "annotations",
+        "multi_turns_annotations",
+    )
+    search_fields = (
+        "text__text",
+        "res_text__text",
+        "track_id",
+        "text",
+    )
+    readonly_fields = (
+        "track_id",
+        "play_audio",
+        "audio__time_range",
+        "speech_to_text",
+        "play_video",
+        "video__time_range",
+        "response_text",
+        "play_res_speech",
+        "created_at",
+        "updated_at",
+        "annotation_records",
+        "tags",
+    )
+    list_filter = (
+        "created_at",
+        ClusterFilter,
+        "tags",
+    )
+
+    change_form_template = "admin/hardware/conversation/change_form.html"
+    actions = [assign_tag, remove_all_tags]
+    action_form = AssignTagActionForm
+
     def get_urls(self):
         # the custom urls will be changed when ClusterFilter is changed, how can I implement it?
         urls = super().get_urls()
@@ -290,53 +338,6 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
     def tag_list(self, obj):
         return ", ".join(o.name for o in obj.tags.all())
 
-    list_display = (
-        "id",
-        "audio__time_range",
-        "video__time_range",
-        "text",
-        "res_text",
-        "res_speech",
-        "tag_list",
-    )
-    exclude = (
-        "audio",
-        "video",
-        "res_speech",
-        "res_text",
-        "text",
-        "annotations",
-    )
-    search_fields = (
-        "text__text",
-        "res_text__text",
-        "track_id",
-        "text",
-    )
-    readonly_fields = (
-        "track_id",
-        "play_audio",
-        "audio__time_range",
-        "speech_to_text",
-        "play_video",
-        "video__time_range",
-        "response_text",
-        "play_res_speech",
-        "created_at",
-        "updated_at",
-        "annotation_records",
-        "tags",
-    )
-    list_filter = (
-        "created_at",
-        ClusterFilter,
-        "tags",
-    )
-
-    change_form_template = "admin/hardware/conversation/change_form.html"
-    actions = [assign_tag, remove_all_tags]
-    action_form = AssignTagActionForm
-
     def response_change(self, request, obj):
         if "_saveandnext" in request.POST:
             next_obj = self.get_next_obj(obj)
@@ -369,10 +370,57 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
 
         return super().change_view(request, object_id, form_url, extra_context)
 
-    def get_form(self, request, *args, **kwargs):
+    def get_form(self, request, obj=None, *args, **kwargs):
         form = super().get_form(request, *args, **kwargs)
         form.current_user = request.user
+        last_in_tag_group = False
+        if obj and obj.tags.exists():
+            for tag in obj.tags.all():
+                last_obj_in_tag = (
+                    DataMultiModalConversation.objects.filter(tags__name=tag.name)
+                    .order_by("created_at")
+                    .last()
+                )
+                if last_obj_in_tag == obj:
+                    last_in_tag_group = True
+                    break
+        if last_in_tag_group:
+            print(form.base_fields)
+            # add overall score for the multi_turn conversation
+            form.base_fields["annotation_overall"] = forms.IntegerField(
+                initial=0,
+                widget=forms.NumberInput(attrs={"min": 0, "max": 5}),
+                required=False,
+            )
+            form.base_fields["annotation_overall_comment"] = forms.CharField(
+                required=False, widget=forms.Textarea(attrs={"rows": 1})
+            )
+            self.exclude += ("annotation_overall", "annotation_overall_comment")
         return form
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        # if obj is assigned tag and obj is the last one within that tag group, then we need to add extra fields
+        last_in_tag_group = False
+        if obj and obj.tags.exists():
+            for tag in obj.tags.all():
+                last_obj_in_tag = (
+                    DataMultiModalConversation.objects.filter(tags__name=tag.name)
+                    .order_by("created_at")
+                    .last()
+                )
+                if last_obj_in_tag == obj:
+                    last_in_tag_group = True
+                    break
+        if last_in_tag_group:
+            # add overall score for the multi_turn conversation
+            # put this two field in front of the fieldsets
+            fieldsets[0][1]["fields"] = [
+                "annotation_overall",
+                "annotation_overall_comment",
+            ] + fieldsets[0][1]["fields"]
+
+        return fieldsets
 
     def save_model(self, request, obj, form, change):
         annotation_data = {}

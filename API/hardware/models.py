@@ -332,6 +332,13 @@ class DataMultiModalConversation(models.Model):
         blank=True,
         default=dict,
     )
+
+    multi_turns_annotations = models.JSONField(
+        help_text="The annotations of the multi-turns",
+        null=True,
+        blank=True,
+        default=dict,
+    )
     tags = TaggableManager(blank=True)
 
     def __str__(self):

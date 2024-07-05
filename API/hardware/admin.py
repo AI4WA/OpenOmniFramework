@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from django.contrib.admin.helpers import ActionForm
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import path, reverse
@@ -138,10 +140,82 @@ class ResSpeechAdmin(ImportExportModelAdmin):
     readonly_fields = ("created_at", "updated_at")
 
 
+class AssignTagActionForm(ActionForm):
+    tag = forms.CharField(label="Tag", required=False)
+
+
+@admin.action(description="Assign to Tag")
+def assign_tag(modeladmin, request, queryset):
+    tag = request.POST.get("tag")
+    print(tag)
+    for obj in queryset:
+        obj.tags.add(tag)
+        obj.save()
+    modeladmin.message_user(request, f"Tagged {queryset.count()} objects.")
+
+
+@admin.action(description="Remove all Tags")
+def remove_all_tags(modeladmin, request, queryset):
+    for obj in queryset:
+        obj.tags.clear()
+        obj.save()
+    modeladmin.message_user(
+        request, f"Removed all tags from {queryset.count()} objects."
+    )
+
+
 @admin.register(DataMultiModalConversation)
 class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
     import_export_change_list_template = "admin/hardware/conversation/change_list.html"
     form = MultiModalAnnotationForm
+
+    list_display = (
+        "id",
+        "audio__time_range",
+        "video__time_range",
+        "text",
+        "res_text",
+        "res_speech",
+        "tag_list",
+    )
+    exclude = (
+        "audio",
+        "video",
+        "res_speech",
+        "res_text",
+        "text",
+        "annotations",
+        "multi_turns_annotations",
+    )
+    search_fields = (
+        "text__text",
+        "res_text__text",
+        "track_id",
+        "text",
+    )
+    readonly_fields = (
+        "track_id",
+        "play_audio",
+        "audio__time_range",
+        "speech_to_text",
+        "play_video",
+        "video__time_range",
+        "response_text",
+        "play_res_speech",
+        "created_at",
+        "updated_at",
+        "annotation_records",
+        "tags",
+    )
+    list_filter = (
+        "created_at",
+        ClusterFilter,
+        "tags",
+    )
+
+    change_form_template = "admin/hardware/conversation/change_form.html"
+    actions = [assign_tag, remove_all_tags]
+    action_form = AssignTagActionForm
 
     def get_urls(self):
         # the custom urls will be changed when ClusterFilter is changed, how can I implement it?
@@ -261,44 +335,8 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
         return_html += "</div>"
         return mark_safe(return_html)
 
-    list_display = (
-        "id",
-        "audio__time_range",
-        "video__time_range",
-        "text",
-        "res_text",
-        "res_speech",
-    )
-    exclude = (
-        "audio",
-        "video",
-        "res_speech",
-        "res_text",
-        "text",
-        "annotations",
-    )
-    search_fields = (
-        "text__text",
-        "res_text__text",
-        "track_id",
-        "text",
-    )
-    readonly_fields = (
-        "track_id",
-        "play_audio",
-        "audio__time_range",
-        "speech_to_text",
-        "play_video",
-        "video__time_range",
-        "response_text",
-        "play_res_speech",
-        "created_at",
-        "updated_at",
-        "annotation_records",
-    )
-    list_filter = ("created_at", ClusterFilter)
-
-    change_form_template = "admin/hardware/conversation/change_form.html"
+    def tag_list(self, obj):
+        return ", ".join(o.name for o in obj.tags.all())
 
     def response_change(self, request, obj):
         if "_saveandnext" in request.POST:
@@ -332,9 +370,38 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
 
         return super().change_view(request, object_id, form_url, extra_context)
 
-    def get_form(self, request, *args, **kwargs):
+    def get_form(self, request, obj=None, *args, **kwargs):
         form = super().get_form(request, *args, **kwargs)
         form.current_user = request.user
+        last_in_tag_group = False
+        if obj and obj.tags.exists():
+            for tag in obj.tags.all():
+                last_obj_in_tag = (
+                    DataMultiModalConversation.objects.filter(tags__name=tag.name)
+                    .order_by("created_at")
+                    .last()
+                )
+                if last_obj_in_tag == obj:
+                    last_in_tag_group = True
+                    break
+        if last_in_tag_group:
+            # add overall score for the multi_turn conversation
+            form.base_fields["multi_turn_annotation_overall"] = forms.IntegerField(
+                initial=0,
+                widget=forms.NumberInput(attrs={"min": 0, "max": 5}),
+                required=False,
+                help_text="Overall score for this round multi-turn conversation, "
+                "this is the last conversation in this round",
+            )
+            form.base_fields["multi_turn_annotation_overall_comment"] = forms.CharField(
+                required=False,
+                widget=forms.Textarea(attrs={"rows": 1}),
+                help_text="Overall comment for this round multi-turn conversation, ",
+            )
+            self.exclude += (
+                "multi_turn_annotation_overall",
+                "multi_turn_annotation_overall_comment",
+            )
         return form
 
     def save_model(self, request, obj, form, change):
@@ -349,6 +416,21 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
         obj.annotations[request.user.id] = {
             **annotation_data,
             **current_annotations,
+        }
+
+        multi_turn_annotation_data = {}
+        for key, value in form.cleaned_data.items():
+            if key.startswith("multi_turn_annotation_"):
+                multi_turn_annotation_data[key] = value
+
+        if not obj.multi_turns_annotations:
+            obj.multi_turns_annotations = {}
+        current_multi_turn_annotations = obj.multi_turns_annotations.get(
+            request.user.id, {}
+        )
+        obj.multi_turns_annotations[request.user.id] = {
+            **multi_turn_annotation_data,
+            **current_multi_turn_annotations,
         }
 
         super().save_model(request, obj, form, change)

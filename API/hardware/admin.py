@@ -385,42 +385,24 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
                     last_in_tag_group = True
                     break
         if last_in_tag_group:
-            print(form.base_fields)
             # add overall score for the multi_turn conversation
-            form.base_fields["annotation_overall"] = forms.IntegerField(
+            form.base_fields["multi_turn_annotation_overall"] = forms.IntegerField(
                 initial=0,
                 widget=forms.NumberInput(attrs={"min": 0, "max": 5}),
                 required=False,
+                help_text="Overall score for this round multi-turn conversation, "
+                "this is the last conversation in this round",
             )
-            form.base_fields["annotation_overall_comment"] = forms.CharField(
-                required=False, widget=forms.Textarea(attrs={"rows": 1})
+            form.base_fields["multi_turn_annotation_overall_comment"] = forms.CharField(
+                required=False,
+                widget=forms.Textarea(attrs={"rows": 1}),
+                help_text="Overall comment for this round multi-turn conversation, ",
             )
-            self.exclude += ("annotation_overall", "annotation_overall_comment")
+            self.exclude += (
+                "multi_turn_annotation_overall",
+                "multi_turn_annotation_overall_comment",
+            )
         return form
-
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = super().get_fieldsets(request, obj)
-        # if obj is assigned tag and obj is the last one within that tag group, then we need to add extra fields
-        last_in_tag_group = False
-        if obj and obj.tags.exists():
-            for tag in obj.tags.all():
-                last_obj_in_tag = (
-                    DataMultiModalConversation.objects.filter(tags__name=tag.name)
-                    .order_by("created_at")
-                    .last()
-                )
-                if last_obj_in_tag == obj:
-                    last_in_tag_group = True
-                    break
-        if last_in_tag_group:
-            # add overall score for the multi_turn conversation
-            # put this two field in front of the fieldsets
-            fieldsets[0][1]["fields"] = [
-                "annotation_overall",
-                "annotation_overall_comment",
-            ] + fieldsets[0][1]["fields"]
-
-        return fieldsets
 
     def save_model(self, request, obj, form, change):
         annotation_data = {}
@@ -434,6 +416,21 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
         obj.annotations[request.user.id] = {
             **annotation_data,
             **current_annotations,
+        }
+
+        multi_turn_annotation_data = {}
+        for key, value in form.cleaned_data.items():
+            if key.startswith("multi_turn_annotation_"):
+                multi_turn_annotation_data[key] = value
+
+        if not obj.multi_turns_annotations:
+            obj.multi_turns_annotations = {}
+        current_multi_turn_annotations = obj.multi_turns_annotations.get(
+            request.user.id, {}
+        )
+        obj.multi_turns_annotations[request.user.id] = {
+            **multi_turn_annotation_data,
+            **current_multi_turn_annotations,
         }
 
         super().save_model(request, obj, form, change)

@@ -11,6 +11,11 @@
            class="btn {{ jazzmin_ui.button_classes.success }} float-right">
             Accuracy Details
         </a>
+        <a href="{% url 'admin:accuracy_multi_turn_benchmark' %}?cluster={{ request.GET.cluster|default:'all' }}"
+           class="btn {{ jazzmin_ui.button_classes.success }} float-right">
+            Accuracy Multi-Turn Conversation Benchmark
+        </a>
+
         {% include "admin/import_export/change_list_import_item.html" %}
         {% include "admin/import_export/change_list_export_item.html" %}
         {{ block.super }}

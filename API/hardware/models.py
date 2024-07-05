@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db import models
+from taggit.managers import TaggableManager
 
 from authenticate.models import User
 
@@ -331,6 +332,7 @@ class DataMultiModalConversation(models.Model):
         blank=True,
         default=dict,
     )
+    tags = TaggableManager(blank=True)
 
     def __str__(self):
         return f"{self.id}"

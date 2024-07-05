@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from django.contrib.admin.helpers import ActionForm
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import path, reverse
@@ -138,6 +140,30 @@ class ResSpeechAdmin(ImportExportModelAdmin):
     readonly_fields = ("created_at", "updated_at")
 
 
+class AssignTagActionForm(ActionForm):
+    tag = forms.CharField(label="Tag", required=False)
+
+
+@admin.action(description="Assign to Tag")
+def assign_tag(modeladmin, request, queryset):
+    tag = request.POST.get("tag")
+    print(tag)
+    for obj in queryset:
+        obj.tags.add(tag)
+        obj.save()
+    modeladmin.message_user(request, f"Tagged {queryset.count()} objects.")
+
+
+@admin.action(description="Remove all Tags")
+def remove_all_tags(modeladmin, request, queryset):
+    for obj in queryset:
+        obj.tags.clear()
+        obj.save()
+    modeladmin.message_user(
+        request, f"Removed all tags from {queryset.count()} objects."
+    )
+
+
 @admin.register(DataMultiModalConversation)
 class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
     import_export_change_list_template = "admin/hardware/conversation/change_list.html"
@@ -261,6 +287,9 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
         return_html += "</div>"
         return mark_safe(return_html)
 
+    def tag_list(self, obj):
+        return ", ".join(o.name for o in obj.tags.all())
+
     list_display = (
         "id",
         "audio__time_range",
@@ -268,6 +297,7 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
         "text",
         "res_text",
         "res_speech",
+        "tag_list",
     )
     exclude = (
         "audio",
@@ -295,10 +325,17 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
         "created_at",
         "updated_at",
         "annotation_records",
+        "tags",
     )
-    list_filter = ("created_at", ClusterFilter)
+    list_filter = (
+        "created_at",
+        ClusterFilter,
+        "tags",
+    )
 
     change_form_template = "admin/hardware/conversation/change_form.html"
+    actions = [assign_tag, remove_all_tags]
+    action_form = AssignTagActionForm
 
     def response_change(self, request, obj):
         if "_saveandnext" in request.POST:

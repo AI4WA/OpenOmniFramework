@@ -27,3 +27,4 @@ plotly
 django-jazzmin
 moviepy
 jiwer
+django-taggit

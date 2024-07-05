@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "orchestrator",
     "hardware",
     "llm",
+    "taggit",
 ]
 
 MIDDLEWARE = [

@@ -147,8 +147,9 @@ class AssignTagActionForm(ActionForm):
 @admin.action(description="Assign to Tag")
 def assign_tag(modeladmin, request, queryset):
     tag = request.POST.get("tag")
-    print(tag)
     for obj in queryset:
+        # only allow one tag for each object
+        obj.tags.clear()
         obj.tags.add(tag)
         obj.save()
     modeladmin.message_user(request, f"Tagged {queryset.count()} objects.")
@@ -231,6 +232,11 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
                 self.admin_site.admin_view(self.accuracy_detail),
                 name="accuracy_detail",
             ),
+            path(
+                "accuracy_multi_turn_benchmark/",
+                self.admin_site.admin_view(self.accuracy_multi_turn_benchmark),
+                name="accuracy_multi_turn_benchmark",
+            ),
         ]
         return custom_urls + urls
 
@@ -249,6 +255,17 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
         benchmark = AccuracyBenchmark(benchmark_cluster=cluster)
         html_content = benchmark.detail_run()
         context = {"content": html_content, "benchmark_type": "Accuracy Detail"}
+        return render(request, "admin/orchestrator/task/benchmark.html", context)
+
+    @staticmethod
+    def accuracy_multi_turn_benchmark(request):
+        cluster = request.GET.get("cluster", "all")
+        benchmark = AccuracyBenchmark(benchmark_cluster=cluster)
+        html_content = benchmark.multi_turn_benchmark_run()
+        context = {
+            "content": html_content,
+            "benchmark_type": "Accuracy Multi Turn Conversation",
+        }
         return render(request, "admin/orchestrator/task/benchmark.html", context)
 
     def audio__time_range(self, obj):
@@ -377,7 +394,11 @@ class DataMultiModalConversationAdmin(ImportExportMixin, admin.ModelAdmin):
         if obj and obj.tags.exists():
             for tag in obj.tags.all():
                 last_obj_in_tag = (
-                    DataMultiModalConversation.objects.filter(tags__name=tag.name)
+                    # for each cluster, the last one of the tag
+                    DataMultiModalConversation.objects.filter(
+                        tags__name=tag.name,
+                        track_id__startswith=f"T-{obj.track_id.split('-')[1]}",
+                    )
                     .order_by("created_at")
                     .last()
                 )

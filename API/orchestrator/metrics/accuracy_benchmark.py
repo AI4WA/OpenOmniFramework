@@ -245,6 +245,7 @@ class AccuracyBenchmark:
                     )
 
             emotion_detection_df = pd.DataFrame(emotion_detection_annotations)
+            logger.info(emotion_detection_df)
             emotion_detection_df["track_id"] = (
                 emotion_detection_df["track_id"].str.split("-").str[-1]
             )
@@ -255,15 +256,15 @@ class AccuracyBenchmark:
                 html_content += self.plot_table(
                     emotion_detection_df, "Emotion Detection"
                 )
-                html_content += self.plot_distribution(
-                    emotion_detection_df, "Emotion Detection"
-                )
+
             else:
                 emotion_detection_df = self.annotation_average(emotion_detection_df)
                 desc_df = self.summary_df(emotion_detection_df)
                 # logger.info(desc_df)
                 html_content += self.plot_table(desc_df, "Emotion Detection")
-
+                html_content += self.plot_distribution(
+                    emotion_detection_df, "Emotion Detection"
+                )
         return html_content
 
     @staticmethod
@@ -527,4 +528,124 @@ class AccuracyBenchmark:
             html_content += self.process_cluster_benchmark(
                 self.benchmark_cluster, detailed=True
             )
+        return html_content
+
+    def multi_turn_benchmark_run(self):
+        """
+        Run the multi-turn benchmark
+        Returns:
+
+        """
+        logger.info(
+            f"Running multi-turn benchmark for cluster {self.benchmark_cluster}"
+        )
+        # run the benchmark
+        html_content = ""
+        if self.benchmark_cluster == "all":
+            for cluster_name in CLUSTERS.keys():
+                html_content += "<hr>"
+                html_content += self.process_multi_turn_benchmark(cluster_name)
+        else:
+            html_content += self.process_multi_turn_benchmark(self.benchmark_cluster)
+        return html_content
+
+    def process_multi_turn_benchmark(self, cluster_name: str) -> str:
+        """
+        Process the multi-turn benchmark
+
+        First we will need to get all tag with this cluster name, and grab the last one within each tag
+        Args:
+            cluster_name (str): The cluster name
+        Returns:
+
+        """
+        conversations = DataMultiModalConversation.objects.filter(
+            track_id__startswith=f"T-{cluster_name}-"
+        )
+
+        # grab all tags
+
+        tags = []
+        for conversation in conversations:
+            for tag in conversation.tags.all():
+                tags.append(tag.name)
+
+        tags = list(set(tags))
+
+        tag_last_conversations = []
+        for tag in tags:
+            last_conversation = (
+                conversations.filter(tags__name=tag).order_by("-created_at").first()
+            )
+            tag_last_conversations.append(last_conversation)
+
+        html_content = f"<h2>Cluster: {cluster_name}</h2>"
+        html_content += (
+            f"<p>Multi-Turn Conversation Count: {len(tag_last_conversations)}</p>"
+        )
+        # then we will need to analyse the conversation model
+        multi_turn_annotations = []
+        # get all possible keys from the annotation form
+        multi_turn_annotations_expected_keys = []
+        for conversation in tag_last_conversations:
+            conversation_annotation = conversation.multi_turns_annotations
+            for user_id, annotation in conversation_annotation.items():
+                multi_turn_annotations_expected_keys.extend(annotation.keys())
+        multi_turn_annotations_expected_keys = list(
+            set(multi_turn_annotations_expected_keys)
+        )
+
+        if "multi_turn_annotation_overall" not in multi_turn_annotations_expected_keys:
+            multi_turn_annotations_expected_keys.append("multi_turn_annotation_overall")
+        if (
+            "multi_turn_annotation_overall_comment"
+            not in multi_turn_annotations_expected_keys
+        ):
+            multi_turn_annotations_expected_keys.append(
+                "multi_turn_annotation_overall_comment"
+            )
+
+        multi_turn_annotations_pending_default = {
+            key: "pending" for key in multi_turn_annotations_expected_keys
+        }
+
+        for conversation in tag_last_conversations:
+            conversation_annotation = conversation.multi_turns_annotations
+            annotated = False
+            for user_id, annotation in conversation_annotation.items():
+                multi_turn_annotations.append(
+                    {
+                        "track_id": conversation.track_id,
+                        "user_id": user_id,
+                        **multi_turn_annotations_pending_default,
+                        **annotation,
+                    }
+                )
+                annotated = True
+            if not annotated:
+                multi_turn_annotations.append(
+                    {
+                        "track_id": conversation.track_id,
+                        "user_id": "missing",
+                        **multi_turn_annotations_pending_default,
+                    }
+                )
+
+        multi_turn_annotation_df = pd.DataFrame(multi_turn_annotations)
+
+        if len(multi_turn_annotation_df) == 0:
+            return html_content + "<p>No multi-turn conversation annotation found</p>"
+        # transform the track_id to be the last part
+        multi_turn_annotation_df["track_id"] = (
+            multi_turn_annotation_df["track_id"].str.split("-").str[-1]
+        )
+        # replace all the column names, remove the annotation prefix
+        multi_turn_annotation_df.columns = [
+            col.replace("multi_turn_annotation_", "")
+            for col in multi_turn_annotation_df.columns
+        ]
+
+        html_content += self.plot_table(
+            multi_turn_annotation_df, "Multi-Turn Conversation"
+        )
         return html_content

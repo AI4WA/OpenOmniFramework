@@ -242,22 +242,27 @@ JAZZMIN_SETTINGS = {
         {
             "name": "Latency|Benchmark",
             "url": "/orchestrator/task/benchmark/?cluster=all",
-            "new_window": True,
+            "new_window": False,
         },
         {
             "name": "Latency|Details",
             "url": "/orchestrator/task/benchmark_detail/?cluster=all",
-            "new_window": True,
+            "new_window": False,
         },
         {
             "name": "Accuracy|Benchmark",
             "url": "/hardware/datamultimodalconversation/accuracy_benchmark/?cluster=all",
-            "new_window": True,
+            "new_window": False,
         },
         {
             "name": "Accuracy|Details",
             "url": "/hardware/datamultimodalconversation/accuracy_detail/?cluster=all",
-            "new_window": True,
+            "new_window": False,
+        },
+        {
+            "name": "Accuracy|Multi-TurnConversation",
+            "url": "/hardware/datamultimodalconversation/accuracy_multi_turn_benchmark/?cluster=all",
+            "new_window": False,
         },
     ],
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)

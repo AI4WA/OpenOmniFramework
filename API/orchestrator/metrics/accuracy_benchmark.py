@@ -1,5 +1,6 @@
 from typing import List
 
+import jiwer
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -12,7 +13,6 @@ from hardware.models import ContextEmotionDetection, DataMultiModalConversation
 from orchestrator.chain.manager import CLUSTER_Q_ETE_CONVERSATION_NAME, CLUSTERS
 from orchestrator.metrics.utils import extract_task_group
 from orchestrator.models import Task
-import jiwer
 
 logger = get_logger(__name__)
 
@@ -90,7 +90,6 @@ class AccuracyBenchmark:
             conversation_annotation = conversation.annotations
             annotated = False
             for user_id, annotation in conversation_annotation.items():
-                logger.info(conversation.text.text)
                 annotations.append(
                     {
                         "track_id": conversation.track_id,
@@ -113,7 +112,7 @@ class AccuracyBenchmark:
         conversation_annotation_df = pd.DataFrame(annotations)
         if len(conversation_annotation_df) == 0:
             return html_content + "<p>No conversation annotation found</p>"
-
+        # transform the track_id to be the last part
         conversation_annotation_df["track_id"] = (
             conversation_annotation_df["track_id"].str.split("-").str[-1]
         )
@@ -121,11 +120,11 @@ class AccuracyBenchmark:
         conversation_annotation_df.columns = [
             col.replace("annotation_", "") for col in conversation_annotation_df.columns
         ]
+        # add CER and WER
         conversation_annotation_df = self.calculate_speech2text_accuracy(
             conversation_annotation_df
         )
 
-        # TODO: add automatic calculation for some tasks, for example, speech2text
         if detailed:
             # then we will present them into multiple tables: speech2text, text_generation, text2speech, overall
             if "speech2text" in required_annotation_task:
@@ -159,14 +158,54 @@ class AccuracyBenchmark:
                 overall_conversation_df, "Overall Conversation Quality"
             )
         else:
+            #
             # then we will try to calculate the overall accuracy for each annotation task
+            conversation_annotation_df = self.annotation_average(
+                df=conversation_annotation_df
+            )
             if "speech2text" in required_annotation_task:
-                desc_df = self.summary_speech2text(
+                desc_df = self.summary_df(
                     conversation_annotation_df[
-                        ["track_id", "user_id", "wer", "cer", "speech2text_score"]
+                        ["track_id", "wer", "cer", "speech2text_score"]
                     ].copy(deep=True)
                 )
                 html_content += self.plot_table(desc_df, "Speech2Text Overall Quality")
+                html_content += self.plot_distribution(
+                    conversation_annotation_df[
+                        ["track_id", "wer", "cer", "speech2text_score"]
+                    ].copy(deep=True),
+                    "Speech2Text",
+                )
+            if "text_generation" in required_annotation_task:
+                desc_df = self.summary_df(
+                    conversation_annotation_df[
+                        ["track_id", "text_generation_score"]
+                    ].copy(deep=True)
+                )
+                html_content += self.plot_table(
+                    desc_df, "Text Generation Overall Quality"
+                )
+                html_content += self.plot_distribution(
+                    conversation_annotation_df[
+                        ["track_id", "text_generation_score"]
+                    ].copy(deep=True),
+                    "Text Generation",
+                )
+
+            if "text2speech" in required_annotation_task:
+                desc_df = self.summary_df(
+                    conversation_annotation_df[["track_id", "text2speech_score"]].copy(
+                        deep=True
+                    )
+                )
+                html_content += self.plot_table(desc_df, "Text2Speech Overall Quality")
+                html_content += self.plot_distribution(
+                    conversation_annotation_df[["track_id", "text2speech_score"]].copy(
+                        deep=True
+                    ),
+                    "Text2Speech",
+                )
+
         # summary the emotion detection task
         if "emotion_detection" in required_annotation_task:
             # load the emotion detection results
@@ -176,7 +215,6 @@ class AccuracyBenchmark:
             if len(emotion_detection_results) == 0:
                 return html_content + "<h4>No emotion detection results found</h4>"
 
-            logger.info(len(emotion_detection_results))
             emotion_detection_expected_keys = (
                 MultiModalFKEmotionDetectionAnnotationForm.declared_fields.keys()
             )
@@ -217,6 +255,14 @@ class AccuracyBenchmark:
                 html_content += self.plot_table(
                     emotion_detection_df, "Emotion Detection"
                 )
+                html_content += self.plot_distribution(
+                    emotion_detection_df, "Emotion Detection"
+                )
+            else:
+                emotion_detection_df = self.annotation_average(emotion_detection_df)
+                desc_df = self.summary_df(emotion_detection_df)
+                # logger.info(desc_df)
+                html_content += self.plot_table(desc_df, "Emotion Detection")
 
         return html_content
 
@@ -292,6 +338,60 @@ class AccuracyBenchmark:
         return desc_html
 
     @staticmethod
+    def plot_distribution(df: pd.DataFrame, title: str = "") -> str:
+        """
+        Plot the distribution of the latency
+        Args:
+            df (pd.DataFrame): The dataframe
+            title (str): The title
+
+        Returns:
+            str: The plot in HTML
+        """
+        # plot the distribution for each column
+        # Calculate mean and max for each latency column
+
+        mean_accuracies = df[df.columns[1:]].mean()
+        max_accuracies = df[df.columns[1:]].max()
+        min_accuracies = df[df.columns[1:]].min()
+
+        # Create a Plotly figure
+        fig = go.Figure()
+        # Add min latencies to the figure
+        fig.add_trace(
+            go.Bar(x=min_accuracies.index, y=min_accuracies.values, name="Min Accuracy")
+        )
+        # Add mean latencies to the figure
+        fig.add_trace(
+            go.Bar(
+                x=mean_accuracies.index, y=mean_accuracies.values, name="Mean Accuracy"
+            )
+        )
+
+        # Add max latencies to the figure
+        fig.add_trace(
+            go.Bar(x=max_accuracies.index, y=max_accuracies.values, name="Max Accuracy")
+        )
+
+        # Customize the layout
+        fig.update_layout(
+            title={
+                "text": "Accuracy Distribution" + title,
+                "x": 0.5,
+                "xanchor": "center",
+                "yanchor": "top",
+            },
+            xaxis_title="Evaluation Metrics",
+            yaxis_title="Accuracies",
+            barmode="group",
+            margin=dict(l=10, r=10, b=0),
+        )
+
+        # Convert Plotly figure to HTML
+        plot_html = fig.to_html(full_html=False)
+        return plot_html
+
+    @staticmethod
     def extract_required_annotation_models(cluster_name: str) -> List[str]:
         """
         Extract the required annotation models
@@ -317,7 +417,8 @@ class AccuracyBenchmark:
         # remove the duplicate
         return list(set(required_annotation_task))
 
-    def calculate_speech2text_accuracy(self, df: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def calculate_speech2text_accuracy(df: pd.DataFrame) -> pd.DataFrame:
         """
         Calculate the speech2text accuracy
         Args:
@@ -326,7 +427,6 @@ class AccuracyBenchmark:
         Returns:
             float: The accuracy
         """
-        df.to_csv("speech2text.csv", index=False)
         # both predict_text and speech2text can be null
         # if the predict_text is null, then we will consider it as 0
         # if the speech2text is null, then we will consider it as 0
@@ -365,9 +465,36 @@ class AccuracyBenchmark:
 
         return df
 
-    def summary_speech2text(self, df: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def annotation_average(df: pd.DataFrame) -> pd.DataFrame:
         """
-        Summary the speech2text
+        Calculate the average of the annotation
+        Args:
+            df (pd.DataFrame): The dataframe
+
+        Returns:
+            pd.DataFrame: The dataframe
+        """
+        # for each row, if the value is missing or pending, remove the row
+        # then calculate the average for each track_id
+        df = df.replace("missing", pd.NA)
+        df = df.replace("pending", pd.NA)
+        df = df.dropna(subset=df.columns[2:], how="any")
+        # try to get all columns to float, if not possible, then keep it as it is
+        # loop the columns, try to get it to float
+        for col in df.columns[2:]:
+            try:
+                df[col] = df[col].astype(float)
+            except ValueError:
+                pass
+        numeric_columns = df.select_dtypes(include=["float64", "int64"]).columns
+        df_mean = df.groupby("track_id")[numeric_columns].mean().reset_index()
+        return df_mean
+
+    @staticmethod
+    def summary_df(df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Summary the given dataframe
 
         Args:
             df (pd.DataFrame): The dataframe
@@ -375,10 +502,16 @@ class AccuracyBenchmark:
         Returns:
             str: The HTML content
         """
-        logger.info(df.describe())
-        desc_df = df.describe()
-        desc_df.reset_index(inplace=True)
-        return df.describe()
+        # for the same track_id, aggregate the results into one, and use the mean as the final result
+        # df = df.apply(pd.to_numeric, errors='coerce')
+
+        # Group by 'track_id' and calculate the mean for each group
+        # df = df.groupby("track_id").mean().reset_index()
+        desc_df = df.describe().transpose()
+        desc_df = desc_df.reset_index()
+        desc_df.rename(columns={"index": "metric"}, inplace=True)
+        desc_df = desc_df.round(4)
+        return desc_df
 
     def detail_run(self):
         logger.info(f"Running accuracy benchmark for cluster {self.benchmark_cluster}")

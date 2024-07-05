@@ -3,7 +3,6 @@ from typing import List
 import pandas as pd
 import plotly.colors as pcolors
 import plotly.graph_objects as go
-from django.conf import settings
 
 from authenticate.utils.get_logger import get_logger
 from orchestrator.chain.manager import CLUSTER_Q_ETE_CONVERSATION_NAME, CLUSTERS
@@ -107,10 +106,10 @@ class LatencyBenchmark:
         # get the column split with _ from right, and left element is the component name
 
         if len(result_df) != 0:
-            logger.info(result_df.describe())
-            result_df.to_csv(settings.LOG_DIR / f"{cluster_name}_benchmark.csv")
+            logger.debug(result_df.describe())
+            # result_df.to_csv(settings.LOG_DIR / f"{cluster_name}_benchmark.csv")
             # to html and return it
-            logger.info(result_df.describe())
+            logger.debug(result_df.describe())
             desc = result_df.describe().transpose()
             desc = desc.round(4)
 
@@ -184,7 +183,7 @@ class LatencyBenchmark:
 
         # cluster ts latency
         result_ts_df = pd.DataFrame(cluster_ts_latency)
-        result_ts_df.to_csv(settings.LOG_DIR / f"{cluster_name}_ts_benchmark.csv")
+        # result_ts_df.to_csv(settings.LOG_DIR / f"{cluster_name}_ts_benchmark.csv")
         if len(result_ts_df) == 0:
             return track_tasks_html
         # we will plot a bar
@@ -218,7 +217,7 @@ class LatencyBenchmark:
             # NOTE: this will require client side do not log overlap durations
             model_latency = 0
             transfer_latency = 0
-            logger.info(latency_profile)
+            logger.debug(latency_profile)
             task_start_time = None
             task_end_time = None
             for key, value in latency_profile.items():
@@ -439,7 +438,6 @@ class LatencyBenchmark:
                 if new_key not in result:
                     result[new_key] = value
 
-        logger.info(result)
         return result
 
     @staticmethod
@@ -650,7 +648,6 @@ class LatencyBenchmark:
             y_value = y_values[i]
             y_labels.append(row["track_id"].split("-")[-1])
             for col in df.columns[1:]:
-                logger.info(col)
                 if not pd.isna(row[col]):
                     show_legend = False
                     if col not in legend_added:

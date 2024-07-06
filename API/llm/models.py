@@ -7,72 +7,7 @@ from django.db import models
 from huggingface_hub import hf_hub_url
 from tqdm import tqdm
 
-from authenticate.models import User
-
 logger = logging.getLogger(__name__)
-
-
-class LLMRequestResultDownload(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    name = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        help_text="The name of the task for tracking",
-    )
-    progress = models.CharField(
-        max_length=100,
-        choices=[
-            ("pending", "Pending"),
-            ("completed", "Completed"),
-            ("failed", "Failed"),
-            ("started", "Started"),
-            ("cancelled", "Cancelled"),
-        ],
-        default="pending",
-    )
-    download_link = models.URLField(
-        blank=True, null=True, help_text="The download link in s3"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "LLM Result Download"
-        verbose_name_plural = "LLM Result Downloads"
-
-
-class LLMRequestRecord(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    name = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        help_text="The name of the task for tracking",
-    )
-    model_name = models.CharField(max_length=100)
-    prompt = models.TextField()
-    response = models.JSONField(default=dict, blank=True, null=True)
-    task = models.CharField(
-        max_length=100,
-        choices=[
-            ("chat_completion", "Chat Completion"),
-            ("completion", "Completion"),
-            ("create_embedding", "Create Embedding"),
-        ],
-        default="completion",
-    )
-    completed_in_seconds = models.FloatField()
-    success = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.user.username} - {self.model_name} - {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
-
-    class Meta:
-        verbose_name = "LLM Request Record"
-        verbose_name_plural = "LLM Request Records"
 
 
 class LLMConfigRecords(models.Model):

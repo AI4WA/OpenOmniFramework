@@ -202,8 +202,7 @@ LOGGING = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Replace with your Next.js app origin
-    "https://llm.nlp-tlp.org",
+    "http://localhost:3000",  # Replace with your Next.js app origin if you have a frontend
 ]
 
 SIMPLE_JWT = {
@@ -216,7 +215,7 @@ BOTO3_SESSION = boto3.Session(region_name=os.environ.get("AWS_REGION", "us-west-
 
 # update this
 
-CSV_BUCKET = "wa-data-and-llm-platform"
+CSV_BUCKET = "wa-data-and-llm-platform"  # update this to your S3 bucket name
 
 
 LOG_DIR = Path(BASE_DIR) / "logs"
@@ -231,7 +230,7 @@ AI_MEDIA_URL = "/ai"
 
 
 JAZZMIN_SETTINGS = {
-    "site_logo": "admin/imgs/nlptlp.png",
+    "site_logo": "admin/imgs/favicon-32x32.png",
     # Copyright on the footer
     "copyright": "UWA NLP TLP GROUP",
     "topmenu_links": [

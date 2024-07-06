@@ -3,7 +3,7 @@ __pycache__
 venv
 data
 .DS_Store
-static
+#static
 API/ml/ml_models/model_data
 .tox
 .coverage

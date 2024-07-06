@@ -1,14 +1,12 @@
 services:
-  worker_cpu:
+  ai:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: OpenBenangAIContainer
+    container_name: AIContainer
     command: /app/entrypoint.sh
     volumes:
       - .:/app
     environment:
-      - TOKEN=38e1e473481edb8230d1b2c3d3c48bbdcfde617e
-      - TASK_TYPE=cpu
-      - API_DOMAIN=http://localhost:8000
+      - TOKEN={YOUR_TOKEN}
     network_mode: host

@@ -17,7 +17,7 @@ nav:
       - Client:
           - Introduction: Client/main.md
           - Setup: Client/setup.md
-      - API: API.md
+      - API: API/main.md
       - AI: AI.md
   - Source:
       - Client:

@@ -47,11 +47,11 @@ INSTALLED_APPS = [
     "drf_yasg",
     "import_export",
     "corsheaders",
+    "taggit",
     "authenticate",
-    "orchestrator",
     "hardware",
     "llm",
-    "taggit",
+    "orchestrator",
 ]
 
 MIDDLEWARE = [

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from authenticate.utils.get_logger import get_logger
-from llm.llm_call.config import MODELS
+from llm.llm.config import MODELS
 from llm.models import LLMConfigRecords
 
 logger = get_logger(__name__)

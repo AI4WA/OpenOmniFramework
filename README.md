@@ -2,7 +2,13 @@
 
 **Benang** means tomorrow in Western Australia Noongar Language.
 
-![./docs/images/OpenBenang.png](./docs/images/OpenBenang.png)
+**GPT-4o** Here is what we think OpenAI GPT-4o is doing.
+
+![GPT-4o.png](./docs/images/GPT-4o.jpg)
+
+**Our Designed Workflow** is like this:
+![OurWorkflow.png](./docs/images/OpenOmni.jpg)
+
 
 For an end to end conversational AI system, currently, there are mainly two approaches:
 

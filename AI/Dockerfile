@@ -15,9 +15,9 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Install Python 3.9 and other dependencies
 RUN apt-get update && \
     apt-get install -y python3.9 python3.9-dev python3.9-distutils python3-pip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
+    apt-get install -y libgl1-mesa-glx libglib2.0-0  libglu1-mesa && \
+    apt-get clean
+#    rm -rf /var/lib/apt/lists/* \
 
 # Upgrade pip
 RUN python3.9 -m pip install --upgrade pip

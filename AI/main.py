@@ -15,6 +15,7 @@ from modules.general_ml.handler import GeneralMLModel
 from modules.hf_llm.handler import HFLLM
 from modules.openai.handler import OpenAIHandler
 from modules.quantization_llm.handler import QuantizationLLM
+from modules.rag.handler import RAGHandler
 from modules.speech_to_text.speech2text import Speech2Text
 from modules.text_to_speech.text2speech import Text2Speech
 from utils.api import API
@@ -76,6 +77,7 @@ class AIOrchestrator:
         self.hf_llm = None
         self.general_ml = None
         self.openai_handler = None
+        self.rag_handler = None
 
         self.task_name_router = {
             TaskName.speech2text.value: self.handle_speech2text_task,
@@ -89,6 +91,7 @@ class AIOrchestrator:
             TaskName.openai_text2speech.value: self.handle_openai_task,
             TaskName.openai_gpt4o_text_only.value: self.handle_openai_task,
             TaskName.openai_gpt_4o_text_and_image.value: self.handle_openai_task,
+            TaskName.rag.value: self.handle_rag_task,
         }
 
     def authenticate_token(self):
@@ -249,6 +252,20 @@ class AIOrchestrator:
         task = self.openai_handler.handle_task(task)
         return task
 
+    def handle_rag_task(self, task: Task):
+        """
+        Handle the rag task
+        Args:
+            task (Task): The task
+
+        Returns:
+
+        """
+        if self.rag_handler is None:
+            self.rag_handler = RAGHandler()
+        task = self.rag_handler.handle_task(task)
+        return task
+
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
@@ -277,6 +294,7 @@ if __name__ == "__main__":
                 TaskName.text2speech.value,
                 TaskName.openai_gpt4o_text_only.value,
                 TaskName.openai_gpt_4o_text_and_image.value,
+                TaskName.rag.value,
             ]
         else:
             task_names = args.task_name.split(",")

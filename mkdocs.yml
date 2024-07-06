@@ -1,4 +1,4 @@
-site_name: OpenBenang by AI4WA
+site_name: OpenOmni Framework by AI4WA
 site_url: https://openbenang.ai4wa.com
 theme:
   name: material
@@ -19,7 +19,6 @@ nav:
           - Setup: Client/setup.md
       - API: API.md
       - AI: AI.md
-      - Web: Web.md
   - Source:
       - Client:
           - Introduction: Source/index.md

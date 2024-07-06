@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     "import_export",
     "corsheaders",
     "authenticate",
-    "hasura_management",
     "orchestrator",
     "hardware",
     "llm",

@@ -2,12 +2,17 @@
 
 **Benang** means tomorrow in Western Australia Noongar Language.
 
-![./docs/images/OpenBenang.png](./docs/images/OpenBenang.png)
+**GPT-4o** Here is what we think OpenAI GPT-4o is doing.
+
+![GPT-4o.png](./docs/images/GPT-4o.jpg)
+
+**Our Designed Workflow** is like this:
+![OurWorkflow.png](./docs/images/OpenOmni.jpg)
 
 For an end to end conversational AI system, currently, there are mainly two approaches:
 
-- Right side is what we think OpenAI GPT-4o is doing.
-- Left side is what traditional conversational AI is doing.
+- First is what we think OpenAI GPT-4o is doing.
+- Second is what traditional conversational AI is doing.
 
 As demonstrated in their video, OpenAI is working on an end-to-end model, which is quite impressive and theoretically
 state-of-the-art.
@@ -15,8 +20,8 @@ state-of-the-art.
 However, there are challenges:
 
 - We do not know how they implement it or why they can achieve such results.
-- Fully end-to-end models are difficult to implement because most researchers lack the resources (**money** and **data
-  **) to train such models.
+- Fully end-to-end models are difficult to implement because most researchers lack the resources
+  (**money** and **data**) to train such models.
 
 To reach the level of OpenAI, we need:
 
@@ -65,9 +70,20 @@ In the end we will want to respond to the user's query in a timely manner, and p
 From Application Development Perspective, we divide the whole applications into three main components:
 
 - Client
+    - Audio Acquisition
+    - Video Acquisition
+    - Play the Speech
 - API
+    - Central place to manage data models
+    - Provide API interface for the client to access
+    - Manage AI models
+    - Provide Interface for Observation and Annotation
 - AI
-- Web
+    - Running the ML or AI models
+    - LLM models
+    - Text2Speech models
+    - Emotion Recognition models
+    - etc.
 
 ### Client
 
@@ -117,13 +133,6 @@ Detailed information can be found in [AI](./docs/AI.md).
 
 The API side will work as the orchestrator, to manage the models, and provide the interface for the client to access
 
-### Web
-
-Detailed information can be found in [Web](./docs/Web.md).
-
-- It will provide a real-time interface for the user to view the progress of the end to end conversation process.
-- It will also provide an interface for the user to doing the annotation, and evaluation of the system.
-
 ---
 
 ## Applications
@@ -138,6 +147,8 @@ Two main features:
 - Monitoring and Nursing: Make sure they take their medication, eat well, and exercise regularly.
 - Emotional Support: Provide companionship and emotional support.
 
+----
+
 ## Development Environment Setup
 
 To get this project end to end running, you need to set up the following:
@@ -148,13 +159,9 @@ To get this project end to end running, you need to set up the following:
     - File Sync [Optional]
     - Text to Speech
 - API
-    - API
-    - Audio Transcription
-    - Emotion Recognition
+- AI
 
 Before you start, you will need to clone this repo to your local machine.
-
----
 
 ### Client
 
@@ -176,7 +183,7 @@ cd ./Client/Listener
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python3 audios_acquire.py --api_domain http://localhost:8000 --token xxx_create_a_token_from_api_xxx --model medium
+python3 audios_acquire.py --api_domain http://localhost:8000 --token xxx_create_a_token_from_api_xxx --cluster_name xxx_cluster_name_xxx
 # it then will start to listen to the audio and send it to the API
 ```
 
@@ -203,7 +210,6 @@ cd ./Client/Listener
 source venv/bin/activate
 # pip install -r requirements.txt
 python3 sync_files.py # with proper configurations
-# TODO: this needs further implementation to be more production-ready
 ```
 
 #### Text to Speech
@@ -237,25 +243,19 @@ This should be able to start the API, and you can access
 
 Username and password are `admin/password`.
 
-#### Audio Transcription
+### AI
 
-It can be run within the container, actually, it is already running in the container, you can check the worker
-container.
-There is a `worker` container running in the background, listen for LLM queued tasks.
-
-However, running inside containers will have much lower performance compared to running on the host machine.
-
-So to get a more efficient transcription, you can run it on the host machine.
+Simple way to start is
 
 ```bash
-cd ./API
-# create a virtual environment
+
+cd ./AI
 python3 -m venv venv
+  
 source venv/bin/activate
 pip install -r requirements.txt
 pip install -r requirements.dev.txt
-export DB_SERVICE=localhost
-python3 manage.py start_worker --task_type stt
+python3 main.py --api_domain http://localhost:8000 --token xxx_create_a_token_from_api_xxx
 ```
 
 #### Emotion Recognition
@@ -280,30 +280,4 @@ model_data/
 
 If you encounter an issue about the `deepface` weights downloading folder, set the environment variable
 to you `model_data/deepface` folder.
-
-```bash
-cd ./API
-# create a virtual environment if you haven't done it
-# python3 -m venv venv
-source venv/bin/activate
-# pip install -r requirements.txt
-# pip install -r requirements.dev.txt
-export DB_SERVICE=localhost
-python3 manage.py emoji
-```
-
----
-
-### Web
-
-This is not a standalone application, but it can run against different API servers, which will be quite handy for
-debugging.
-It is an application written in React and Next.js.
-
-You can then open the browser and go to http://localhost:3000
-
-```bash
-cd ./Web
-docker compose up
-```
 

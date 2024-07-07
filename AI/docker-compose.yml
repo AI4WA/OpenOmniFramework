@@ -10,3 +10,4 @@ services:
     environment:
       - TOKEN={YOUR_TOKEN}
     network_mode: host
+    platform: linux/amd64

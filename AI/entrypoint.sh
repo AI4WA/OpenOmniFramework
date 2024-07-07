@@ -1,2 +1,3 @@
 #!/bin/bash
-python3.9 main.py --token $TOKEN
+#set -e
+python3.9 main.py

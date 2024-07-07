@@ -1,0 +1,14 @@
+pydantic==2.6.2
+huggingface-hub==0.21.1
+sentence-transformers==2.6.1
+accelerate
+getmac==0.9.4
+requests
+python-dotenv
+sqlalchemy
+neo4j
+opencv-python
+librosa
+deepface
+tf-keras
+python-dotenv

@@ -8,8 +8,8 @@ until PGPASSWORD=$DB_PASS psql -h "$DB_SERVICE" -U "$DB_USER" -d "$DB_NAME" -c '
 done
 
 >&2 echo "Postgres is up - executing command"
+python manage.py migrate taggit
 python manage.py migrate
-python manage.py hasura_custom_migration
 python manage.py collectstatic --noinput
 python manage.py check_models
 

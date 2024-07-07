@@ -9,7 +9,8 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Install Python 3.9 and other dependencies
 RUN apt-get update && \
     apt-get install -y python3.9 python3.9-dev python3.9-distutils python3-pip \
-                       libgl1-mesa-glx libglib2.0-0 libglu1-mesa  pkg-config  libhdf5-dev
+                       libgl1-mesa-glx libglib2.0-0 libglu1-mesa  pkg-config  libhdf5-dev \
+                       cuda-toolkit-11-4 libcublas-dev-11-4
 
 
 # Set the working directory in the container
@@ -21,10 +22,11 @@ COPY . /app
 # Upgrade pip
 RUN python3.9 -m pip install --upgrade pip
 
+RUN CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python==0.2.55 --no-cache-dir --force-reinstall --upgrade
+
 # Install llama-cpp-python and other requirements
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements.dev.txt
-
 # Expose port 8000
 EXPOSE 8000
 

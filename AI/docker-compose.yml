@@ -8,6 +8,15 @@ services:
     volumes:
       - .:/app
     environment:
-      - TOKEN={YOUR_TOKEN}
+      - TOKEN=${YOUR_TOKEN}
+      - OPENAI_API_KEY=${YOUR_OPENAI_API_KEY}
+      - HF_TOKEN=${YOUR_HF_TOKEN}
     network_mode: host
     platform: linux/amd64
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]

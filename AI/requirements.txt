@@ -9,6 +9,10 @@ sqlalchemy
 neo4j
 opencv-python
 librosa
-deepface
+deepface==0.0.86
 tf-keras
 python-dotenv
+openai
+whisper
+numpy==1.26.4
+boto3

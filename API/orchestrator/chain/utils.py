@@ -1,10 +1,10 @@
 from authenticate.utils.get_logger import get_logger
 from hardware.models import (
     ContextEmotionDetection,
+    ContextRAG,
     DataText,
     ResSpeech,
     ResText,
-    ContextRAG,
 )
 from orchestrator.chain.models import TaskData
 

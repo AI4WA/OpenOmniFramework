@@ -11,9 +11,9 @@ from orchestrator.chain.signals import (
     completed_openai_speech2text,
     completed_openai_text2speech,
     completed_quantization_llm,
+    completed_rag,
     completed_speech2text,
     completed_task,
-    completed_rag,
     completed_text2speech,
 )
 from orchestrator.models import Task

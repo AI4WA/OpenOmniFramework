@@ -10,7 +10,7 @@ from hardware.forms import (
     MultiModalFKEmotionDetectionAnnotationForm,
 )
 from hardware.models import ContextEmotionDetection, DataMultiModalConversation
-from orchestrator.chain.manager import CLUSTER_Q_ETE_CONVERSATION_NAME, CLUSTERS
+from orchestrator.chain.clusters import CLUSTER_Q_ETE_CONVERSATION_NAME, CLUSTERS
 from orchestrator.metrics.utils import extract_task_group
 from orchestrator.models import Task
 

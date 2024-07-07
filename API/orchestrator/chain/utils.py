@@ -1,5 +1,11 @@
 from authenticate.utils.get_logger import get_logger
-from hardware.models import ContextEmotionDetection, DataText, ResSpeech, ResText
+from hardware.models import (
+    ContextEmotionDetection,
+    DataText,
+    ResSpeech,
+    ResText,
+    ContextRAG,
+)
 from orchestrator.chain.models import TaskData
 
 logger = get_logger(__name__)
@@ -67,3 +73,29 @@ def data_multimodal_conversation_log_context_emotion_detection(
             )
             emotion.save()
             logger.info(emotion)
+
+
+def data_multimodal_conversation_log_context_rag(
+    task_data: TaskData, result: dict, logs: dict = None
+):
+    """
+
+    Args:
+        task_data (TaskData): the task data
+        result (dict): the result of the context rag
+        logs (dict): the logs of the context rag
+
+    Returns:
+
+    """
+    data_text_id = task_data.parameters.get("data_text_id", None)
+    if data_text_id is not None:
+        data_text = DataText.objects.filter(id=data_text_id).first()
+        if data_text is not None and hasattr(data_text, "multi_modal_conversation"):
+            rag = ContextRAG(
+                multi_modal_conversation=data_text.multi_modal_conversation,
+                result=result,
+                logs=logs,
+            )
+            rag.save()
+            logger.info(rag)

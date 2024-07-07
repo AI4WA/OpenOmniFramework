@@ -52,6 +52,11 @@ class OpenAIHandler:
             text = self.gpt_4o_text_only(task)
             TimeLogger.log(latency_profile, "end_openai_gpt_4o")
             result_profile["text"] = text
+        if "openai_gpt_35" in task.task_name:
+            TimeLogger.log(latency_profile, "start_openai_gpt_35")
+            text = self.gpt_35(task)
+            TimeLogger.log(latency_profile, "end_openai_gpt_35")
+            result_profile["text"] = text
         if "text2speech" in task.task_name:
             TimeLogger.log(latency_profile, "start_openai_text2speech")
             text = self.text2speech(task)
@@ -141,6 +146,46 @@ class OpenAIHandler:
                 messages=messages,
             )
         return res.choices[0].message.content
+
+    def gpt_35(self, task: Task) -> Optional[str]:
+        """
+        Call OpenAI endpoints to convert speech to text
+        Args:
+            task (Task): The path to the audio file
+
+        Returns:
+            str: The transcribed text
+        """
+
+        try:
+            logger.info(task.parameters)
+            params = OpenAIGPT4OTextOnlyParameters(**task.parameters)
+            text = params.text
+            prompt_template = params.prompt_template
+            logger.info(f"Text: {text}")
+            prompt = prompt_template.format(text=text)
+            messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                    ],
+                }
+            ]
+            with time_tracker(
+                "openai_gpt_35",
+                task.result_json.latency_profile,
+                track_type=TrackType.MODEL.value,
+            ):
+                res = self.client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=messages,
+                )
+
+            return res.choices[0].message.content
+        except Exception as e:
+            logger.error(f"Error locating audio file: {e}")
+            return None
 
     def gpt_4o_text_and_images(self, task: Task) -> Optional[str]:
         """

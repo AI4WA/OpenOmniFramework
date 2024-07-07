@@ -388,3 +388,39 @@ class ContextEmotionDetection(models.Model):
     class Meta:
         verbose_name = "Context Emotion"
         verbose_name_plural = "Context Emotions"
+
+
+class ContextRAG(models.Model):
+    multi_modal_conversation = models.ForeignKey(
+        DataMultiModalConversation,
+        on_delete=models.CASCADE,
+        related_name="rag",
+        null=True,
+        blank=True,
+    )
+    result = models.JSONField(
+        help_text="The emotion result of the text", null=True, blank=True, default=dict
+    )
+    logs = models.JSONField(
+        help_text="The logs of the emotion detection",
+        null=True,
+        blank=True,
+        default=dict,
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True, help_text="The created time of the emotion detection"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True, help_text="The updated time of the emotion detection"
+    )
+
+    annotations = models.JSONField(
+        help_text="The annotations of the emotion detection",
+        null=True,
+        blank=True,
+        default=dict,
+    )
+
+    class Meta:
+        verbose_name = "RAG Result"
+        verbose_name_plural = "RAG Results"

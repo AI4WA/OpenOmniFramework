@@ -134,9 +134,11 @@ class Task(models.Model):
             ("general_ml", "General ML"),
             ("openai_speech2text", "OpenAI Speech2Text"),
             ("openai_gpt_4o", "OpenAI GPT4o"),
+            ("openai_gpt_35", "OpenAI GPT3.5"),
             ("openai_text2speech", "OpenAI Text2Speech"),
             ("openai_gpt_4o_text_and_image", "OpenAI GPT4o Text and Image"),
             ("openai_gpt_4o_text_only", "OpenAI GPT4o Text"),
+            ("rag", "RAG"),
         ]
 
     @staticmethod
@@ -150,9 +152,11 @@ class Task(models.Model):
             "general_ml": "general_ml",
             "openai_speech2text": "speech2text",
             "openai_gpt_4o": "text_generation",
+            "openai_gpt_35": "text_generation",
             "openai_text2speech": "text2speech",
             "openai_gpt_4o_text_and_image": "text_generation",
             "openai_gpt_4o_text_only": "text_generation",
+            "rag": "rag",
         }
 
 

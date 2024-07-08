@@ -208,6 +208,12 @@ CLUSTER_GPT_4O_TEXT_ETE_CONVERSATION = {
         "component_type": "signal",
         "task_name": None,
     },
+    "created_data_text": {
+        "order": 2,
+        "extra_params": {},
+        "component_type": "signal",
+        "task_name": None,
+    },
     # then will call the GPT-4o model to convert the text to speech
     "completed_openai_gpt_4o_text_only": {
         "order": 2,

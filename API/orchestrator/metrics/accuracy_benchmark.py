@@ -105,6 +105,7 @@ class AccuracyBenchmark:
                     {
                         "track_id": conversation.track_id,
                         "user_id": "missing",
+                        "predict_text": "",
                         **annotation_pending_default,
                     }
                 )

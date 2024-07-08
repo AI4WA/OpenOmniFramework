@@ -14,9 +14,11 @@ from authenticate.models import User
 from hardware.forms import (
     MultiModalAnnotationForm,
     MultiModalFKEmotionDetectionAnnotationForm,
+    MultiModalFKRAGAnnotationForm,
 )
 from hardware.models import (
     ContextEmotionDetection,
+    ContextRAG,
     DataAudio,
     DataMultiModalConversation,
     DataText,
@@ -681,3 +683,19 @@ class ContextEmotionDetectionAdmin(DataMultiModalConversationFKAdmin):
         "logs",
         "multi_modal_conversation",
     )
+
+
+@admin.register(ContextRAG)
+class ContextRAGAdmin(DataMultiModalConversationFKAdmin):
+    form = MultiModalFKRAGAnnotationForm
+    exclude = DataMultiModalConversationFKAdmin.exclude + (
+        "result",
+        "logs",
+        "multi_modal_conversation",
+    )
+
+    readonly_fields = ("text",) + DataMultiModalConversationFKAdmin.readonly_fields
+
+    def text(self, obj):
+        result = obj.result
+        return result.get("text", "No Result")

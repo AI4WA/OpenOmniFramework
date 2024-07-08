@@ -97,3 +97,27 @@ class MultiModalFKEmotionDetectionAnnotationForm(forms.ModelForm):
             for key, value in current_user_annotation.items():
                 if key in self.fields:
                     self.fields[key].initial = value
+
+
+class MultiModalFKRAGAnnotationForm(forms.ModelForm):
+
+    annotation_rag_content = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 1}),
+        help_text="Put your annotation of the rag.",
+    )
+
+    annotation_rag_content_score = forms.IntegerField(
+        initial=0, help_text="Score for the RAG content."
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.annotations:
+            current_user_annotation = self.instance.annotations.get(
+                str(self.current_user.id), {}
+            )
+            for key, value in current_user_annotation.items():
+                if key in self.fields:
+                    self.fields[key].initial = value

@@ -143,6 +143,7 @@ class QueueTaskViewSet(viewsets.ViewSet):
             )
         except Exception as e:
             logger.error(f"Error updating task result: {e}")
+            logger.exception(e)
             return Response(
                 {"error": f"Error updating task result: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,

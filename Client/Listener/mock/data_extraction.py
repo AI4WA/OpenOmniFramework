@@ -2,7 +2,7 @@ import argparse
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from uuid import uuid4
 
 import imageio
@@ -13,6 +13,17 @@ from constants import DATA_DIR
 from utils import get_logger
 
 logger = get_logger(__name__)
+
+
+CLUSTERS = [
+    "CLUSTER_Q_ETE_CONVERSATION",
+    "CLUSTER_HF_ETE_CONVERSATION",
+    "CLUSTER_GPT_4O_ETE_CONVERSATION",
+    "CLUSTER_GPT_4O_TEXT_ETE_CONVERSATION",
+    "CLUSTER_Q_NO_EMOTION_ETE_CONVERSATION",
+    "CLUSTER_GPT_35_ETE_CONVERSATION",
+    "CLUSTER_GPT_35_RAG_ETE_CONVERSATION",
+]
 
 
 class DataMock:
@@ -30,7 +41,11 @@ class DataMock:
     """
 
     def __init__(
-        self, api_domain: str, token: str, home_id: str = "", track_cluster: str = None
+        self,
+        api_domain: str,
+        token: str,
+        home_id: Optional[int],
+        track_cluster: str = None,
     ):
         self.api = API(
             domain=api_domain, token=token, home_id=home_id, track_cluster=track_cluster
@@ -207,7 +222,7 @@ if __name__ == "__main__":
     args.add_argument("--api_domain", type=str, required=True)
     args.add_argument("--token", type=str, required=True)
     args.add_argument("--home_id", type=str, default=None)
-    args.add_argument("--track_cluster", type=str, default="")
+    args.add_argument("--track_cluster", type=str, default=None)
 
     args.add_argument("--input_video_path", type=str, required=True)
     args.add_argument(
@@ -235,14 +250,19 @@ if __name__ == "__main__":
             )
         )
 
-    mock = DataMock(
-        api_domain=args.api_domain,
-        token=args.token,
-        home_id=args.home_id,
-        track_cluster=args.track_cluster,
-    )
+    if args.track_cluster is not None:
+        track_clusters = [args.track_cluster]
+    else:
+        track_clusters = CLUSTERS
+    for track_cluster in track_clusters:
+        mock = DataMock(
+            api_domain=args.api_domain,
+            token=args.token,
+            home_id=args.home_id,
+            track_cluster=track_cluster,
+        )
 
-    mock.replay(
-        time_ranges=time_ranges,
-        input_video_path=args.input_video_path,
-    )
+        mock.replay(
+            time_ranges=time_ranges,
+            input_video_path=args.input_video_path,
+        )

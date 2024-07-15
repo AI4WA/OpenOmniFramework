@@ -38,6 +38,12 @@ class DataMock:
     - video
         - /videos/uuid/datetime.mp4
         - /video/uuid/frames/date-time/xx.jpg
+
+
+    For the mock US-Election debate
+    It is:
+    - 02:53,3:20,20:20,20:39,33:38,34:18,69:54,72:15,80:05,80:18
+
     """
 
     def __init__(

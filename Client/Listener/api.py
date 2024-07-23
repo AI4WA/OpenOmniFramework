@@ -22,11 +22,11 @@ class API:
     """
 
     def __init__(
-        self,
-        domain: str = API_DOMAIN,
-        token: str = "",
-        home_id: Optional[int] = None,
-        track_cluster: Optional[str] = None,
+            self,
+            domain: str = API_DOMAIN,
+            token: str = "",
+            home_id: Optional[int] = None,
+            track_cluster: Optional[str] = None,
     ):
         """
         The API class for the responder
@@ -58,10 +58,10 @@ class API:
         return track_id
 
     def register_device(
-        self,
-        device_name: Optional[str] = None,
-        device_type: Optional[str] = None,
-        description: Optional[str] = None,
+            self,
+            device_name: Optional[str] = None,
+            device_type: Optional[str] = None,
+            description: Optional[str] = None,
     ):
         """
         Register the device to the API.
@@ -92,13 +92,13 @@ class API:
         logger.info(f"POST {url} {r.status_code}")
 
     def post_audio(
-        self,
-        uid: str,
-        sequence_index: int,
-        audio_file: str,
-        start_time: datetime,
-        end_time: datetime,
-        track_id: str = None,
+            self,
+            uid: str,
+            sequence_index: int,
+            audio_file: str,
+            start_time: datetime,
+            end_time: datetime,
+            track_id: str = None,
     ):
         """
         Post metadata of the audio to the API.
@@ -135,7 +135,7 @@ class API:
         return r.json()
 
     def post_video(
-        self, uid: str, video_file: str, start_time: datetime, end_time: datetime
+            self, uid: str, video_file: str, start_time: datetime, end_time: datetime
     ):
         """
         Post metadata of the video to the API.
@@ -167,7 +167,7 @@ class API:
         return r.json()
 
     def queue_speech_to_text(
-        self, uid: str, audio_index: str, start_time: datetime, end_time: datetime
+            self, uid: str, audio_index: str, start_time: datetime, end_time: datetime
     ) -> str:
         """
         Optional, used to queue the speech to text task
@@ -207,3 +207,20 @@ class API:
             return None
         logger.info(r.json())
         return track_id
+
+    def get_storage_solution(self):
+        """
+        Get the storage solution from the API
+        Returns:
+
+        """
+        url = f"{self.domain}/hardware/storage_solution/"
+        r = requests.get(
+            url, headers={"Authorization": f"Token {self.token}"}, timeout=30
+        )
+        logger.info(f"GET {url} {r.status_code}")
+        if r.status_code != 200:
+            return None
+        data = r.json()
+        logger.info(data)
+        return data.get("storage_solution", "volume")

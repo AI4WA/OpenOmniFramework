@@ -214,6 +214,8 @@ SIMPLE_JWT = {
 LOG_DIR = Path(BASE_DIR) / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
+# Option will be: volume,local,s3,api
+# api means use our api server to do the test
 STORAGE_SOLUTION = os.environ.get("STORAGE_SOLUTION", "s3")
 
 # update this

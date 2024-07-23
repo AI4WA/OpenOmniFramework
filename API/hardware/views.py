@@ -357,3 +357,46 @@ def client_video(request, conversation_id):
         response = HttpResponse(f.read(), content_type="video/mp4")
         response["Content-Disposition"] = f"attachment; filename={conversation.id}.mp4"
     return response
+
+
+# create an endpoint as relay to upload files to S3
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def upload_file(request):
+    """
+    This is for temporarily solution, as we host the centre server,
+    and will not provide the S3 access to the general user
+
+    So to testout our system, you can use this endpoint to upload files to S3
+    Focus on client and AI side
+
+    """
+    file = request.FILES.get("file")
+    if file is None:
+        return Response(
+            {"message": "No file found."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    s3_client = settings.BOTO3_SESSION.client("s3")
+    dest_path = request.data.get("dest_path", None)
+    if dest_path is None:
+        return Response(
+            {"message": "dest_path is required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    try:
+        s3_client.upload_fileobj(
+            file,
+            settings.S3_BUCKET,
+            dest_path,
+        )
+        return Response(
+            {"message": "File uploaded successfully."},
+            status=status.HTTP_200_OK,
+        )
+    except Exception as e:
+        logger.error(e)
+        return Response(
+            {"message": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

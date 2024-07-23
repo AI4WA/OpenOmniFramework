@@ -14,6 +14,7 @@ from constants import (
     STORAGE_SOLUTION_LOCAL,
     STORAGE_SOLUTION_S3,
     STORAGE_SOLUTION_VOLUME,
+    STORAGE_SOLUTION_API
 )
 from utils import get_logger
 
@@ -88,7 +89,7 @@ class S3SyncHandler(FileSystemEventHandler):
             # print(f"Event type: {event.event_type} - Path: {event.src_path}")
             # only process .avi and .wav files
             if not event.src_path.endswith(".mp4") and not event.src_path.endswith(
-                ".wav"
+                    ".wav"
             ):
                 return None
             try:
@@ -103,14 +104,45 @@ class S3SyncHandler(FileSystemEventHandler):
                 logger.error(f"Error uploading file to s3: {e}")
 
 
+class APISyncHandler(FileSystemEventHandler):
+    """
+    Sync the files to s3 when they are created, modified, moved or deleted
+    """
+
+    def __init__(self, home_id: int, api: API):
+        super().__init__()
+        self.home_id = home_id
+        self.api = api
+
+    def on_any_event(self, event):
+        if event.is_directory:
+            return None
+
+        elif event.event_type in ("created", "modified", "moved", "deleted"):
+            # print(f"Event type: {event.event_type} - Path: {event.src_path}")
+            # only process .avi and .wav files
+            if not event.src_path.endswith(".mp4") and not event.src_path.endswith(
+                    ".wav"
+            ):
+                return None
+            try:
+                self.api.upload_file(
+                    event.src_path,
+                    f"Listener/{event.src_path.split(DATA_DIR.as_posix())[1].strip('/')}",
+                )
+                logger.info(f"Uploaded file to server: {event.src_path}")
+            except Exception as e:
+                logger.error(f"Error uploading file to s3: {e}")
+
+
 class StorageHandler:
     def __init__(
-        self,
-        api_domain: str = "",
-        token: str = "",
-        home_id: int = None,
-        dest_dir: Optional[str] = None,
-        dest_password: Optional[str] = None,
+            self,
+            api_domain: str = "",
+            token: str = "",
+            home_id: int = None,
+            dest_dir: Optional[str] = None,
+            dest_password: Optional[str] = None,
     ):
         """
         Args:
@@ -137,6 +169,9 @@ class StorageHandler:
         if self.storage_solution == STORAGE_SOLUTION_LOCAL:
             self.process_local_network()
 
+        if self.storage_solution == STORAGE_SOLUTION_API:
+            self.process_api()
+
     def process_s3(self):
         observer = Observer()
         s3_handler = S3SyncHandler(self.home_id, s3_client=boto3.client("s3"))
@@ -157,6 +192,18 @@ class StorageHandler:
             sshpass=self.dest_password,
         )
         observer.schedule(local_handler, str(DATA_DIR), recursive=True)
+        observer.start()
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
+
+    def process_api(self):
+        observer = Observer()
+        api_handler = APISyncHandler(self.home_id, self.api)
+        observer.schedule(api_handler, str(DATA_DIR), recursive=True)
         observer.start()
         try:
             while True:

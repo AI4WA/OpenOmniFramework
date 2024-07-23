@@ -15,6 +15,7 @@ API_DOMAIN = "http://localhost:8000"
 STORAGE_SOLUTION_VOLUME = "volume"
 STORAGE_SOLUTION_S3 = "s3"
 STORAGE_SOLUTION_LOCAL = "local"
+STORAGE_SOLUTION_API = "api"
 
 
 S3_BUCKET = "openomni"
@@ -28,5 +29,5 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 API_DOMAIN = "http://localhost:8000"
 
-S3_BUCKET = "wa-data-and-llm-platform" => change this to your bucket name
+S3_BUCKET = "openomni" => change this to your bucket name
 """

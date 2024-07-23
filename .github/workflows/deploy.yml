@@ -43,6 +43,6 @@ jobs:
             rm -rf omni
             mkdir omni
             tar xopf omni.tar -C omni
-            cd /root/omni
+            cd /root/omni/API
             docker compose -f docker-compose.yml down
             docker compose -f docker-compose.yml up --build -d

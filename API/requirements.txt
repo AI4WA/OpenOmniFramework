@@ -5,10 +5,8 @@ psycopg2-binary>=2.8
 django-import-export==3.3.0
 djangorestframework-simplejwt==5.3.1
 djangorestframework-api-key==3.0.0
-llama-cpp-python==0.2.55
 pydantic==2.6.2
 huggingface-hub==0.21.1
-chatglm-cpp==0.3.1
 git+https://github.com/openai/whisper.git
 torch==2.2.0
 torchvision==0.17.0

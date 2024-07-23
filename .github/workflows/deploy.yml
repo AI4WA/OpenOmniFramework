@@ -45,4 +45,4 @@ jobs:
             tar xopf omni.tar -C omni
             cd /root/omni/API
             docker compose -f docker-compose.yml down
-            docker compose -f docker-compose.yml up --build -d
+            STORAGE_SOLUTION=s3 docker compose -f docker-compose.yml up --build -d

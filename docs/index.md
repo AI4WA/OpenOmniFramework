@@ -1,8 +1,12 @@
-# OpenBenang
+# OpenOmni Framework
 
-**Benang** means tomorrow in Western Australia Noongar Language.
+## How OpenAI GPT-4o works?
 
-![./docs/images/OpenBenang.png](./images/OpenBenang.png)
+![./docs/images/GPT-4o.jpg](./images/GPT-4o.jpg)
+
+## How traditional conversational AI?
+
+![./docs/images/OpenOmni.jpg](./images/OpenOmni.jpg)
 
 For an end to end conversational AI system, currently, there are mainly two approaches:
 
@@ -67,7 +71,6 @@ From Application Development Perspective, we divide the whole applications into 
 - Client
 - API
 - AI
-- Web
 
 ### Client
 
@@ -117,11 +120,5 @@ Detailed information can be found in [AI](./AI.md).
 
 The API side will work as the orchestrator, to manage the models, and provide the interface for the client to access
 
-### Web
-
-Detailed information can be found in [Web](./Web.md).
-
-- It will provide a real-time interface for the user to view the progress of the end to end conversation process.
-- It will also provide an interface for the user to doing the annotation, and evaluation of the system.
 
 ---

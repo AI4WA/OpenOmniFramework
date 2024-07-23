@@ -1,0 +1,48 @@
+name: Deployment
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  Deploy_API:
+    name: Deploy API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Package the API codebase
+        uses: actions/checkout@v1
+      - name: Zip the whole codebase
+        run: |
+          ls -la
+          tar -cvf omni.tar .
+      - name: copy file via ssh password
+        uses: appleboy/scp-action@master
+        with:
+          host: "139.180.183.219"
+          username: root
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "omni.tar"
+          target: "/root/"
+
+      - name: Archive code deployment artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-zip
+          path: omni.tar
+
+      - name: Build and Restart backend
+        uses: appleboy/ssh-action@master
+        with:
+          host: "139.180.183.219"
+          username: root
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: |
+            cd /root 
+            rm -rf omni
+            mkdir omni
+            tar xopf omni.tar -C omni
+            cd /root/omni/API
+            docker compose -f docker-compose.yml down
+            STORAGE_SOLUTION=s3 docker compose -f docker-compose.yml up --build -d

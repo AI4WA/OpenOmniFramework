@@ -207,3 +207,20 @@ class API:
             return None
         logger.info(r.json())
         return track_id
+
+    def get_storage_solution(self):
+        """
+        Get the storage solution from the API
+        Returns:
+
+        """
+        url = f"{self.domain}/hardware/storage_solution/"
+        r = requests.get(
+            url, headers={"Authorization": f"Token {self.token}"}, timeout=30
+        )
+        logger.info(f"GET {url} {r.status_code}")
+        if r.status_code != 200:
+            return None
+        data = r.json()
+        logger.info(data)
+        return data.get("storage_solution", "volume")

@@ -1,6 +1,4 @@
-# OpenBenang
-
-**Benang** means tomorrow in Western Australia Noongar Language.
+# OpenOmni Framework
 
 **GPT-4o** Here is what we think OpenAI GPT-4o is doing.
 

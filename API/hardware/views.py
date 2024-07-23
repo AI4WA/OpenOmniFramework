@@ -26,6 +26,16 @@ from hardware.serializers import (
 )
 
 logger = logging.getLogger(__name__)
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def storage_solution(request):
+    return Response(
+        {"storage_solution": settings.STORAGE_SOLUTION}, status=status.HTTP_200_OK
+    )
 
 
 class HardWareDeviceViewSet(viewsets.ModelViewSet):
@@ -69,7 +79,7 @@ class AudioDataViewSet(viewsets.ModelViewSet):
             response = s3_client.generate_presigned_url(
                 "get_object",
                 Params={
-                    "Bucket": settings.CSV_BUCKET,
+                    "Bucket": settings.S3_BUCKET,
                     "Key": f"Listener/audio/{audio_obj.uid}/audio/{audio_obj.audio_file}",
                 },
                 ExpiresIn=3600,
@@ -131,7 +141,7 @@ class VideoDataViewSet(viewsets.ModelViewSet):
             response = s3_client.generate_presigned_url(
                 "get_object",
                 Params={
-                    "Bucket": settings.CSV_BUCKET,
+                    "Bucket": settings.S3_BUCKET,
                     "Key": f"Listener/videos/{video_obj.uid}/{video_obj.video_file}",
                 },
                 ExpiresIn=3600,
@@ -191,7 +201,7 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
                 response = s3_client.generate_presigned_url(
                     "get_object",
                     Params={
-                        "Bucket": settings.CSV_BUCKET,
+                        "Bucket": settings.S3_BUCKET,
                         "Key": f"tts/{item.text2speech_file}",
                     },
                     ExpiresIn=3600,
@@ -237,7 +247,7 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
             response = s3_client.generate_presigned_url(
                 "get_object",
                 Params={
-                    "Bucket": settings.CSV_BUCKET,
+                    "Bucket": settings.S3_BUCKET,
                     "Key": f"tts/{text2speech_obj.text2speech_file}",
                 },
                 ExpiresIn=3600,

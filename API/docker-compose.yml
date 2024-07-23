@@ -28,7 +28,6 @@ services:
       - neo4j_import:/import
       - neo4j_plugins:/plugins
 
-
   api:
     build:
       context: .
@@ -48,6 +47,7 @@ services:
       - DB_PASS=yourpassword
       - DB_SERVICE=DB
       - DB_PORT=5432
+      - STORAGE_SOLUTION=${STORAGE_SOLUTION}
     depends_on:
       - db
 

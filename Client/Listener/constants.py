@@ -17,7 +17,7 @@ STORAGE_SOLUTION_S3 = "s3"
 STORAGE_SOLUTION_LOCAL = "local"
 
 
-S3_BUCKET = "wa-data-and-llm-platform"
+S3_BUCKET = "openomni"
 
 """
 # get parent of current folder as root

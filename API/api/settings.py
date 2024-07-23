@@ -214,8 +214,7 @@ SIMPLE_JWT = {
 LOG_DIR = Path(BASE_DIR) / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# STORAGE_SOLUTION = os.environ.get("STORAGE_SOLUTION", "s3")
-STORAGE_SOLUTION = 's3'
+STORAGE_SOLUTION = os.environ.get("STORAGE_SOLUTION", "s3")
 
 # update this
 S3_BUCKET = "openomni"  # update this to your S3 bucket name

@@ -31,7 +31,7 @@ jobs:
           name: code-zip
           path: omni.tar
 
-      - name: Build and Restart backend
+      - name: Setup AWS Credentials
         uses: appleboy/ssh-action@master
         with:
           host: "139.180.183.219"
@@ -43,6 +43,22 @@ jobs:
             rm -rf omni
             mkdir omni
             tar xopf omni.tar -C omni
+            cd /root/omni/API
+            mkdir -p ./.aws
+            echo "[default]" > ./.aws/config
+            echo "region = us-west-2" >> ./.aws/config
+            echo "[default]" > ./.aws/credentials
+            echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ./.aws/credentials
+            echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ./.aws/credentials
+
+      - name: Build and Restart backend
+        uses: appleboy/ssh-action@master
+        with:
+          host: "139.180.183.219"
+          username: root
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: |
             cd /root/omni/API
             docker compose -f docker-compose.yml down
             STORAGE_SOLUTION=api docker compose -f docker-compose.yml up --build -d

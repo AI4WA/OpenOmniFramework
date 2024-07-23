@@ -333,7 +333,7 @@ class AccuracyBenchmark:
             #     update margin to be 0
             margin=dict(l=10, r=10, b=0),
             # get the height to be whatever it requires
-            height=max((len(df) * 35), 300),
+            height=max((len(df) * 35), 400),
         )
         # Update layout for better appearance
         desc_html = fig.to_html(full_html=False)

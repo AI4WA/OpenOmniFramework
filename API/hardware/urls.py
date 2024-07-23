@@ -10,6 +10,7 @@ from hardware.views import (
     client_audio,
     client_video,
     storage_solution,
+    upload_file,
 )
 
 router = DefaultRouter()
@@ -19,6 +20,7 @@ router.register(r"video", VideoDataViewSet, basename="")
 
 urlpatterns = [
     path("storage_solution/", storage_solution, name="storage_solution"),
+    path("upload_file/", upload_file, name="upload_file"),
     path(
         "register/",
         HardWareDeviceViewSet.as_view(

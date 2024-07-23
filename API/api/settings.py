@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 # CHANGE ME: Change this to the domain of your frontend
-CSRF_TRUSTED_ORIGINS = ["https://api.nlp-tlp.org"]
+CSRF_TRUSTED_ORIGINS = ["https://openomni.ai4wa.com"]
 # Application definition
 
 INSTALLED_APPS = [

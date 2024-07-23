@@ -9,6 +9,7 @@ from hardware.views import (
     ai_audio,
     client_audio,
     client_video,
+    storage_solution,
 )
 
 router = DefaultRouter()
@@ -17,6 +18,7 @@ router.register(r"audio", AudioDataViewSet, basename="")
 router.register(r"video", VideoDataViewSet, basename="")
 
 urlpatterns = [
+    path("storage_solution/", storage_solution, name="storage_solution"),
     path(
         "register/",
         HardWareDeviceViewSet.as_view(

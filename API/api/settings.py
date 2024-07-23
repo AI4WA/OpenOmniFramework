@@ -211,23 +211,21 @@ SIMPLE_JWT = {
     # Add any other simplejwt settings here as needed
 }
 
-BOTO3_SESSION = boto3.Session(region_name=os.environ.get("AWS_REGION", "us-west-2"))
-
-# update this
-
-CSV_BUCKET = "wa-data-and-llm-platform"  # update this to your S3 bucket name
-
-
 LOG_DIR = Path(BASE_DIR) / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
+# STORAGE_SOLUTION = os.environ.get("STORAGE_SOLUTION", "s3")
+STORAGE_SOLUTION = 's3'
+
+# update this
+S3_BUCKET = "openomni"  # update this to your S3 bucket name
+BOTO3_SESSION = boto3.Session(region_name=os.environ.get("AWS_REGION", "us-west-2"))
 
 MEDIA_LOCAL = True
 CLIENT_MEDIA_ROOT = Path(BASE_DIR).parent / "client" / "Listener" / "data"
 CLIENT_MEDIA_URL = "/client/"
 AI_MEDIA_ROOT = Path(BASE_DIR).parent / "client" / "Responder" / "data"
 AI_MEDIA_URL = "/ai"
-
 
 JAZZMIN_SETTINGS = {
     "site_logo": "admin/imgs/favicon-32x32.png",

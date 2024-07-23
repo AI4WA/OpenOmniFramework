@@ -3,7 +3,7 @@ from openai import OpenAI
 from models.parameters import Text2SpeechParameters
 from models.task import ResultStatus, Task
 from models.track_type import TrackType
-from utils.aws import BOTO3_SESSION, CSV_BUCKET
+from utils.aws import BOTO3_SESSION, S3_BUCKET
 from utils.constants import DATA_DIR
 from utils.get_logger import get_logger
 from utils.time_logger import TimeLogger
@@ -98,6 +98,6 @@ class Text2Speech:
         s3_client = BOTO3_SESSION.client("s3")
         s3_client.upload_file(
             file_path,
-            CSV_BUCKET,
+            S3_BUCKET,
             s3_key,
         )

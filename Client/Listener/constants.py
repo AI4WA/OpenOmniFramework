@@ -12,6 +12,11 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 API_DOMAIN = "http://localhost:8000"
 
+STORAGE_SOLUTION_VOLUME = "volume"
+STORAGE_SOLUTION_S3 = "s3"
+STORAGE_SOLUTION_LOCAL = "local"
+
+
 S3_BUCKET = "wa-data-and-llm-platform"
 
 """

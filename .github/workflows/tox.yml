@@ -22,16 +22,19 @@ jobs:
         run: |
           cd ./API
           tox
+          rm -rf .tox
       - name: Run tox for Client Listener
         run: |
           cd ./Client/Listener
           tox -e isort
           tox -e black
+          rm -rf .tox
       - name: Run tox for Client Responder
         run: |
           cd ./Client/Responder
           tox -e isort
           tox -e black
+          rm -rf .tox
       - name: Run tox for AI
         run: |
           cd ./AI

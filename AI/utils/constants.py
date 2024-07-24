@@ -26,7 +26,6 @@ MN_GEMMA = "gemma"
 BERT = "bert"
 NORMAL_MODELS = [BERT]
 
-
 """
 ```python3
 LLM_MODEL_DIR = BASE_DIR / "llm" / "models"
@@ -50,5 +49,5 @@ NORMAL_MODELS = [BERT]
 
 """
 
-
 CLIENT_DATA_FOLDER = BASE_DIR.parent / "Client" / "Listener" / "data"
+S3_BUCKET = "openomni"

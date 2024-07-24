@@ -36,11 +36,11 @@ class AIOrchestrator:
     """
 
     def __init__(
-        self,
-        api_domain: str,
-        token: str,
-        task_name: Optional[str] = "all",
-        time_sleep: Optional[float] = 1.5,
+            self,
+            api_domain: str,
+            token: str,
+            task_name: Optional[str] = "all",
+            time_sleep: Optional[float] = 1.5,
     ):
         """
         Initialize the AI Orchestrator
@@ -58,7 +58,7 @@ class AIOrchestrator:
             domain=api_domain, token=token, task_name=task_name, uuid=self.uuid
         )
         self.api.register_or_update_worker()
-
+        self.storage_solution = self.api.get_storage_solution()
         # controller
         self.counter = 0
         self.time_sleep = time_sleep

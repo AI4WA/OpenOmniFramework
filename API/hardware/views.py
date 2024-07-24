@@ -6,6 +6,7 @@ from drf_yasg.utils import swagger_auto_schema
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 
 # Create your views here.
+from datetime import datetime, timedelta
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -271,7 +272,7 @@ def client_audio(request, audio_id):
         )
 
     if (settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3) or (
-        settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
+            settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
     ):
 
         # we will grab it from the s3 and return it
@@ -279,7 +280,7 @@ def client_audio(request, audio_id):
         # construct the key and then create the pre-signed url
         s3_key = f"Listener/audio/{audio_obj.uid}/{audio_obj.audio_file}"
         local_file = (
-            settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
+                settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
         )
         # check if the file exists locally
         if not local_file.exists():
@@ -300,7 +301,7 @@ def client_audio(request, audio_id):
                 return response
 
     audio_file = (
-        settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
+            settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
     )
     with open(audio_file, "rb") as f:
         response = HttpResponse(f.read(), content_type="audio/mpeg")
@@ -315,13 +316,13 @@ def ai_audio(request, audio_id):
         return HttpResponse("No audio data found.", content_type="text/plain")
 
     if (settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3) or (
-        settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
+            settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
     ):
         # we will grab it from the s3 and return it
         s3_client = settings.BOTO3_SESSION.client("s3")
         s3_key = f"Responder/tts/{res_audio_obj.text2speech_file.split('/')[-1]}"
         local_file = (
-            settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
+                settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
         )
         # check if the file exists locally
         if not local_file.exists():
@@ -377,11 +378,11 @@ def client_video(request, conversation_id):
     video_paths = []
     for video in videos:
         video_path = (
-            settings.CLIENT_MEDIA_ROOT / "videos" / video.uid / video.video_file
+                settings.CLIENT_MEDIA_ROOT / "videos" / video.uid / video.video_file
         )
         if not video_path.exists() and (
-            settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3
-            or settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
+                settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3
+                or settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
         ):
             video_path.parent.mkdir(parents=True, exist_ok=True)
             s3_client = settings.BOTO3_SESSION.client("s3")
@@ -404,7 +405,7 @@ def client_video(request, conversation_id):
         video_paths.append(video_path.as_posix())
 
     output_path = (
-        settings.CLIENT_MEDIA_ROOT / "conversations" / f"{conversation.id}.mp4"
+            settings.CLIENT_MEDIA_ROOT / "conversations" / f"{conversation.id}.mp4"
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -459,3 +460,26 @@ def upload_file(request):
             {"message": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_files(request):
+    """
+    List all the files in the S3 bucket
+    """
+    from_time = request.query_params.get("from_time", None)
+    if from_time is None:
+        # default to 100 day ago
+        from_time = datetime.now() - timedelta(days=100)
+    else:
+        from_time = datetime.fromisoformat(from_time)
+
+    audio_files = DataAudio.objects.filter(created_at__gte=from_time)
+    video_files = DataVideo.objects.filter(created_at__gte=from_time)
+    audio_list_json = AudioDataSerializer(audio_files, many=True).data
+    video_list_json = VideoDataSerializer(video_files, many=True).data
+    return Response(
+        {"audio_files": audio_list_json, "video_files": video_list_json},
+        status=status.HTTP_200_OK,
+    )

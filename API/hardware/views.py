@@ -265,13 +265,13 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
 def client_audio(request, audio_id):
     audio_obj = DataAudio.objects.filter(id=audio_id).first()
     if audio_obj is None:
-        return Response(
-            {"message": "No audio data found."},
-            status=status.HTTP_404_NOT_FOUND,
+        return HttpResponse(
+            "No audio data found.",
+            content_type="text/plain",
         )
 
     if (settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3) or (
-        settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
+            settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
     ):
 
         # we will grab it from the s3 and return it
@@ -279,7 +279,7 @@ def client_audio(request, audio_id):
         # construct the key and then create the pre-signed url
         s3_key = f"Listener/audio/{audio_obj.uid}/{audio_obj.audio_file}"
         local_file = (
-            settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
+                settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
         )
         # check if the file exists locally
         if not local_file.exists():
@@ -296,12 +296,11 @@ def client_audio(request, audio_id):
                 response = HttpResponse(
                     str(e),
                     content_type="text/plain",
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
                 return response
 
     audio_file = (
-        settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
+            settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
     )
     with open(audio_file, "rb") as f:
         response = HttpResponse(f.read(), content_type="audio/mpeg")
@@ -313,19 +312,19 @@ def ai_audio(request, audio_id):
     logger.info(f"Audio id: {audio_id}")
     res_audio_obj = ResSpeech.objects.filter(id=audio_id).first()
     if res_audio_obj is None:
-        return Response(
-            {"message": "No audio data found."},
-            status=status.HTTP_404_NOT_FOUND,
+        return HttpResponse(
+            "No audio data found.",
+            content_type="text/plain"
         )
 
     if (settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3) or (
-        settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
+            settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
     ):
         # we will grab it from the s3 and return it
         s3_client = settings.BOTO3_SESSION.client("s3")
         s3_key = f"tts/{res_audio_obj.text2speech_file.split('/')[-1]}"
         local_file = (
-            settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
+                settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
         )
         # check if the file exists locally
         if not local_file.exists():
@@ -342,7 +341,6 @@ def ai_audio(request, audio_id):
                 response = HttpResponse(
                     str(e),
                     content_type="text/plain",
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
                 return response
 
@@ -382,11 +380,11 @@ def client_video(request, conversation_id):
     video_paths = []
     for video in videos:
         video_path = (
-            settings.CLIENT_MEDIA_ROOT / "videos" / video.uid / video.video_file
+                settings.CLIENT_MEDIA_ROOT / "videos" / video.uid / video.video_file
         )
         if not video_path.exists() and (
-            settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3
-            or settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
+                settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3
+                or settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
         ):
             video_path.parent.mkdir(parents=True, exist_ok=True)
             s3_client = settings.BOTO3_SESSION.client("s3")
@@ -409,7 +407,7 @@ def client_video(request, conversation_id):
         video_paths.append(video_path.as_posix())
 
     output_path = (
-        settings.CLIENT_MEDIA_ROOT / "conversations" / f"{conversation.id}.mp4"
+            settings.CLIENT_MEDIA_ROOT / "conversations" / f"{conversation.id}.mp4"
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 

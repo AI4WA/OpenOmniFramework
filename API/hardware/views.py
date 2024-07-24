@@ -293,6 +293,7 @@ def client_audio(request, audio_id):
                 response = HttpResponse(
                     {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
+                return response
 
     audio_file = (
             settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file

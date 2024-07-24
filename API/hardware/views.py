@@ -485,3 +485,91 @@ def list_files(request):
         {"audio_files": audio_list_json, "video_files": video_list_json},
         status=status.HTTP_200_OK,
     )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def download_file_link(request):
+    file_type = request.data.get("file_type", None)
+    file_id = request.data.get("file_id", None)
+    if file_type not in ["audio", "video"]:
+        return Response(
+            {"message": "Invalid file type."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if file_id is None:
+        return Response(
+            {"message": "file_id is required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if file_type == "audio":
+        audio_obj = DataAudio.objects.filter(id=file_id).first()
+        if audio_obj is None:
+            return Response(
+                {"message": "No audio data found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        try:
+            response = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.S3_BUCKET,
+                    "Key": f"Listener/audio/{audio_obj.uid}/{audio_obj.audio_file}",
+                },
+                ExpiresIn=3600,
+            )
+
+            return Response({"audio_url": response}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            return Response(
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    else:
+        video_obj = DataVideo.objects.filter(id=file_id).first()
+        if video_obj is None:
+            return Response(
+                {"message": "No video data found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        try:
+            video_file_url = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.S3_BUCKET,
+                    "Key": f"Listener/videos/{video_obj.uid}/{video_obj.video_file}",
+                },
+                ExpiresIn=3600,
+            )
+
+            # all frames urls
+            # then images will be within the folder /uid/frames/minute
+            minute_key = video_obj.video_file.split(".")[0][:-3]
+            logger.info(minute_key)
+            s3_frames_prefix = f"Listener/videos/{video_obj.uid}/frames/{minute_key}"
+            response = s3_client.list_objects_v2(
+                Bucket=settings.S3_BUCKET,
+                Prefix=s3_frames_prefix,
+            )
+            frames = []
+            if "Contents" in response:
+                for obj in response["Contents"]:
+                    frame_url = s3_client.generate_presigned_url(
+                        "get_object",
+                        Params={
+                            "Bucket": settings.S3_BUCKET,
+                            "Key": obj["Key"],
+                        },
+                        ExpiresIn=3600,
+                    )
+                    frames.append(frame_url)
+            video_urls = {"video_url": video_file_url, "frames": frames}
+
+            return Response(video_urls, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            return Response(
+                {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

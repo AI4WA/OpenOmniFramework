@@ -12,6 +12,7 @@ from hardware.views import (
     storage_solution,
     upload_file,
     list_files,
+    download_file_link
 )
 
 router = DefaultRouter()
@@ -23,6 +24,7 @@ urlpatterns = [
     path("storage_solution/", storage_solution, name="storage_solution"),
     path("upload_file/", upload_file, name="upload_file"),
     path("list_files/", list_files, name="list_files"),
+    path("download_file_link/", download_file_link, name="download_file_link"),
     path(
         "register/",
         HardWareDeviceViewSet.as_view(

@@ -468,12 +468,14 @@ def list_files(request):
     """
     List all the files in the S3 bucket
     """
-    from_time = request.query_params.get("from_time", None)
+    from_time = request.data.get("from_time", None)
+    logger.info(f"From time: {from_time}")
     if from_time is None:
         # default to 100 day ago
         from_time = datetime.now() - timedelta(days=100)
     else:
-        from_time = datetime.fromisoformat(from_time)
+        # get the from_time from the timestamp
+        from_time = datetime.fromtimestamp(from_time)
 
     audio_files = DataAudio.objects.filter(created_at__gte=from_time)
     video_files = DataVideo.objects.filter(created_at__gte=from_time)

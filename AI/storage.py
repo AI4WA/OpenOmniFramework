@@ -6,10 +6,7 @@ It will include two process
 - One is to pull data down
 - Another is upload data
 """
-from utils.api import API
-from utils.storage.local_sync_handler import LocalSyncHandler
-from utils.storage.s3_sync_handler import S3SyncHandler
-from utils.storage.api_sync_handler import APISyncHandler
+
 import argparse
 import subprocess
 import time
@@ -22,15 +19,19 @@ from watchdog.observers import Observer
 from utils.api import API
 from utils.constants import DATA_DIR
 from utils.get_logger import get_logger
+from utils.storage.api_sync_handler import APISyncHandler
+from utils.storage.local_sync_handler import LocalSyncHandler
+from utils.storage.s3_sync_handler import S3SyncHandler
 
 logger = get_logger(__name__)
 
 
 class StorageSolution:
-    def __init__(self,
-                 api_domain: str,
-                 token: str,
-                 ):
+    def __init__(
+        self,
+        api_domain: str,
+        token: str,
+    ):
         self.api_domain = api_domain
         self.token = token
         self.api = API(domain=api_domain, token=token)

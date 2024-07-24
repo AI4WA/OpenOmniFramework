@@ -109,6 +109,7 @@ class API:
             audio_file (str): Path to the audio file, which will be synced to the API disk storage via another parameter
             start_time (datetime): The start time of the audio
             end_time (datetime): The end time of the audio
+            track_id (str): The track id of the task
 
         Returns:
 

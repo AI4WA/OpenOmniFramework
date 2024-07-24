@@ -31,7 +31,7 @@ def trigger_completed_openai_text2speech(sender, **kwargs):
             return
         # get the speech2text task based on the track_id
         speech2text_task = (
-            Task.objects.filter(track_id=track_id, task_name="speech2text")
+            Task.objects.filter(track_id=track_id, task_name="openai_text2speech")
             .order_by("-created_at")
             .first()
         )

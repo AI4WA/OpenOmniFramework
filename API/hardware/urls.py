@@ -9,10 +9,10 @@ from hardware.views import (
     ai_audio,
     client_audio,
     client_video,
+    download_file_link,
+    list_files,
     storage_solution,
     upload_file,
-    list_files,
-    download_file_link
 )
 
 router = DefaultRouter()

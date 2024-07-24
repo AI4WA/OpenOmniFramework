@@ -50,4 +50,5 @@ NORMAL_MODELS = [BERT]
 """
 
 CLIENT_DATA_FOLDER = BASE_DIR.parent / "Client" / "Listener" / "data"
+CLIENT_DATA_FOLDER.mkdir(exist_ok=True, parents=True)
 S3_BUCKET = "openomni"

@@ -193,3 +193,41 @@ class API:
         if r.status_code != 200:
             return None
         return True
+
+    def list_files(self, from_time=None):
+        """
+        List the files from the API
+        """
+        url = f"{self.domain}/hardware/list_files/"
+        data = {
+            "from_time": from_time,
+        }
+        r = requests.get(
+            url,
+            data=data,
+            headers={"Authorization": f"Token {self.token}"},
+        )
+        logger.info(f"GET {url} {r.status_code}")
+        if r.status_code != 200:
+            return None
+        return r.json()
+
+    def download_file_link(self, file_id, file_type):
+        """
+        Get the download file link
+        """
+        url = f"{self.domain}/hardware/download_file_link/"
+        data = {
+            "file_id": file_id,
+            "file_type": file_type,
+        }
+
+        r = requests.get(
+            url,
+            data=data,
+            headers={"Authorization": f"Token {self.token}"},
+        )
+        logger.info(f"GET {url} {r.status_code}")
+        if r.status_code != 200:
+            return None
+        return r.json()

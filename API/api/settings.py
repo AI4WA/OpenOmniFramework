@@ -265,6 +265,11 @@ JAZZMIN_SETTINGS = {
             "url": "/hardware/datamultimodalconversation/accuracy_multi_turn_benchmark/?cluster=all",
             "new_window": False,
         },
+        {
+            "name": "Documentation",
+            "url": "https://docs.openomni.ai4wa.com/",
+            "new_window": True,
+        }
     ],
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
     "order_with_respect_to": [

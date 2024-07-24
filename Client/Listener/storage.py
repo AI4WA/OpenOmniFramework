@@ -89,7 +89,14 @@ class S3SyncHandler(FileSystemEventHandler):
             # print(f"Event type: {event.event_type} - Path: {event.src_path}")
             # only process .avi and .wav files
 
-            if event.src_path.split("/")[-1].split(".")[-1] not in ["mp4", "wav", "mp3", "jpg", "jpeg", "png"]:
+            if event.src_path.split("/")[-1].split(".")[-1] not in [
+                "mp4",
+                "wav",
+                "mp3",
+                "jpg",
+                "jpeg",
+                "png",
+            ]:
                 return None
                 return None
             try:
@@ -122,7 +129,14 @@ class APISyncHandler(FileSystemEventHandler):
             # print(f"Event type: {event.event_type} - Path: {event.src_path}")
             # only process .avi and .wav files
 
-            if event.src_path.split("/")[-1].split(".")[-1] not in ["mp4", "wav", "mp3", "jpg", "jpeg", "png"]:
+            if event.src_path.split("/")[-1].split(".")[-1] not in [
+                "mp4",
+                "wav",
+                "mp3",
+                "jpg",
+                "jpeg",
+                "png",
+            ]:
                 return None
             try:
                 self.api.upload_file(
@@ -136,12 +150,12 @@ class APISyncHandler(FileSystemEventHandler):
 
 class StorageHandler:
     def __init__(
-            self,
-            api_domain: str = "",
-            token: str = "",
-            home_id: int = None,
-            dest_dir: Optional[str] = None,
-            dest_password: Optional[str] = None,
+        self,
+        api_domain: str = "",
+        token: str = "",
+        home_id: int = None,
+        dest_dir: Optional[str] = None,
+        dest_password: Optional[str] = None,
     ):
         """
         Args:

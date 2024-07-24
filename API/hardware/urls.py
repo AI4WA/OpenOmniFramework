@@ -11,6 +11,7 @@ from hardware.views import (
     client_video,
     storage_solution,
     upload_file,
+    list_files,
 )
 
 router = DefaultRouter()
@@ -21,6 +22,7 @@ router.register(r"video", VideoDataViewSet, basename="")
 urlpatterns = [
     path("storage_solution/", storage_solution, name="storage_solution"),
     path("upload_file/", upload_file, name="upload_file"),
+    path("list_files/", list_files, name="list_files"),
     path(
         "register/",
         HardWareDeviceViewSet.as_view(

@@ -59,9 +59,9 @@ class OpenAIHandler:
             result_profile["text"] = text
         if "text2speech" in task.task_name:
             TimeLogger.log(latency_profile, "start_openai_text2speech")
-            text = self.text2speech(task)
+            audio_file_path = self.text2speech(task)
             TimeLogger.log(latency_profile, "end_openai_text2speech")
-            result_profile["text"] = text
+            result_profile["audio_file_path"] = audio_file_path
         task.result_status = ResultStatus.completed.value
         task.result_json.result_profile.update(result_profile)
         task.result_json.latency_profile.update(latency_profile)

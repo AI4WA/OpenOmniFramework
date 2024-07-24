@@ -75,7 +75,7 @@ class Text2Speech:
         with time_tracker("save_audio", latency_profile, TrackType.TRANSFER.value):
             response.stream_to_file(audio_file_path)
 
-        result_profile["audio_file_path"] = audio_file_path
+        result_profile["audio_file_path"] = audio_file_path.split("/")[-1]
 
         if self.to_s3:
             with time_tracker("to_s3", latency_profile, TrackType.TRANSFER.value):

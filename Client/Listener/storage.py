@@ -11,10 +11,10 @@ from api import API
 from constants import (
     DATA_DIR,
     S3_BUCKET,
+    STORAGE_SOLUTION_API,
     STORAGE_SOLUTION_LOCAL,
     STORAGE_SOLUTION_S3,
     STORAGE_SOLUTION_VOLUME,
-    STORAGE_SOLUTION_API
 )
 from utils import get_logger
 
@@ -89,7 +89,7 @@ class S3SyncHandler(FileSystemEventHandler):
             # print(f"Event type: {event.event_type} - Path: {event.src_path}")
             # only process .avi and .wav files
             if not event.src_path.endswith(".mp4") and not event.src_path.endswith(
-                    ".wav"
+                ".wav"
             ):
                 return None
             try:
@@ -122,7 +122,7 @@ class APISyncHandler(FileSystemEventHandler):
             # print(f"Event type: {event.event_type} - Path: {event.src_path}")
             # only process .avi and .wav files
             if not event.src_path.endswith(".mp4") and not event.src_path.endswith(
-                    ".wav"
+                ".wav"
             ):
                 return None
             try:
@@ -137,12 +137,12 @@ class APISyncHandler(FileSystemEventHandler):
 
 class StorageHandler:
     def __init__(
-            self,
-            api_domain: str = "",
-            token: str = "",
-            home_id: int = None,
-            dest_dir: Optional[str] = None,
-            dest_password: Optional[str] = None,
+        self,
+        api_domain: str = "",
+        token: str = "",
+        home_id: int = None,
+        dest_dir: Optional[str] = None,
+        dest_password: Optional[str] = None,
     ):
         """
         Args:

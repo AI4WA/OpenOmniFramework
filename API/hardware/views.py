@@ -260,7 +260,6 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
                 {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-
 # return audio data from local storage
 def client_audio(request, audio_id):
     audio_obj = DataAudio.objects.filter(id=audio_id).first()
@@ -269,51 +268,40 @@ def client_audio(request, audio_id):
             {"message": "No audio data found."},
             status=status.HTTP_404_NOT_FOUND,
         )
-    if (settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_LOCAL) or (
-        settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_VOLUME
-    ):
-        audio_file = (
-            settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
-        )
-        logger.info(audio_file)
-        with open(audio_file, "rb") as f:
-            response = HttpResponse(f.read(), content_type="audio/mpeg")
-            response["Content-Disposition"] = (
-                f"attachment; filename={audio_obj.audio_file}"
-            )
-        return response
 
     if (settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3) or (
         settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
     ):
+
         # we will grab it from the s3 and return it
         s3_client = settings.BOTO3_SESSION.client("s3")
         # construct the key and then create the pre-signed url
         s3_key = f"Listener/audio/{audio_obj.uid}/{audio_obj.audio_file}"
-        try:
-            s3_presigned_url = s3_client.generate_presigned_url(
-                "get_object",
-                Params={
-                    "Bucket": settings.S3_BUCKET,
-                    "Key": s3_key,
-                },
-                ExpiresIn=3600,
-            )
-            return Response(
-                {"audio_url": s3_presigned_url},
-                status=status.HTTP_200_OK,
-            )
-        except Exception as e:
-            logger.error(e)
-            return Response(
-                {"message": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        local_file = settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
+        # check if the file exists locally
+        if not local_file.exists():
+            try:
+                s3_client.download_file(
+                    settings.S3_BUCKET,
+                    s3_key,
+                    local_file,
+                )
+            except Exception as e:
+                logger.error(e)
+                # response with the HttpResponse
+                response = HttpResponse(
+                    {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
 
-    return Response(
-        {"message": "No audio data found."},
-        status=status.HTTP_404_NOT_FOUND,
-    )
+    audio_file = (
+            settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
+        )
+    with open(audio_file, "rb") as f:
+        response = HttpResponse(f.read(), content_type="audio/mpeg")
+        response["Content-Disposition"] = (
+                f"attachment; filename={audio_obj.audio_file}"
+            )
+    return response
 
 
 def ai_audio(request, audio_id):

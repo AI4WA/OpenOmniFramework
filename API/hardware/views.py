@@ -203,7 +203,7 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
                     "get_object",
                     Params={
                         "Bucket": settings.S3_BUCKET,
-                        "Key": f"tts/{item.text2speech_file}",
+                        "Key": f"Responder/tts/{item.text2speech_file}",
                     },
                     ExpiresIn=3600,
                 )

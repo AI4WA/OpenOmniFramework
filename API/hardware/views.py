@@ -475,7 +475,7 @@ def list_files(request):
         from_time = datetime.now() - timedelta(days=100)
     else:
         # get the from_time from the timestamp
-        from_time = datetime.fromtimestamp(from_time)
+        from_time = datetime.fromtimestamp(float(from_time))
 
     audio_files = DataAudio.objects.filter(created_at__gte=from_time)
     video_files = DataVideo.objects.filter(created_at__gte=from_time)

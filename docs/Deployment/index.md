@@ -61,6 +61,21 @@ docker compose -f docker-compose.yml down
 docker compose -f docker-compose.yml up --build -d
 ```
 
+Configuration of Nginx will be like this:
+```nginx
+server {
+    server_name openomni.ai4wa.com;
+    client_max_body_size 100M;
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
 ## AI
 
 - Required Resource

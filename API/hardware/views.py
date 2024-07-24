@@ -269,8 +269,9 @@ def client_audio(request, audio_id):
             {"message": "No audio data found."},
             status=status.HTTP_404_NOT_FOUND,
         )
-
-    if settings.MEDIA_LOCAL:
+    if (settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_LOCAL) or (
+        settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_VOLUME
+    ):
         audio_file = (
             settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
         )
@@ -281,6 +282,34 @@ def client_audio(request, audio_id):
                 f"attachment; filename={audio_obj.audio_file}"
             )
         return response
+
+    if (settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3) or (
+        settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
+    ):
+        # we will grab it from the s3 and return it
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        # construct the key and then create the pre-signed url
+        s3_key = f"Listener/audio/{audio_obj.uid}/{audio_obj.audio_file}"
+        try:
+            s3_presigned_url = s3_client.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.S3_BUCKET,
+                    "Key": s3_key,
+                },
+                ExpiresIn=3600,
+            )
+            return Response(
+                {"audio_url": s3_presigned_url},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            logger.error(e)
+            return Response(
+                {"message": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
     return Response(
         {"message": "No audio data found."},
         status=status.HTTP_404_NOT_FOUND,
@@ -295,7 +324,9 @@ def ai_audio(request, audio_id):
             {"message": "No audio data found."},
             status=status.HTTP_404_NOT_FOUND,
         )
-    if settings.MEDIA_LOCAL:
+    if settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_LOCAL or (
+        settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_VOLUME
+    ):
         audio_file = (
             settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
         )
@@ -306,6 +337,14 @@ def ai_audio(request, audio_id):
                 f"attachment; filename={res_audio_obj.text2speech_file}"
             )
         return response
+
+    if (settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3) or (
+        settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
+    ):
+        # we will grab it from the s3 and return it
+        s3_client = settings.BOTO3_SESSION.client("s3")
+        # construct the key and then create the pre-signed url
+        pass
 
     return Response(
         {"message": "No audio data found."},

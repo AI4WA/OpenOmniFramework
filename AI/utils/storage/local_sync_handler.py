@@ -1,6 +1,6 @@
 import subprocess
+
 from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
 
 from utils.get_logger import get_logger
 

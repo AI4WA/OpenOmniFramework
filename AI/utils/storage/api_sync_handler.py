@@ -1,10 +1,8 @@
 from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
 
 from utils.api import API
-
-from utils.get_logger import get_logger
 from utils.constants import DATA_DIR
+from utils.get_logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -25,7 +23,11 @@ class APISyncHandler(FileSystemEventHandler):
         elif event.event_type in ("created", "modified", "moved", "deleted"):
             # print(f"Event type: {event.event_type} - Path: {event.src_path}")
             # only process .avi and .wav files
-            if event.src_path.split("/")[-1].split(".")[-1] not in ["mp4", "wav", "mp3"]:
+            if event.src_path.split("/")[-1].split(".")[-1] not in [
+                "mp4",
+                "wav",
+                "mp3",
+            ]:
                 return None
             try:
                 self.api.upload_file(

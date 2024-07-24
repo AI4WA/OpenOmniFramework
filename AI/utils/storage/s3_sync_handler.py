@@ -1,10 +1,6 @@
-import boto3
 from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
 
-from utils.api import API
 from utils.constants import DATA_DIR, S3_BUCKET
-
 from utils.get_logger import get_logger
 
 logger = get_logger(__name__)
@@ -26,7 +22,11 @@ class S3SyncHandler(FileSystemEventHandler):
         elif event.event_type in ("created", "modified", "moved", "deleted"):
             # print(f"Event type: {event.event_type} - Path: {event.src_path}")
             # only process .avi and .wav files
-            if event.src_path.split("/")[-1].split(".")[-1] not in ["mp4", "wav", "mp3"]:
+            if event.src_path.split("/")[-1].split(".")[-1] not in [
+                "mp4",
+                "wav",
+                "mp3",
+            ]:
                 return None
             try:
                 self.s3_client.upload_file(

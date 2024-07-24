@@ -36,11 +36,11 @@ class AIOrchestrator:
     """
 
     def __init__(
-            self,
-            api_domain: str,
-            token: str,
-            task_name: Optional[str] = "all",
-            time_sleep: Optional[float] = 1.5,
+        self,
+        api_domain: str,
+        token: str,
+        task_name: Optional[str] = "all",
+        time_sleep: Optional[float] = 1.5,
     ):
         """
         Initialize the AI Orchestrator

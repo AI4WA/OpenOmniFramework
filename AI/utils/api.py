@@ -17,11 +17,11 @@ class API:
     """
 
     def __init__(
-            self,
-            domain: str = API_DOMAIN,
-            token: str = "",
-            uuid: str = "",
-            task_name: str = "llm",
+        self,
+        domain: str = API_DOMAIN,
+        token: str = "",
+        uuid: str = "",
+        task_name: str = "llm",
     ):
         """
         Init API class to communicate with the API
@@ -82,8 +82,8 @@ class API:
         return r.json()
 
     def post_task_result(
-            self,
-            task: Task,
+        self,
+        task: Task,
     ):
         """
         Post the task result to the API
@@ -170,9 +170,9 @@ class API:
         return data.get("storage_solution", "volume")
 
     def upload_file(
-            self,
-            source_file: str,
-            dest_path: str,
+        self,
+        source_file: str,
+        dest_path: str,
     ):
         """
         Upload the file to the API

@@ -322,7 +322,7 @@ def ai_audio(request, audio_id):
     ):
         # we will grab it from the s3 and return it
         s3_client = settings.BOTO3_SESSION.client("s3")
-        s3_key = f"tts/{res_audio_obj.text2speech_file.split('/')[-1]}"
+        s3_key = f"Responder/tts/{res_audio_obj.text2speech_file.split('/')[-1]}"
         local_file = (
                 settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
         )

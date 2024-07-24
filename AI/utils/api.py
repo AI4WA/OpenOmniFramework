@@ -17,11 +17,11 @@ class API:
     """
 
     def __init__(
-        self,
-        domain: str = API_DOMAIN,
-        token: str = "",
-        uuid: str = "",
-        task_name: str = "llm",
+            self,
+            domain: str = API_DOMAIN,
+            token: str = "",
+            uuid: str = "",
+            task_name: str = "llm",
     ):
         """
         Init API class to communicate with the API
@@ -82,8 +82,8 @@ class API:
         return r.json()
 
     def post_task_result(
-        self,
-        task: Task,
+            self,
+            task: Task,
     ):
         """
         Post the task result to the API
@@ -151,3 +151,45 @@ class API:
         finally:
             s.close()
         return ip
+
+    def get_storage_solution(self):
+        """
+        Get the storage solution from the API
+        Returns:
+
+        """
+        url = f"{self.domain}/hardware/storage_solution/"
+        r = requests.get(
+            url, headers={"Authorization": f"Token {self.token}"}, timeout=30
+        )
+        logger.info(f"GET {url} {r.status_code}")
+        if r.status_code != 200:
+            return None
+        data = r.json()
+        logger.info(data)
+        return data.get("storage_solution", "volume")
+
+    def upload_file(
+            self,
+            source_file: str,
+            dest_path: str,
+    ):
+        """
+        Upload the file to the API
+        """
+        url = f"{self.domain}/hardware/upload_file/"
+        files = {"file": open(source_file, "rb")}
+        data = {
+            "dest_path": dest_path,
+        }
+        r = requests.post(
+            url,
+            files=files,
+            data=data,
+            headers={"Authorization": f"Token {self.token}"},
+            timeout=30,
+        )
+        logger.info(f"POST {url} {r.status_code}")
+        if r.status_code != 200:
+            return None
+        return True

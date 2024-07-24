@@ -17,3 +17,4 @@ openai-whisper
 llama-cpp-python==0.2.55
 numpy==1.26.4
 boto3
+watchdog

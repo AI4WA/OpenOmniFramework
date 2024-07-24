@@ -280,6 +280,7 @@ def client_audio(request, audio_id):
         local_file = settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
         # check if the file exists locally
         if not local_file.exists():
+            local_file.parent.mkdir(parents=True, exist_ok=True)
             try:
                 s3_client.download_file(
                     settings.S3_BUCKET,
@@ -292,6 +293,7 @@ def client_audio(request, audio_id):
                 response = HttpResponse(
                     {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
+                return response
 
     audio_file = (
             settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file

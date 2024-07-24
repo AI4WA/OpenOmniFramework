@@ -110,14 +110,13 @@ if __name__ == "__main__":
 
         item = speech_content
         logger.info(item)
-        text = item["text"]
         tts_url = item["tts_url"]
         if tts_url:
             PlaySpeech.play_audio_url(tts_url)
-        logger.info(f"No tts_url for {text}")
+        logger.info(f"No tts_url for {item}")
         text2speech_file = Path(item["text2speech_file"])
         if text2speech_file.exists():
             PlaySpeech.play_audio_file(text2speech_file)
         else:
-            logger.error(f"No file for {text}")
+            logger.error(f"No file for {item}")
         time.sleep(0.25)

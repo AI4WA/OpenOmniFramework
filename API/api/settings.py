@@ -216,13 +216,17 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # Option will be: volume,local,s3,api
 # api means use our api server to do the test
+
+STORAGE_SOLUTION_API = "api"
+STORAGE_SOLUTION_LOCAL = "local"
+STORAGE_SOLUTION_S3 = "s3"
+STORAGE_SOLUTION_VOLUME = "volume"
 STORAGE_SOLUTION = os.environ.get("STORAGE_SOLUTION", "s3")
 
 # update this
 S3_BUCKET = "openomni"  # update this to your S3 bucket name
 BOTO3_SESSION = boto3.Session(region_name=os.environ.get("AWS_REGION", "us-west-2"))
 
-MEDIA_LOCAL = True
 CLIENT_MEDIA_ROOT = Path(BASE_DIR).parent / "client" / "Listener" / "data"
 CLIENT_MEDIA_URL = "/client/"
 AI_MEDIA_ROOT = Path(BASE_DIR).parent / "client" / "Responder" / "data"

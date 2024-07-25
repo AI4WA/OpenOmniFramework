@@ -17,9 +17,9 @@ Multimodal Open Source Framework for Conversational AI Research and Development.
         - [Client](#client)
         - [API](#api)
         - [AI](#ai)
-- [Key Features](#key-features)
+- [Benchmark Examples](#benchmark-examples)
+- [Deployment Options](#deployment-options)
 - [Tutorial](#tutorial)
-- [How to Deploy](#how-to-deploy)
 
 ----
 
@@ -176,6 +176,15 @@ It also includes an interface for end users (Researchers and Annotators) to inte
 AI module is seperated to make sure it can be scaled to use different computation resources, and easily to integrate new
 work in.
 
+All modules are written in Python.
+
+- Client side, Listener and Responder are two separate python package, which will allow the separate deployment of data
+  acquisition and playing audio speech.
+- API end is built with Django, and have a customised admin interface, which will allow the management of the data
+  sources, and the models.
+- Data side, we have Neo4j, PostgreSQL, and Hard Disk, which will allow the data to be stored in different places.
+- AI module is also a Python package.
+
 #### Client
 
 Detailed information can be found in [Client](Client/main.md).
@@ -223,5 +232,71 @@ Detailed information can be found in [AI](./AI.md).
 
 ---
 
-## Key Features
+## Benchmark Examples
+
+We provided benchmarks for both latency and accuracy.
+
+### Latency
+
+When we log the time within the pipeline, we will log both timestamp information for critical time points, and the time
+duration it takes to finish a specific task.
+In this way, we can generate a latency report for each component within the pipeline, and also operate whether the
+latency is caused by the data transfer or the model inference process, so that we can further optimize the system.
+With the timestamp information of the time point, we can easily retrieve the timeline of the process, with good
+observability, it will allow us to debug easily, or notice the potential issues.
+
+We provide two report interface for the latency:
+
+- **Summary Report**: Which will provide the average latency for each component within the pipeline.
+  ![Summary Report](./images/benchmark_summary.png)
+- **Detail Report**: Which will provide the detailed information round of conversation, timeline and overall latency.
+  ![Detail Report](./images/benchmark_detail.png)
+
+You can configure the system to run the same datasets through different pipelines, and in the end evaluate the
+performance, do the comparison.
+
+### Accuracy
+
+Accuracy probably is not the most correct name for it, as for the text generation task, you will want to see whether it
+is in-context, for text2speech task, you will want to check the emotion is proper or not.
+However, if we just use the general word to "Performance" to refer this, it will normally cause the confusion between
+the developers and researchers.
+So we stick to use this to refer to the model performance.
+
+However, for most of the accuracy performance, it does not like the latency, the measurement is diverse for a task and
+between different tasks.
+For example, you will want to evaluate whether the generated text is in-context from the knowledge, reasoning, tone
+perspective.
+So we need more freedom here.
+And automatically to evaluate the tasks from these different perspectives is also a challenging and underexplored area.
+
+So we decide to provide a customisable interface which will allow annotators to annotate the accuracy performance for
+the model under different measurement metrics.
+It can be evaluated by multiple annotators, and then the system will provide a summary report for the performance.
+You can also evaluate the overall performance for several rounds of conversation, and then generate a report for that.
+
+We will show how to do this evaluation annotation in tutorial section.
+
+You can track the evaluation process via our accuracy detail page, and then get a summary report after the evaluation
+annotation is done.
+
+- **Summary Report**: Which will provide the average accuracy for each component under each measurement metrics within
+  the pipeline.
+  ![Summary Report 1](./images/accuracy_summary_1.png)
+  ![Summary Report 2](./images/accuracy_summary_2.png)
+  ![Summary Report 3](./images/accuracy_summary_3.png)
+  ![Summary Report 4](./images/accuracy_summary_4.png)
+- **Detail Report**: Which will provide the detailed information and progress for each round of conversation annotation
+  ![Detail Report](./images/accuracy_detail_progress.png)
+  ![Detail Report](./images/accuracy_detail_results.png)
+
+- **Multi-Turn Conversation**: You can group several conversation into a muti-turn conversation, and then annotate the
+  overall performance for that.
+  ![Multi-Turn Conversation](./images/accuracy_overall.png)
+
+---
+
+## Deployment Options
+
+
 

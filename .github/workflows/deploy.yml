@@ -25,12 +25,6 @@ jobs:
           source: "omni.tar"
           target: "/root/"
 
-      - name: Archive code deployment artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: code-zip
-          path: omni.tar
-
       - name: Setup AWS Credentials
         uses: appleboy/ssh-action@master
         with:

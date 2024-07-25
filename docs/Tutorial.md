@@ -129,9 +129,66 @@ export HF_TOKEN=Your_HuggingFace_Token
 export OPENAI_API_KEY=Your_OpenAI_API_KEY
 ```
 
-For the model part, if you want to get our emotion detection model running, you will need to download the model from
+For the model part, if you want to get our emotion detection model running, you will need to download the model
+from [download link](https://openomni.s3.eu-west-1.amazonaws.com/models/emotion_detection.zip)
 
-## Annotation and Evaluation Benchmark
+And put it in the folder: `./AI/data/models/emotion_detection/model_data`.
+It should be like this
+
+![emotion_model](./images/model_data.png)
+
+Then you should be ready to run the AI module.
+
+```bash
+# run the AI module
+python3 main.py --token your_token_from_step_3
+```
+
+You can also skip the steps to install the requirements, directly run the AI module with docker.
+
+```bash
+TOKEN=XXX docker compose up
+```
+
+This will allow you to utilise the GPU resources on your machine if you have one.
+
+![ai_running](./images/ai_running.png)
+
+Until now, you will have the client side to feed the video/audio data to the API, and the AI module to consume the data.
+
+**Step 6**: Play speech audio in client side
+
+```bash
+cd ./OpenOmniFramework
+cd ./Client/Responder
+
+# create the virtual environment if this is your first time run this
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+pip3 install -r requirements.dev.txt # if you are doing further development
+
+# run the audio player
+
+python3 play_speech.py --token your_token_from_step_3
+```
+
+You will see something like this:
+
+![audio_play](./images/audio_speech.png)
+
+Until now, you should have the whole pipeline running on your local machine.
+
+You should see new tasks created as expected in the `Tasks` page in the API admin page.
+As shown below:
+
+![tasks](./images/full_tasks.png)
+
+And in the Detailed Latency Benchmark page, you should be able to see the latency of each round of conversation.
+
+![latency](./images/detailed_latency.png)
+
+## Evaluation and Annotation Benchmark
 
 ## Pipeline customisation
 

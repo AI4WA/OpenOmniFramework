@@ -12,14 +12,15 @@ theme:
 repo_url: https://github.com/AI4WA/OpenBenang
 nav:
   - Home: index.md
-  - Leaderboard: LeaderBoard.md
+  - Tutorial: Tutorial.md
+  - Deployment: Deployment/index.md
   - Modules:
       - Client:
           - Introduction: Client/main.md
           - Setup: Client/setup.md
       - API: API/main.md
       - AI: AI.md
-  - Deployment: Deployment/index.md
+
   - Source:
       - Client:
           - Introduction: Source/index.md

@@ -247,9 +247,10 @@ observability, it will allow us to debug easily, or notice the potential issues.
 
 We provide two report interface for the latency:
 
-- **Summary Report**: Which will provide the average latency for each component within the pipeline.
+- **Summary Report**: Which will provide the average latency for each component within the pipeline (in seconds).
   ![Summary Report](./images/benchmark_summary.png)
-- **Detail Report**: Which will provide the detailed information round of conversation, timeline and overall latency.
+- **Detail Report**: Which will provide the detailed information round of conversation, timeline and overall latency  (
+  in seconds).
   ![Detail Report](./images/benchmark_detail.png)
 
 You can configure the system to run the same datasets through different pipelines, and in the end evaluate the
@@ -298,5 +299,26 @@ annotation is done.
 
 ## Deployment Options
 
+Because the whole design is modular and decoupled, so you can use our system in several ways:
 
+- **Trial on Cloud**: We deploy the API end on [https://openomni.ai4wa.com](https://openomni.ai4wa.com)
+    - You can use this as the API end
+    - Deploy the client side on your local machine to collect audio and video, and play the audio
+    - Deploy the AI module on your local machine or anywhere with good computation power, can be a cloud server, HPC
+      center, etc
+- **All in One Local Machine**: You can deploy the whole system on your PC or laptop
+    - You can use the camera, microphone, and speaker on your laptop
+    - You can use the local storage to store the data, and get the data transfer process to be "None"
+    - You can use the computation power on your laptop to run the AI models (Which sometimes not that good)
+- **Private Offline Network**: You can deploy the whole system on a private network, different machines
+    - Camera, Microphone, and Speaker can be one different machine within the same network
+    - API will be running on another machine, which in charge of manage the whole system
+    - AI module can be running on a high speciation machine, which in charge of running the AI models, or a local high
+      performance GPU cluster
+- **Your Cloud**: This is similar to the **Trial on Cloud**, only difference is that you deploy the API end on your own
+  cloud server, and you can have more control over the system.
 
+Client side can be deployed to very cheap devices like Raspberry Pi with camera, microphone and speaker, like show in
+![Raspberry Pi](./images/client.jpg)
+
+We have detailed instruction about how to deploy the system in different ways in [Deployment](./Deployment.md).

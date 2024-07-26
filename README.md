@@ -10,7 +10,7 @@ Multimodal Open Source Framework for Conversational AI Research and Development.
     - [OpenAI GPT-4o](#openai-gpt-4o)
     - [Hybrid Approach](#hybrid-approach)
     - [Summary](#summary)
-- [Our System Design](#how-traditional-conversational-ai)
+- [Our System Design](#system-design)
     - [Requirements](#requirements)
     - [System Architecture](#system-architecture)
     - [Main Components](#main-components)

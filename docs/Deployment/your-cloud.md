@@ -1,19 +1,18 @@
-### Local Deployment
+# Your Cloud
 
-If you want to deploy it locally or run it locally, all you need to do is to run the following command:
+This will be similar to the **Trail on Cloud** section, only differences is that the API end is on your cloud server.
 
-```bash
-cd ./API
-docker-compose up
-```
+Under this mode, your storage solution will be *s3*, you will need to
 
-And then open the browser and go to `http://localhost:8000` to login with username `admin` and password `password`.
+- create a s3 bucket, and replace it to the *S3_BUCKET* setting in AI/API/Client
+- create an access key and secret key, set it properly for both AI, API and Client, refer to AWS documentation for more
+  details
 
-If you are within your local network, and want to access the API from another device, you can use the private IP address
-of the machine where the API is running.
-So go to the `http://<private-ip>:8000` to access the API.
+After this, the first step you will need to do is deploying it to your cloud server.
 
-### Deploy on Cloud
+We will assume it is a Linux Machine.
+
+## **Step 1**: Deploy the API on Cloud
 
 You will need to have a cloud server, it can be AWS EC2, Azure Compute Engine or any VPS server you can access.
 It will need to have a public IP address.
@@ -37,6 +36,7 @@ rm -rf omni
 mkdir omni
 tar xopf omni.tar -C omni
 cd /root/omni/API
+export STORAGE_SOLUTION=s3
 docker compose -f docker-compose.yml down
 docker compose -f docker-compose.yml up --build -d
 ```
@@ -45,7 +45,7 @@ Configuration of Nginx will be like this:
 
 ```nginx
 server {
-    server_name openomni.ai4wa.com;
+    server_name openomni.ai4wa.com; # replace with your domain
     client_max_body_size 100M;
     location / {
         proxy_pass http://localhost:8000;
@@ -56,3 +56,15 @@ server {
     }
 }
 ```
+
+Then run
+
+```bash
+sudo service nginx restart
+```
+
+Add a DNS A record for this sever for your domain, and you should be able to access the API
+at `http://your.domain.com`.
+
+Then you can follow the steps in the `Trail on Cloud` section to get the AI and Client running.
+

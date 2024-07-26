@@ -224,7 +224,7 @@ class API:
             return None
         data = r.json()
         logger.info(data)
-        return data.get("storage_solution", "volume")
+        return data.get("storage_solution", "local")
 
     def upload_file(
         self,

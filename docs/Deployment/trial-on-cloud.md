@@ -1,26 +1,18 @@
-# Tutorial
+# Trial On Cloud
 
-We will present setup and run the end to end pipeline.
+**Step 0**: Get a token
 
-Mainly will include these sections:
+Our deployed API is on [https://openomni.ai4wa.com](https://openomni.ai4wa.com), you can use it to manage the tasks.
 
-- [Setup and run the pipeline successfully](#setup-and-run-the-pipeline-successfully)
-- [Annotation and Evaluation Benchmark](#annotation-and-evaluation-benchmark)
-- [Pipeline customisation](#pipeline-customisation)
-- [Annotation customisation](#annotation-customisation)
+Login with username `admin` and password `password`, do not change the password, as it is a shared account.
 
----
+Then you are free to create a new account for yourself.
 
-## Setup and run the pipeline successfully
+And then use your own account to create a Token.
 
-Deployment mode will be **All in One Local Machine** for demonstration purposes.
-This means all of your components will be running on your local machine or your PC.
-To get started, you will need a decent machine (as we will run some local LLMs) with camera, microphone and speaker,
-which most of the laptops have.
+![add_token](../images/add_token.png)
 
-And you will also need to have Python, Docker installed on your machine.
-
-### How to get started?
+So here all you need to do is deploy the `Client` and `AI` part.
 
 **Step 1**: Clone the repository
 
@@ -29,25 +21,7 @@ And you will also need to have Python, Docker installed on your machine.
 git clone git@github.com:AI4WA/OpenOmniFramework.git
 ```
 
-**Step 2**: Get API running
-
-```bash
-cd ./OpenOmniFramework
-cd ./API
-# Run it inside docker, this is the easiest way to get started
-docker compose up
-```
-
-After this, you should be able to access the API at `http://localhost:8000`.
-Username/Password will be `admin/password`.
-
-**Step 3**: Grab the Token for Authentication
-
-Login to the API admin, go to `http://localhost:8000/authtoken/tokenproxy/` and click `Add Token`.
-
-![Add Token](./images/grab_token.png)
-
-**Step 4**: Collect Audio and Video Data
+**Step 2**: Collect Audio and Video Data
 
 ```bash
 cd ./OpenOmniFramework
@@ -60,11 +34,11 @@ pip3 install -r requirements.txt
 pip3 install -r requirements.dev.txt # if you are doing further development
 
 # run video acquire
-python3 videos_acquire.py --token your_token_from_step_3
+python3 videos_acquire.py --token your_token_from_step_0 --api_domain https://openomni.ai4wa.com
 ```
 
 You should be able to see something like this:
-![video_cli](./images/video_cli.png)
+![video_cli](../images/video_cli.png)
 
 Then open a new terminal
 
@@ -79,21 +53,21 @@ pip3 install -r requirements.txt
 pip3 install -r requirements.dev.txt # if you are doing further development
 
 # run audio acquire
-python3 audios_acquire.py --token your_token_from_step_3 --track_cluster CLUSTER_GPT_4O_ETE_CONVERSATION 
+python3 audios_acquire.py --token your_token_from_step_0 --track_cluster CLUSTER_GPT_4O_ETE_CONVERSATION  --api_domain https://openomni.ai4wa.com
 # you can change the cluster to the one your need
 ```
 
 You will see something like this:
-![audio_cli](./images/audio_cli.png)
+![audio_cli](../images/audio_cli.png)
 
 If everything works, you should be able to check the newly create `Data Audios`, `Data Videos` and `Speech2Text` `Tasks`
 in API Admin page.
 Something like below:
-![tasks](./images/Tasks.png)
-![audio](./images/Audio.png)
-![video](./images/video.png)
+![tasks](../images/Tasks.png)
+![audio](../images/Audio.png)
+![video](../images/video.png)
 
-**Step 5**: Run AI models
+**Step 3**: Run AI models
 Now we need to start AI module to consume the `Tasks`.
 
 ```bash
@@ -135,7 +109,7 @@ from [download link](https://openomni.s3.eu-west-1.amazonaws.com/models/emotion_
 And put it in the folder: `./AI/data/models/emotion_detection/model_data`.
 It should be like this
 
-![emotion_model](./images/model_data.png)
+![emotion_model](../images/model_data.png)
 
 Then you should be ready to run the AI module.
 
@@ -152,11 +126,11 @@ TOKEN=XXX docker compose up
 
 This will allow you to utilise the GPU resources on your machine if you have one.
 
-![ai_running](./images/ai_running.png)
+![ai_running](../images/ai_running.png)
 
 Until now, you will have the client side to feed the video/audio data to the API, and the AI module to consume the data.
 
-**Step 6**: Play speech audio in client side
+**Step 4**: Play speech audio in client side
 
 ```bash
 cd ./OpenOmniFramework
@@ -175,21 +149,16 @@ python3 play_speech.py --token your_token_from_step_3
 
 You will see something like this:
 
-![audio_play](./images/audio_speech.png)
+![audio_play](../images/audio_speech.png)
 
 Until now, you should have the whole pipeline running on your local machine.
 
 You should see new tasks created as expected in the `Tasks` page in the API admin page.
 As shown below:
 
-![tasks](./images/full_tasks.png)
+![tasks](../images/full_tasks.png)
 
 And in the Detailed Latency Benchmark page, you should be able to see the latency of each round of conversation.
 
-![latency](./images/detailed_latency.png)
+![latency](../images/detailed_latency.png)
 
-## Evaluation and Annotation Benchmark
-
-## Pipeline customisation
-
-## Annotation customisation

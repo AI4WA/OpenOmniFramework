@@ -25,11 +25,12 @@ nav:
       - Private Offline Deployment: Deployment/private-offline-deployment.md
       - Your Cloud: Deployment/your-cloud.md
   - Modules:
+      - Table of Content: Modules/index.md
       - Client:
-          - Introduction: Client/main.md
-          - Setup: Client/setup.md
-      - API: API/main.md
-      - AI: AI.md
+          - Listener: Modules/Client/Listener.md
+          - Responder: Modules/Client/Responder.md
+      - API: Modules/API/main.md
+      - AI: Modules/AI.md
 
   - Source:
       - Client:

@@ -1,5 +1,8 @@
 # Trial On Cloud
 
+In this one, the *STORAGE_SOLUTION* is `api`, which means the audio and video data will be uploaded and downloaded via
+the API endpoint.
+
 **Step 0**: Get a token
 
 Our deployed API is on [https://openomni.ai4wa.com](https://openomni.ai4wa.com), you can use it to manage the tasks.
@@ -14,24 +17,38 @@ And then use your own account to create a Token.
 
 So here all you need to do is deploy the `Client` and `AI` part.
 
-**Step 1**: Clone the repository
+## **Step 1**: Clone the repository
 
 ```bash
 # switch to a proper directory
 git clone git@github.com:AI4WA/OpenOmniFramework.git
 ```
 
-**Step 2**: Collect Audio and Video Data
+## **Step 2**: Get Data Sync
+
+```bash
+cd ./OpenOmniFramework
+cd ./Client/Listener
+# create the virtual environment if this is your first time run this
+python3 -m venv venv
+source venv/bin/activate
+
+
+pip3 install -r requirements.txt
+pip3 install -r requirements.dev.txt # if you are doing further development
+
+python3 storage.py --token your_token_from_step_0 --api_domain https://openomni.ai4wa.com
+```
+
+## **Step 3**: Collect Audio and Video Data
 
 ```bash
 cd ./OpenOmniFramework
 cd ./Client/Listener
 
-# create the virtual environment if this is your first time run this
-python3 -m venv venv
+
 source venv/bin/activate
-pip3 install -r requirements.txt
-pip3 install -r requirements.dev.txt # if you are doing further development
+
 
 # run video acquire
 python3 videos_acquire.py --token your_token_from_step_0 --api_domain https://openomni.ai4wa.com
@@ -67,8 +84,11 @@ Something like below:
 ![audio](../images/Audio.png)
 ![video](../images/video.png)
 
-**Step 3**: Run AI models
+## **Step 4**: Run AI models
+
 Now we need to start AI module to consume the `Tasks`.
+
+Same as above, we will need to first run the storage sync.
 
 ```bash
 cd ./OpenOmniFramework
@@ -78,6 +98,8 @@ python3 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
 pip3 install -r requirements.dev.txt # if you are doing further development
+
+python3 storage.py --token your_token_from_step_0 --api_domain https://openomni.ai4wa.com
 ```
 
 Before we start the AI module, there are some pre configurations we need to do.
@@ -130,7 +152,7 @@ This will allow you to utilise the GPU resources on your machine if you have one
 
 Until now, you will have the client side to feed the video/audio data to the API, and the AI module to consume the data.
 
-**Step 4**: Play speech audio in client side
+## **Step 5**: Play speech audio in client side
 
 ```bash
 cd ./OpenOmniFramework

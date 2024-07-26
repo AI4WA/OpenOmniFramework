@@ -20,6 +20,8 @@ serious project, you can follow the guide in the `Your Cloud` section.
 
 ---
 
+## Modules
+
 We have three components in the stack to deploy:
 
 - API
@@ -28,7 +30,7 @@ We have three components in the stack to deploy:
     - Listener (Audio and Video)
     - Responder (Audio)
 
-## API
+### API
 
 - Required Resource
     - A server (If on cloud will require a Public IP)
@@ -37,7 +39,7 @@ We have three components in the stack to deploy:
         - For cloud server: Docker + Docker Compose + Nginx
         - For local server: Docker + Docker Compose
 
-## AI
+### AI
 
 - Required Resource
     - Any high-end computational Nvidia GPU resources
@@ -48,7 +50,7 @@ We have three components in the stack to deploy:
         - This is required to store the models and the data, especially the LLM models
     - Python 3.8+
 
-## Client
+### Client
 
 - Required Resource:
     - Hardware:
@@ -64,3 +66,26 @@ We have three components in the stack to deploy:
 Something like this
 
 ![client](../images/client.jpg)
+
+## Storage solution
+
+All the metadata will be communicated via the API, so here we need to think about how can we share the video and audio
+data between AI/Client/API.
+
+We have four **STORAGE_SOLUTION** for this four different scenarios:
+
+- **api**: audio and video data will be upload and download via api endpoint, this is for the trial on cloud.
+- **volume**: all the files will be shared on the same machine via the docker volume and file system, so there is no
+  need to sync anything
+- **local**: all the modules will be deployed on the same local network, but different machines, so we need to sync the
+  data between them, with rsync
+- **s3**: API is on your cloud, AI is anywhere, so we will use *s3* to be the storage place for the data, to make sure
+  stable
+  and fast access.
+
+To switch between these four modes, all you need to do is to set the `STORAGE_SOLUTION` environment variable before
+start the API
+
+```bash
+export STORAGE_SOLUTION=api
+```

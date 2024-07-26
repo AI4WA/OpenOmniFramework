@@ -91,7 +91,7 @@ pip3 install -r requirements.txt
 pip3 install -r requirements.dev.txt # if you are doing further development
 ```
 
-Before we start the AI module, there are some pre configurations we need to do.
+Before we start the AI module, there are some pre-configurations we need to do.
 
 As provided functionalities within AI modules support OpenAI call, HuggingFace call, and there is also our provided
 emotion detection module.

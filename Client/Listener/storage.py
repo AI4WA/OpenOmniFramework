@@ -98,7 +98,6 @@ class S3SyncHandler(FileSystemEventHandler):
                 "png",
             ]:
                 return None
-                return None
             try:
                 self.s3_client.upload_file(
                     event.src_path,
@@ -150,12 +149,12 @@ class APISyncHandler(FileSystemEventHandler):
 
 class StorageHandler:
     def __init__(
-        self,
-        api_domain: str = "",
-        token: str = "",
-        home_id: int = None,
-        dest_dir: Optional[str] = None,
-        dest_password: Optional[str] = None,
+            self,
+            api_domain: str = "",
+            token: str = "",
+            home_id: int = None,
+            dest_dir: Optional[str] = None,
+            dest_password: Optional[str] = None,
     ):
         """
         Args:
@@ -199,6 +198,9 @@ class StorageHandler:
 
     def process_local_network(self):
         observer = Observer()
+        if not self.dest_dir:
+            logger.error("dest_dir is required for local network sync")
+            return
         local_handler = LocalSyncHandler(
             src_path=str(DATA_DIR),
             dest_path=self.dest_dir,

@@ -17,15 +17,15 @@ logger = get_logger(__name__)
 
 class AudioAcquire:
     def __init__(
-        self,
-        api_domain: str = "",
-        token: str = "",
-        home_id: Optional[str] = "",
-        energy_threshold: int = 5000,
-        default_microphone: str = "pulse",
-        record_timeout: int = 30000,
-        sampling_time: float = 0.25,
-        track_cluster: Optional[str] = None,
+            self,
+            api_domain: str = "",
+            token: str = "",
+            home_id: Optional[str] = "",
+            energy_threshold: int = 5000,
+            default_microphone: str = "pulse",
+            record_timeout: int = 30000,
+            sampling_time: float = 0.25,
+            track_cluster: Optional[str] = None,
     ):
         """
         The audio acquire class
@@ -131,9 +131,9 @@ class AudioAcquire:
                 curr_audio_dir.mkdir(parents=True, exist_ok=True)
 
                 with open(
-                    curr_audio_dir
-                    / f"{self.audio_index}-{sample_time.strftime('%Y%m%d%H%M%S')}.wav",
-                    "wb",
+                        curr_audio_dir
+                        / f"{self.audio_index}-{sample_time.strftime('%Y%m%d%H%M%S')}.wav",
+                        "wb",
                 ) as file:
                     file.write(wav_data)
                 self.audio_index += 1
@@ -209,7 +209,7 @@ def main():
         "--default_microphone",
         default="pulse",
         help="Default microphone name for SpeechRecognition. "
-        "Run this with 'list' to view available Microphones.",
+             "Run this with 'list' to view available Microphones.",
         type=str,
     )
     parser.add_argument(

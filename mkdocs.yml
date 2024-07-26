@@ -18,6 +18,7 @@ nav:
       - Benchmark and Annotation: Tutorial/benchmark_and_annotation.md
       - Customize Pipeline: Tutorial/pipeline_customisation.md
       - Customize Annotation: Tutorial/annotation_customisation.md
+      - Case Study: Tutorial/case_study.md
   - Deployment:
       - Table of Content: Deployment/index.md
       - Trial on Cloud: Deployment/trial-on-cloud.md
@@ -25,29 +26,149 @@ nav:
       - Private Offline Deployment: Deployment/private-offline-deployment.md
       - Your Cloud: Deployment/your-cloud.md
   - Modules:
+      - Table of Content: Modules/index.md
       - Client:
-          - Introduction: Client/main.md
-          - Setup: Client/setup.md
-      - API: API/main.md
-      - AI: AI.md
+          - Listener: Modules/Client/Listener.md
+          - Responder: Modules/Client/Responder.md
+      - API: Modules/API/main.md
+      - AI: Modules/AI.md
 
   - Source:
+      - Introduction: Source/index.md
       - Client:
-          - Introduction: Source/index.md
           - Listener:
               - Audio: Sources/Client/Listener/audios_acquire.md
               - Video: Sources/Client/Listener/videos_acquire.md
+              - Storage: Sources/Client/Listener/storage.md
               - API: Sources/Client/Listener/api.md
-              - Sync to Disk: Sources/Client/Listener/sync_files.md
-              - Sync to S3: Sources/Client/Listener/sync_to_s3.md
-              - Utils: Sources/Client/Listener/utils.md
               - Constants: Sources/Client/Listener/constants.md
+              - Utils: Sources/Client/Listener/utils.md
+              - Mock: Sources/Client/Listener/mock/data_extraction.md
           - Responder:
               - PlaySpeech: Sources/Client/Responder/play_speech.md
               - API: Sources/Client/Responder/api.md
-              - Utils: Sources/Client/Responder/utils.md
               - Constants: Sources/Client/Responder/constants.md
-      - AI: Sources/AI/main.md
+              - Utils: Sources/Client/Responder/utils.md
+      - API:
+          - manage.md: Sources/API/manage.md
+          - API:
+              - ASGI: Sources/API/api/asgi.md
+              - Settings: Sources/API/api/settings.md
+              - URLs: Sources/API/api/urls.md
+              - WSGI: Sources/API/api/wsgi.md
+          - Authenticate:
+              - Admin: Sources/API/authenticate/admin.md
+              - Apps: Sources/API/authenticate/apps.md
+              - Models: Sources/API/authenticate/models.md
+              - Serializers: Sources/API/authenticate/serializers.md
+              - Tests: Sources/API/authenticate/tests.md
+              - URLs: Sources/API/authenticate/urls.md
+              - Views: Sources/API/authenticate/views.md
+
+              - Utils:
+                  - FireAndForget: Sources/API/authenticate/utils/fire_and_forget.md
+                  - GetLogger: Sources/API/authenticate/utils/get_logger.md
+                  - Timer: Sources/API/authenticate/utils/timer.md
+          - Hardware:
+              - Admin: Sources/API/hardware/admin.md
+              - Apps: Sources/API/hardware/apps.md
+              - Forms: Sources/API/hardware/forms.md
+              - Models: Sources/API/hardware/models.md
+              - Serializers: Sources/API/hardware/serializers.md
+              - Signals: Sources/API/hardware/signals.md
+              - Tests: Sources/API/hardware/tests.md
+              - URLs: Sources/API/hardware/urls.md
+              - Views: Sources/API/hardware/views.md
+
+          - LLM:
+              - Admin: Sources/API/llm/admin.md
+              - Apps: Sources/API/llm/apps.md
+              - Models: Sources/API/llm/models.md
+              - Serializers: Sources/API/llm/serializers.md
+              - Tests: Sources/API/llm/tests.md
+              - URLs: Sources/API/llm/urls.md
+              - Views: Sources/API/llm/views.md
+              - LLM:
+                  - Config: Sources/API/llm/llm/config.md
+              - Management:
+                  - Commands:
+                      - CheckModels: Sources/API/llm/management/commands/check_models.md
+          - Orchestrator:
+              - Admin: Sources/API/orchestrator/admin.md
+              - Apps: Sources/API/orchestrator/apps.md
+              - Models: Sources/API/orchestrator/models.md
+              - Serializers: Sources/API/orchestrator/serializers.md
+              - Tests: Sources/API/orchestrator/tests.md
+              - URLs: Sources/API/orchestrator/urls.md
+              - Views: Sources/API/orchestrator/views.md
+              - Chain:
+                  - Clusters: Sources/API/orchestrator/chain/clusters.md
+                  - CompletedEmotionDetection: Sources/API/orchestrator/chain/completed_emotion_detection.md
+                  - CompletedHFLLM: Sources/API/orchestrator/chain/completed_hf_llm.md
+                  - CompletedOpenAIGPT35: Sources/API/orchestrator/chain/completed_openai_gpt_35.md
+                  - CompletedOpenAIGPT4oTextAndImage: Sources/API/orchestrator/chain/completed_openai_gpt_4o_text_and_image.md
+                  - CompletedOpenAIGPT4oTextOnly: Sources/API/orchestrator/chain/completed_openai_gpt_4o_text_only.md
+                  - CompletedOpenAISpeech2Text: Sources/API/orchestrator/chain/completed_openai_speech2text.md
+                  - CompletedOpenAIText2Speech: Sources/API/orchestrator/chain/completed_openai_text2speech.md
+                  - CompletedQuantizationLLM: Sources/API/orchestrator/chain/completed_quantization_llm.md
+                  - CompletedRAG: Sources/API/orchestrator/chain/completed_rag.md
+                  - CompletedSpeech2Text: Sources/API/orchestrator/chain/completed_speech2text.md
+                  - CompletedTask: Sources/API/orchestrator/chain/completed_task.md
+                  - CompletedText2Speech: Sources/API/orchestrator/chain/completed_text2speech.md
+                  - CreatedDataText: Sources/API/orchestrator/chain/created_data_text.md
+                  - Manager: Sources/API/orchestrator/chain/manager.md
+                  - Models: Sources/API/orchestrator/chain/models.md
+                  - Signals: Sources/API/orchestrator/chain/signals.md
+                  - Utils: Sources/API/orchestrator/chain/utils.md
+              - Metrics:
+                  - AccuracyBenchmark: Sources/API/orchestrator/metrics/accuracy_benchmark.md
+                  - LatencyBenchmark: Sources/API/orchestrator/metrics/latency_benchmark.md
+                  - Utils: Sources/API/orchestrator/metrics/utils.md
+      - AI:
+          - main: Sources/AI/main.md
+          - setup: Sources/AI/setup.md
+          - storage: Sources/AI/storage.md
+          - Models:
+              - Parameters: Sources/AI/models/parameters.md
+              - Results: Sources/AI/models/results.md
+              - Task: Sources/AI/models/task.md
+              - TrackType: Sources/AI/models/track_type.md
+          - Modules:
+              - EmotionDetection:
+                  - FeaturesExtraction: Sources/AI/modules/emotion_detection/features_extraction.md
+                  - Handler: Sources/AI/modules/emotion_detection/handler.md
+                  - Sentiment: Sources/AI/modules/emotion_detection/sentiment.md
+              - GeneralML:
+                  - Handler: Sources/AI/modules/general_ml/handler.md
+                  - MLModels: Sources/AI/modules/general_ml/ml_models.md
+              - HFLLM:
+                  - Handler: Sources/AI/modules/hf_llm/handler.md
+              - OpenAI:
+                  - Handler: Sources/AI/modules/openai/handler.md
+              - QuantizationLLM:
+                  - AdaptorWorker: Sources/AI/modules/quantization_llm/adaptor_worker.md
+                  - Handler: Sources/AI/modules/quantization_llm/handler.md
+                  - Models: Sources/AI/modules/quantization_llm/models.md
+              - RAG:
+                  - Handler: Sources/AI/modules/rag/handler.md
+                  - Neo4jConnector: Sources/AI/modules/rag/neo4j_connector.md
+                  - PostgreSQLConnector: Sources/AI/modules/rag/postgresql_connector.md
+              - SpeechToText:
+                  - Speech2Text: Sources/AI/modules/speech_to_text/speech2text.md
+              - TextToSpeech:
+                  - Text2Speech: Sources/AI/modules/text_to_speech/text2speech.md
+          - Utils:
+              - API: Sources/AI/utils/api.md
+              - AWS: Sources/AI/utils/aws.md
+              - Constants: Sources/AI/utils/constants.md
+              - GetLogger: Sources/AI/utils/get_logger.md
+              - TimeLogger: Sources/AI/utils/time_logger.md
+              - TimeTracker: Sources/AI/utils/time_tracker.md
+              - Timer: Sources/AI/utils/timer.md
+              - Storage:
+                  - APISyncHandler: Sources/AI/utils/storage/api_sync_handler.md
+                  - LocalSyncHandler: Sources/AI/utils/storage/local_sync_handler.md
+                  - S3SyncHandler: Sources/AI/utils/storage/s3_sync_handler.md
 plugins:
   - search
   - gen-files:

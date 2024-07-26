@@ -12,7 +12,12 @@ theme:
 repo_url: https://github.com/AI4WA/OpenBenang
 nav:
   - Home: index.md
-  - Tutorial: Tutorial.md
+  - Tutorial:
+      - Table of Content: Tutorial/index.md
+      - Fullstack Setup: Tutorial/setup.md
+      - Benchmark and Annotation: Tutorial/benchmark_and_annotation.md
+      - Customize Pipeline: Tutorial/pipeline_customisation.md
+      - Customize Annotation: Tutorial/annotation_customisation.md
   - Deployment: Deployment/index.md
   - Modules:
       - Client:

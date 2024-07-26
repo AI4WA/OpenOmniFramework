@@ -8,4 +8,4 @@ Mainly will include these sections:
 - [Evaluation and Annotation Benchmark](./benchmark_and_annotation.md)
 - [Pipeline customisation](./pipeline_customisation.md)
 - [Annotation customisation](./annotation_customisation.md)
-
+- [Case Study](./case_study.md)

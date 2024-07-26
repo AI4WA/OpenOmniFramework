@@ -7,3 +7,5 @@ We will describe how each module is designed, so you can understand how it works
     - [Responder](./Client/Responder.md)
 - [API](./main.md)
 - [AI](./AI.md)
+
+If you want to check the details, you can either check the `Source` section or our GitHub repo code.

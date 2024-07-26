@@ -18,6 +18,7 @@ nav:
       - Benchmark and Annotation: Tutorial/benchmark_and_annotation.md
       - Customize Pipeline: Tutorial/pipeline_customisation.md
       - Customize Annotation: Tutorial/annotation_customisation.md
+      - Case Study: Tutorial/case_study.md
   - Deployment:
       - Table of Content: Deployment/index.md
       - Trial on Cloud: Deployment/trial-on-cloud.md

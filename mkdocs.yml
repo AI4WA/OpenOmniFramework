@@ -18,7 +18,12 @@ nav:
       - Benchmark and Annotation: Tutorial/benchmark_and_annotation.md
       - Customize Pipeline: Tutorial/pipeline_customisation.md
       - Customize Annotation: Tutorial/annotation_customisation.md
-  - Deployment: Deployment/index.md
+  - Deployment:
+      - Table of Content: Deployment/index.md
+      - Trial on Cloud: Deployment/trial-on-cloud.md
+      - All in One Local Machine: Deployment/all-in-one-local-machine.md
+      - Private Offline Deployment: Deployment/private-offline-deployment.md
+      - Your Cloud: Deployment/your-cloud.md
   - Modules:
       - Client:
           - Introduction: Client/main.md

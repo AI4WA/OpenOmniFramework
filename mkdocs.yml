@@ -125,8 +125,9 @@ nav:
                   - LatencyBenchmark: Sources/API/orchestrator/metrics/latency_benchmark.md
                   - Utils: Sources/API/orchestrator/metrics/utils.md
       - AI:
-          - setup.md: Sources/AI/setup.md
-          - storage.md: Sources/AI/storage.md
+          - main: Sources/AI/main.md
+          - setup: Sources/AI/setup.md
+          - storage: Sources/AI/storage.md
           - Models:
               - Parameters: Sources/AI/models/parameters.md
               - Results: Sources/AI/models/results.md

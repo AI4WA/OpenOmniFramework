@@ -19,7 +19,7 @@ Multimodal Open Source Framework for Conversational AI Research and Development.
         - [AI](#ai)
 - [Benchmark Examples](#benchmark-examples)
 - [Deployment Options](#deployment-options)
-- [Tutorial](./Tutorial.md)
+- [Tutorial](./docs/Tutorial/index.md)
 
 ----
 

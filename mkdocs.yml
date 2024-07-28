@@ -19,6 +19,7 @@ nav:
       - Customize Pipeline: Tutorial/pipeline_customisation.md
       - Customize Annotation: Tutorial/annotation_customisation.md
       - Case Study: Tutorial/case_study.md
+      - Video Demo: Tutorial/video_demo.md
   - Deployment:
       - Table of Content: Deployment/index.md
       - Trial on Cloud: Deployment/trial-on-cloud.md

@@ -9,3 +9,4 @@ Mainly will include these sections:
 - [Pipeline customisation](./pipeline_customisation.md)
 - [Annotation customisation](./annotation_customisation.md)
 - [Case Study](./case_study.md)
+- [Video Demo](./video_demo.md)

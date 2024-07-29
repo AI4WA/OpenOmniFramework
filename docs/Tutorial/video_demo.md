@@ -33,7 +33,7 @@ example, speech2text, llm generation, text2speech.
 
 All the computational heavy work will happen here.
 
-When the results is finished, the data or generated audio will be sent back to the API side
+When the results are finished, the data or generated audio will be sent back to the API side
 
 And the client side will have another thread to list to the API side, and then play the audio, fulfill the conversation.
 

@@ -5,7 +5,8 @@ FROM python:3.9
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 RUN apt-get update -y && apt-get install libhdf5-dev -y
-
+# Install PostgreSQL client
+RUN apt-get update && apt-get install -y postgresql-client ffmpeg
 # Set work directory
 WORKDIR /usr/src/app
 
@@ -13,11 +14,10 @@ WORKDIR /usr/src/app
 COPY ./requirements.txt /usr/src/app/requirements.txt
 COPY ./requirements.dev.txt /usr/src/app/requirements.dev.txt
 RUN pip install --upgrade pip
-RUN pip install --upgrade pip setuptools wheel
+
+# RUN pip install --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -r requirements.dev.txt
-# Install PostgreSQL client
-RUN apt-get update && apt-get install -y postgresql-client ffmpeg
 
 # Copy the current directory contents into the container at /usr/src/app
 # copy but ignore the files in .dockerignore

@@ -257,12 +257,15 @@ class OpenAIHandler:
             }
         ]
         for image in images:
+            if not image:
+                continue
             messages[0]["content"].append(
                 {
                     "type": "image_url",
                     "image_url": {"url": f"data:image/jpeg;base64,{image}"},
                 }
             )
+
         logger.debug(messages)
         # call gpt-4o
         with time_tracker(

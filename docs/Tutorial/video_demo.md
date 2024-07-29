@@ -65,3 +65,13 @@ different combination of pipeline.
 Gathering datasets, etc.
 
 Hopefully this can benefit the wider community, and we are looking forward to your feedback.
+
+## Procedure to start the demo
+
+- API: login and run `docker compose up` for the API module, make sure `export STORAGE_SOLUTION=local`
+- Client:
+    - login raspberry pi, for Listener, run `./start_pi.sh`
+    - login raspberry pi, for Responder, run `./start_pi.sh`
+- AI:
+    - Run `python3 storage.py xxx` to sync the data
+    - Run `python3 main.py` to start the AI module

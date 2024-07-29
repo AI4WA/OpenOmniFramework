@@ -82,9 +82,9 @@ class OpenAIHandler:
             logger.info(task.parameters)
             params = Speech2TextParameters(**task.parameters)
             with time_tracker(
-                "locate_audio_file",
-                task.result_json.latency_profile,
-                track_type=TrackType.TRANSFER.value,
+                    "locate_audio_file",
+                    task.result_json.latency_profile,
+                    track_type=TrackType.TRANSFER.value,
             ):
                 audio_file_path = Speech2Text.locate_audio_file(
                     params.uid, params.audio_index, params.end_time
@@ -97,9 +97,9 @@ class OpenAIHandler:
                 logger.error(f"Audio file {audio_file_path} not found")
                 return None
             with time_tracker(
-                "openai_stt",
-                task.result_json.latency_profile,
-                track_type=TrackType.MODEL.value,
+                    "openai_stt",
+                    task.result_json.latency_profile,
+                    track_type=TrackType.MODEL.value,
             ):
                 with open(audio_file_path, "rb") as audio_file:
                     res = self.client.audio.transcriptions.create(
@@ -137,9 +137,9 @@ class OpenAIHandler:
         ]
 
         with time_tracker(
-            "gpt-4o-call",
-            task.result_json.latency_profile,
-            track_type=TrackType.MODEL.value,
+                "gpt-4o-call",
+                task.result_json.latency_profile,
+                track_type=TrackType.MODEL.value,
         ):
             res = self.client.chat.completions.create(
                 model="gpt-4o",
@@ -173,9 +173,9 @@ class OpenAIHandler:
                 }
             ]
             with time_tracker(
-                "openai_gpt_35",
-                task.result_json.latency_profile,
-                track_type=TrackType.MODEL.value,
+                    "openai_gpt_35",
+                    task.result_json.latency_profile,
+                    track_type=TrackType.MODEL.value,
             ):
                 res = self.client.chat.completions.create(
                     model="gpt-3.5-turbo",
@@ -216,9 +216,9 @@ class OpenAIHandler:
 
         # read image data to the one gpt-4o can take, something like data:image/jpeg;base64
         with time_tracker(
-            label="encode_images",
-            profile=task.result_json.latency_profile,
-            track_type=TrackType.TRANSFER.value,
+                label="encode_images",
+                profile=task.result_json.latency_profile,
+                track_type=TrackType.TRANSFER.value,
         ):
             images = []
             for images_path in images_path_list:
@@ -266,9 +266,9 @@ class OpenAIHandler:
         logger.debug(messages)
         # call gpt-4o
         with time_tracker(
-            "gpt-4o-call",
-            task.result_json.latency_profile,
-            track_type=TrackType.MODEL.value,
+                "gpt-4o-call",
+                task.result_json.latency_profile,
+                track_type=TrackType.MODEL.value,
         ):
             res = self.client.chat.completions.create(
                 model="gpt-4o",
@@ -299,9 +299,9 @@ class OpenAIHandler:
         output_audio_file_path = output_audio_file_path.as_posix()
 
         with time_tracker(
-            "openai_tts",
-            task.result_json.latency_profile,
-            track_type=TrackType.MODEL.value,
+                "openai_tts",
+                task.result_json.latency_profile,
+                track_type=TrackType.MODEL.value,
         ):
             res = self.client.audio.speech.create(
                 model="tts-1",
@@ -309,9 +309,9 @@ class OpenAIHandler:
                 input=text,
             )
         with time_tracker(
-            "save_audio",
-            task.result_json.latency_profile,
-            track_type=TrackType.TRANSFER.value,
+                "save_audio",
+                task.result_json.latency_profile,
+                track_type=TrackType.TRANSFER.value,
         ):
             res.stream_to_file(output_audio_file_path)
         return output_audio_file_path

@@ -115,9 +115,10 @@ class StorageSolution:
         Returns:
 
         """
-        if self.storage_solution == "volume" or self.storage_solution == "local":
+        if self.storage_solution == "volume":
             return
-
+        if self.storage_solution == "local":
+            self.sync_pull_api()
         if self.storage_solution == "s3":
             self.sync_pull_s3()
         if self.storage_solution == "api":

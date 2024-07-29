@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -84,12 +86,18 @@ class QueueTaskViewSet(viewsets.ViewSet):
         """
         Endpoint to get the task for AI
         """
+        cool_down_task = 10  # 10 second
+        cool_down_time = datetime.now() - timedelta(seconds=cool_down_task)
         try:
             if task_name == "all":
-                task = Task.objects.filter(result_status="pending").first()
+                task = Task.objects.filter(
+                    result_status="pending", created_at__lte=cool_down_time
+                ).first()
             else:
                 task = Task.objects.filter(
-                    task_name=task_name, result_status="pending"
+                    task_name=task_name,
+                    result_status="pending",
+                    created_at__lte=cool_down_time,
                 ).first()
             if task is None:
                 return Response(

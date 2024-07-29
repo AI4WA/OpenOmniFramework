@@ -13,6 +13,7 @@ import time
 from pathlib import Path
 
 import boto3
+import os
 import requests
 from watchdog.observers import Observer
 
@@ -28,17 +29,19 @@ logger = get_logger(__name__)
 
 class StorageSolution:
     def __init__(
-        self,
-        api_domain: str,
-        token: str,
-        dest_dir: str = None,
-        dest_password: str = None,
+            self,
+            api_domain: str,
+            token: str,
+            input_source_dir: str = None,
+            output_dest_dir: str = None,
+            dest_password: str = None,
     ):
         self.api_domain = api_domain
         self.token = token
         self.api = API(domain=api_domain, token=token)
         self.storage_solution = self.api.get_storage_solution()
-        self.dest_dir = dest_dir
+        self.input_source_dir = input_source_dir
+        self.output_dest_dir = output_dest_dir
         self.dest_password = dest_password
 
     def sync_push_data(self):
@@ -61,7 +64,7 @@ class StorageSolution:
         observer = Observer()
         local_handler = LocalSyncHandler(
             src_path=str(DATA_DIR / "tts"),
-            dest_path=self.dest_dir,
+            dest_path=self.output_dest_dir,
             sshpass=self.dest_password,
         )
         observer.schedule(local_handler, str(DATA_DIR / "tts"), recursive=True)
@@ -118,11 +121,23 @@ class StorageSolution:
         if self.storage_solution == "volume":
             return
         if self.storage_solution == "local":
-            self.sync_pull_api()
+            self.sync_pull_local()
         if self.storage_solution == "s3":
             self.sync_pull_s3()
         if self.storage_solution == "api":
             self.sync_pull_api()
+
+    def sync_pull_local(self):
+        """
+        Sync the data from the local network
+        directly run the rsync command
+        """
+        while True:
+            os.system(
+                "sshpass -p {} rsync -avz {} {}".format(self.dest_password, self.input_source_dir,
+                                                        str(CLIENT_DATA_FOLDER))
+            )
+            time.sleep(1)
 
     def sync_pull_s3(self):
         """
@@ -144,6 +159,7 @@ class StorageSolution:
                 self.download_data(files)
             except Exception as e:
                 logger.error(f"Error syncing data: {e}")
+                logger.exception(e)
             time.sleep(1)
 
     def download_data(self, files):
@@ -162,10 +178,10 @@ class StorageSolution:
         )
         for audio_file in audio_files:
             dest_path = (
-                CLIENT_DATA_FOLDER
-                / "audio"
-                / audio_file["uid"]
-                / audio_file["audio_file"]
+                    CLIENT_DATA_FOLDER
+                    / "audio"
+                    / audio_file["uid"]
+                    / audio_file["audio_file"]
             )
             if not dest_path.exists():
                 # TODO: do the download here
@@ -174,10 +190,10 @@ class StorageSolution:
                 self.download_audio(audio_file["id"], dest_path)
         for video_file in video_files:
             dest_path = (
-                CLIENT_DATA_FOLDER
-                / "videos"
-                / video_file["uid"]
-                / video_file["video_file"]
+                    CLIENT_DATA_FOLDER
+                    / "videos"
+                    / video_file["uid"]
+                    / video_file["video_file"]
             )
             if not dest_path.exists():
                 # TODO: do the download here
@@ -264,7 +280,14 @@ if __name__ == "__main__":
     parser.add_argument("--api_domain", type=str, required=True)
     parser.add_argument("--token", type=str, required=True)
     parser.add_argument(
-        "--dest_dir",
+        "--input_source_dir",
+        default=None,
+        help="The destination directory to sync, like root@xx.x.xx.x:/path/to",
+        type=str,
+        required=False,
+    )
+    parser.add_argument(
+        "--output_dest_dir",
         default=None,
         help="The destination directory to sync, like root@xx.x.xx.x:/path/to",
         type=str,
@@ -280,11 +303,13 @@ if __name__ == "__main__":
     storage_solution = StorageSolution(
         api_domain=args.api_domain,
         token=args.token,
-        dest_dir=args.dest_dir,
+        input_source_dir=args.input_source_dir,
+        output_dest_dir=args.output_dest_dir,
         dest_password=args.dest_password,
     )
 
     # Two process, on do the push, another do the pull
+    # python3 storage.py --token c284262e850b8ac98e9174db620dc246ea6d9043 --api_domain http://192.168.50.113:8000 --input_source_dir jarv5@192.168.50.113:/Users/jarv5/code/OpenOmniFramework/Client/Listener/data/ --output_dest_dir  jarv5@192.168.50.113:/Users/jarv5/code/OpenOmniFramework/AI/data --dest_password jarv5
     p1 = multiprocessing.Process(target=storage_solution.sync_push_data)
     p2 = multiprocessing.Process(target=storage_solution.sync_pull_data)
     p1.start()

@@ -342,6 +342,24 @@ def ai_audio(request, audio_id):
                 )
                 return response
 
+    else:
+        # upload to the local storage to the AI server
+        local_file = (
+                settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
+        )
+        if local_file.exists():
+            s3_client = settings.BOTO3_SESSION.client("s3")
+            s3_key = f"Responder/tts/{res_audio_obj.text2speech_file.split('/')[-1]}"
+            try:
+                s3_client.upload_file(
+                    local_file,
+                    settings.S3_BUCKET,
+                    s3_key,
+                )
+            except Exception as e:
+                logger.error(e)
+                # response with the HttpResponse
+
     audio_file = settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
     logger.info(audio_file)
     with open(audio_file, "rb") as f:

@@ -149,12 +149,12 @@ class APISyncHandler(FileSystemEventHandler):
 
 class StorageHandler:
     def __init__(
-            self,
-            api_domain: str = "",
-            token: str = "",
-            home_id: int = None,
-            dest_dir: Optional[str] = None,
-            dest_password: Optional[str] = None,
+        self,
+        api_domain: str = "",
+        token: str = "",
+        home_id: int = None,
+        dest_dir: Optional[str] = None,
+        dest_password: Optional[str] = None,
     ):
         """
         Args:

@@ -10,7 +10,7 @@ from moviepy.editor import VideoFileClip, concatenate_videoclips
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+import time
 from hardware.models import (
     DataAudio,
     DataMultiModalConversation,
@@ -347,6 +347,7 @@ def ai_audio(request, audio_id):
         local_file = (
                 settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
         )
+        time.sleep(0.5)
         if local_file.exists():
             s3_client = settings.BOTO3_SESSION.client("s3")
             s3_key = f"Responder/tts/{res_audio_obj.text2speech_file.split('/')[-1]}"

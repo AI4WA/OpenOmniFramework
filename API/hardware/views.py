@@ -1,4 +1,5 @@
 import logging
+import time
 
 # Create your views here.
 from datetime import datetime, timedelta
@@ -10,7 +11,7 @@ from moviepy.editor import VideoFileClip, concatenate_videoclips
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-import time
+
 from hardware.models import (
     DataAudio,
     DataMultiModalConversation,
@@ -197,6 +198,22 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
 
         s3_url = None
         if item.text2speech_file is not None:
+            local_file = settings.AI_MEDIA_ROOT / item.text2speech_file.split("/")[-1]
+            if local_file.exists() and (
+                settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_VOLUME
+                or settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_LOCAL
+            ):
+                s3_client = settings.BOTO3_SESSION.client("s3")
+                s3_key = f"Responder/tts/{item.text2speech_file.split('/')[-1]}"
+                try:
+                    s3_client.upload_file(
+                        local_file,
+                        settings.S3_BUCKET,
+                        s3_key,
+                    )
+                except Exception as e:
+                    logger.error(e)
+                    # response with the HttpResponse
             try:
                 s3_client = settings.BOTO3_SESSION.client("s3")
                 response = s3_client.generate_presigned_url(
@@ -208,7 +225,6 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
                     ExpiresIn=3600,
                 )
                 s3_url = response
-
             except Exception as e:
                 logger.error(e)
         data = ResSpeechSerializer(item).data
@@ -272,7 +288,7 @@ def client_audio(request, audio_id):
         )
 
     if (settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3) or (
-            settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
+        settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
     ):
 
         # we will grab it from the s3 and return it
@@ -280,7 +296,7 @@ def client_audio(request, audio_id):
         # construct the key and then create the pre-signed url
         s3_key = f"Listener/audio/{audio_obj.uid}/{audio_obj.audio_file}"
         local_file = (
-                settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
+            settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
         )
         # check if the file exists locally
         if not local_file.exists():
@@ -301,7 +317,7 @@ def client_audio(request, audio_id):
                 return response
 
     audio_file = (
-            settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
+        settings.CLIENT_MEDIA_ROOT / "audio" / audio_obj.uid / audio_obj.audio_file
     )
     with open(audio_file, "rb") as f:
         response = HttpResponse(f.read(), content_type="audio/mpeg")
@@ -316,13 +332,13 @@ def ai_audio(request, audio_id):
         return HttpResponse("No audio data found.", content_type="text/plain")
 
     if (settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3) or (
-            settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
+        settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
     ):
         # we will grab it from the s3 and return it
         s3_client = settings.BOTO3_SESSION.client("s3")
         s3_key = f"Responder/tts/{res_audio_obj.text2speech_file.split('/')[-1]}"
         local_file = (
-                settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
+            settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
         )
         # check if the file exists locally
         if not local_file.exists():
@@ -345,7 +361,7 @@ def ai_audio(request, audio_id):
     else:
         # upload to the local storage to the AI server
         local_file = (
-                settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
+            settings.AI_MEDIA_ROOT / res_audio_obj.text2speech_file.split("/")[-1]
         )
         time.sleep(0.5)
         if local_file.exists():
@@ -397,11 +413,11 @@ def client_video(request, conversation_id):
     video_paths = []
     for video in videos:
         video_path = (
-                settings.CLIENT_MEDIA_ROOT / "videos" / video.uid / video.video_file
+            settings.CLIENT_MEDIA_ROOT / "videos" / video.uid / video.video_file
         )
         if not video_path.exists() and (
-                settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3
-                or settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
+            settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_S3
+            or settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_API
         ):
             video_path.parent.mkdir(parents=True, exist_ok=True)
             s3_client = settings.BOTO3_SESSION.client("s3")
@@ -419,7 +435,7 @@ def client_video(request, conversation_id):
         video_paths.append(video_path.as_posix())
 
     output_path = (
-            settings.CLIENT_MEDIA_ROOT / "conversations" / f"{conversation.id}.mp4"
+        settings.CLIENT_MEDIA_ROOT / "conversations" / f"{conversation.id}.mp4"
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 

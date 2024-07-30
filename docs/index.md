@@ -1,11 +1,14 @@
 # OpenOmni Framework
 
 Multimodal Open Source Framework for Conversational AI Research and Development.
+
 [![Demo](https://img.shields.io/badge/Demo-Available-blue)](https://openomni.ai4wa.com)
+[![Documentation](https://img.shields.io/badge/Documentation-Available-blue)](https://docs.openomni.ai4wa.com)
+[![Video](https://img.shields.io/badge/Video-Available-blue)](https://www.youtube.com/watch?v=zaSiT3clWqY&ab_channel=AI4WA)
 ![Deployment](https://github.com/AI4WA/OpenOmniFramework/actions/workflows/deploy.yml/badge.svg)
 ![Lint](https://github.com/AI4WA/OpenOmniFramework/actions/workflows/tox.yml/badge.svg)
-![Documentation](https://github.com/AI4WA/OpenOmniFramework/actions/workflows/doc.yml/badge.svg)
 ![Status](https://img.shields.io/badge/Status-Work%20in%20Progress-yellow)
+
 
 ----
 

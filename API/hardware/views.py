@@ -199,6 +199,7 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
         s3_url = None
         if item.text2speech_file is not None:
             local_file = settings.AI_MEDIA_ROOT / item.text2speech_file.split("/")[-1]
+            logger.info(local_file)
             if local_file.exists() and (
                 settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_VOLUME
                 or settings.STORAGE_SOLUTION == settings.STORAGE_SOLUTION_LOCAL
@@ -213,6 +214,7 @@ class Text2SpeechViewSet(viewsets.ModelViewSet):
                     )
                 except Exception as e:
                     logger.error(e)
+                    logger.exception(e)
                     # response with the HttpResponse
             try:
                 s3_client = settings.BOTO3_SESSION.client("s3")

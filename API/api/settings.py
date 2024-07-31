@@ -237,6 +237,9 @@ AI_MEDIA_URL = "/ai"
 JAZZMIN_SETTINGS = {
     "site_logo": "admin/imgs/favicon-32x32.png",
     # Copyright on the footer
+    # Welcome text on the login screen
+    "welcome_sign": f"""Welcome to Open Source OpenOmni Framework!    
+                        Default username is admin, password is password""",
     "copyright": "UWA NLP TLP GROUP",
     "topmenu_links": [
         # Url that gets reversed (Permissions can be added)

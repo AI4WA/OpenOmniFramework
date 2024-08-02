@@ -13,6 +13,7 @@ Multimodal Open Source Framework for Conversational AI Research and Development.
 ----
 
 - [Motivation](#motivation)
+- [Video Demonstration](#video-demonstration)
 - [Approaches](#approaches)
     - [Traditional conversational AI](#traditional-conversational-ai)
     - [OpenAI GPT-4o](#openai-gpt-4o)
@@ -55,6 +56,13 @@ research and development process, accelerating the journey towards more efficien
 AI systems.
 
 ----
+
+## Video Demonstration
+
+[![OpenOmni](https://img.youtube.com/vi/zaSiT3clWqY/0.jpg)](https://www.youtube.com/watch?v=zaSiT3clWqY&ab_channel=AI4WA)
+
+----
+
 
 ## Approaches
 

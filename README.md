@@ -13,6 +13,7 @@ Multimodal Open Source Framework for Conversational AI Research and Development.
 ----
 
 - [Motivation](#motivation)
+- [Video Demonstration](#video-demonstration)
 - [Approaches](#approaches)
     - [Traditional conversational AI](#traditional-conversational-ai)
     - [OpenAI GPT-4o](#openai-gpt-4o)
@@ -53,6 +54,12 @@ This difficulty is the motivation behind our project. We aim to establish an ope
 researchers to easily test their contributions and collaborate effectively. By doing so, we hope to facilitate the
 research and development process, accelerating the journey towards more efficient and capable multimodal conversational
 AI systems.
+
+---
+
+## Video Demonstration
+
+[![OpenOmni](https://img.youtube.com/vi/zaSiT3clWqY/0.jpg)](https://www.youtube.com/watch?v=zaSiT3clWqY&ab_channel=AI4WA)
 
 ----
 

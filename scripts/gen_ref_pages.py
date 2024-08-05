@@ -7,7 +7,7 @@ import mkdocs_gen_files
 root = Path(__file__).parent.parent
 
 modules = [
-    "AI",
+    "Agent",
     "API",
     "Client",
     "Web",

@@ -32,7 +32,7 @@ nav:
           - Listener: Modules/Client/Listener.md
           - Responder: Modules/Client/Responder.md
       - API: Modules/API/main.md
-      - Agent: Modules/AI.md
+      - Agent: Modules/Agent.md
 
   - Source:
       - Introduction: Source/index.md

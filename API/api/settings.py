@@ -272,7 +272,7 @@ JAZZMIN_SETTINGS = {
         },
         {
             "name": "Documentation",
-            "url": "https://docs.openomni.ai4wa.com/",
+            "url": "https://openomnidocs.ai4wa.com/",
             "new_window": True,
         },
     ],

@@ -1,21 +1,21 @@
 # Private Offline Deployment
 
-It is to offload the AI/Client/API modules into different machines however within the same network, for potential use
+It is to offload the Agent/Client/API modules into different machines however within the same network, for potential use
 cases like privacy concerns, or to have a more robust system.
 
 One of the example deployment scenario for this is:
 
 - Client: Raspberry Pi to gather the audio and video data
 - API: A server to run the API, which can be a laptop or a desktop
-- AI: A PC with Nvidia GPU to run the AI models
+- Agent: A PC with Nvidia GPU to run the Agent models
 
 **Local Network File Sync**
 
-To ensure the API/AI/Client all have access to the files, we will need to sync the files between different machines.
+To ensure the API/Agent/Client all have access to the files, we will need to sync the files between different machines.
 
 - Client to API: Audio and Video data
-- API to AI: Audio and Video data
-- AI to API: Speech audio data
+- API to Agent: Audio and Video data
+- Agent to API: Speech audio data
 
 As other deployment methods, we will first deploy the `API` module.
 
@@ -150,22 +150,22 @@ You will see something like this:
 
 ![audio_cli](../images/audio_cli.png)
 
-## **Step 5**: Run AI models
+## **Step 5**: Run Agent models
 
-Login to the machine your AI will deploy on, and clone the repo:
+Login to the machine your Agent will deploy on, and clone the repo:
 
 ```bash
 # switch to a proper directory
 git clone git@github.com:AI4WA/OpenOmniFramework.git
 ```
 
-Before you start the AI, you will also need to first sort out the file sync between the API and AI machine.
+Before you start the Agent, you will also need to first sort out the file sync between the API and Agent machine.
 
 Same as above, if you are a Linux or Mac user, you can use `rsync` to sync the files between different machines.
 
 ```bash
 cd ./OpenOmniFramework
-cd ./AI
+cd ./Agent
 
 python3 -m venv venv
 
@@ -174,20 +174,20 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 pip3 install -r requirements.dev.txt # if you are doing further development
 
-# run storage sync from API to AI, both direction 
+# run storage sync from API to Agent, both direction 
 
-python3 storage.py --token your_token_from_step_2 --api_domain http://<private-ip>:8000 --dest_dir api_machine_user@api_private_ip:/where/api/folder/is/OpenOmniFramework/AI/data --dest_password api_machine_password
+python3 storage.py --token your_token_from_step_2 --api_domain http://<private-ip>:8000 --dest_dir api_machine_user@api_private_ip:/where/api/folder/is/OpenOmniFramework/Agent/data --dest_password api_machine_password
 ```
 
-And then you are free to run the AI models.
+And then you are free to run the Agent models.
 
 ```bash
 cd ./OpenOmniFramework
-cd ./AI
+cd ./Agent
 
 source venv/bin/activate
 
-# run the AI models
+# run the Agent models
 
 python3 main.py --token your_token_from_step_2 --api_domain http://<private-ip>:8000
 ```

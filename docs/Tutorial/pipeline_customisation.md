@@ -39,7 +39,7 @@ For example, we got:
     - RAG
     - Text2Speech
 
-After the evaluation, we found out, for all of the pipelines, under the Nvidia 3080 GPU, none of the latency is
+After the evaluation, we found out, for all the pipelines, under the Nvidia 3080 GPU, none of the latency is
 acceptable.
 The best performance is the GPT-3.5 pipeline with text only as input, which has a latency of around 8-10 seconds.
 For the GPT-4o, the API latency is around 3-8 seconds, when you feed more images data in, the latency will increase
@@ -114,7 +114,7 @@ this conversation within the pipeline will be grouped with this track_id to ensu
 
 We have a table called `Task` to manage all the different types of tasks, this can be decomposed to a queue system if we
 want to bring this into production for more complex design.
-Currently, to maintain a simple and flexible design, every AI task will be recorded inside the `Task` table, and we will
+Currently, to maintain a simple and flexible design, every Agent task will be recorded inside the `Task` table, and we will
 base on this table to analyse the progress of the pipeline, health of the system.
 
 ![tasks](../images/Tasks.png)
@@ -124,9 +124,9 @@ For example, with the track_id above, the example pipeline will be triggered.
 First, it will go to create a task, which name will be `openai_speech2text`, and status will be `pending` with proper
 parameters.
 
-AI consumer will consume this task, and after the task is done, it will update this task record with the
+Agent consumer will consume this task, and after the task is done, it will update this task record with the
 status `completed`.
-And the metadata generated during the AI module running process will be saved in the `result_json` field, with two
+And the metadata generated during the Agent module running process will be saved in the `result_json` field, with two
 primary key
 
 - result_profile: this will store the results we expect for this task, like the generated text
@@ -137,7 +137,7 @@ It will be like this:
 
 ![task](../images/task_record.png)
 
-When AI module call API endpoint to update the task status, it will trigger a `completed_task` Signal (
+When Agent module call API endpoint to update the task status, it will trigger a `completed_task` Signal (
 check [Django Signal](https://docs.djangoproject.com/en/5.0/topics/signals/) for further details), which is acting as
 the `Router` to dispatch different following tasks.
 
@@ -278,7 +278,7 @@ For example, the steps will be like:
   based on current task name, which is `created_data_text`. The class `ClusterManager` will be in charge of this.
 - If it is a signal component, the signal will be dispatch, and the receiver will take the input and do the next step.
 - If it is a task component, it will create next task, with the `extra_params` added to the parameters, and then save
-  it to the database, the AI module will listen to this, and consume it.
+  it to the database, the Agent module will listen to this, and consume it.
 - The process will repeat like this until it reaches the end of the pipeline.
 
 ClusterManager code is in `API/orchestrator/chain/manager.py`
@@ -539,14 +539,14 @@ def ready(self):  # noqa
 
 Until now, the API end is done for this newly added pipeline.
 
-### AI end
+### Agent end
 
-You will need to go to implement the `AI` module to consume the new added pipeline, mainly is the added type of tasks.
+You will need to go to implement the `Agent` module to consume the new added pipeline, mainly is the added type of tasks.
 
 We have added two type of tasks, which means we will need to add two modules to handle this.
 
-So create a image2text module in `AI/modules/image2text/__init__.py` and a voice2voice module
-in `AI/modules/voice2voice/__init__.py`
+So create a image2text module in `Agent/modules/image2text/__init__.py` and a voice2voice module
+in `Agent/modules/voice2voice/__init__.py`
 
 You can then implement the code as you want within each of the respective folder, use other modules as reference to
 implement it.
@@ -559,6 +559,6 @@ It will not be hard to add them in if you follow what we have done for others.
 
 Then go to the client end, start the audio acquisition, and specify the cluster name to the newly added cluster name.
 
-Then start talking, and you will see the pipeline is triggered, and the AI module will consume the task.
+Then start talking, and you will see the pipeline is triggered, and the Agent module will consume the task.
 
 If there is anything wrong, try to use the above explanation to debug the problem.

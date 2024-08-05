@@ -25,7 +25,7 @@ serious project, you can follow the guide in the `Your Cloud` section.
 We have three components in the stack to deploy:
 
 - API
-- AI
+- Agent
 - Client
     - Listener (Audio and Video)
     - Responder (Audio)
@@ -39,7 +39,7 @@ We have three components in the stack to deploy:
         - For cloud server: Docker + Docker Compose + Nginx
         - For local server: Docker + Docker Compose
 
-### AI
+### Agent
 
 - Required Resource
     - Any high-end computational Nvidia GPU resources
@@ -70,7 +70,7 @@ Something like this
 ## Storage solution
 
 All the metadata will be communicated via the API, so here we need to think about how can we share the video and audio
-data between AI/Client/API.
+data between Agent/Client/API.
 
 We have four **STORAGE_SOLUTION** for this four different scenarios:
 
@@ -79,7 +79,7 @@ We have four **STORAGE_SOLUTION** for this four different scenarios:
   need to sync anything
 - **local**: all the modules will be deployed on the same local network, but different machines, so we need to sync the
   data between them, with rsync
-- **s3**: API is on your cloud, AI is anywhere, so we will use *s3* to be the storage place for the data, to make sure
+- **s3**: API is on your cloud, Agent is anywhere, so we will use *s3* to be the storage place for the data, to make sure
   stable
   and fast access.
 

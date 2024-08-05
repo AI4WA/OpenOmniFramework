@@ -12,7 +12,7 @@ However, collect the audio is a bit tricky, which can be further enhanced.
 Our solution for the audio is using the whisper model to detect when user stop talking, your can specific the energy
 threshold or timeout milliseconds to determine when to stop and save this round of sound.
 
-This will get the API receive the audio in a "conversation" way, speaker stop, AI process and act, then speaker speak
+This will get the API receive the audio in a "conversation" way, speaker stop, Agent process and act, then speaker speak
 again.
 
 However, there are several situations are limited by current solution:
@@ -71,5 +71,5 @@ So next option will be local network or cloud.
 
 - local network, sync data to a center sever within home network
 - cloud, upload to s3 or other cloud storage, then trigger the serverless function on cloud to download the file on a
-  EFS, then AI and API should both mount to the EFS, this will reduce the 
+  EFS, then Agent and API should both mount to the EFS, this will reduce the 
 

@@ -1,6 +1,6 @@
-# AI
+# Agent
 
-The AI component is the core of the system, which will be in charge of:
+The Agent component is the core of the system, which will be in charge of:
 
 - Running the ML or AI models distributed in the system
     - Running the models which require intensive computation
@@ -18,12 +18,12 @@ Each different task will have a subfolder within the `modules` folder
 Key thing to notice is that we create two classes to log the time point and duration to profile the latency performance
 of the models.
 
-- `AI/utils/time_logger.py`: log time point
-- `AI/utils/time_tracker.py`: track duration
+- `Agent/utils/time_logger.py`: log time point
+- `Agent/utils/time_tracker.py`: track duration
 
 ## Docker setup
 
-We also setup the docker for the AI component, which is in the `Dockerfile` and `docker-compose.yml` file.
+We also setup the docker for the Agent component, which is in the `Dockerfile` and `docker-compose.yml` file.
 
 ## Storage solution
 

@@ -6,6 +6,6 @@ We will describe how each module is designed, so you can understand how it works
     - [Listener](./Client/Listener.md)
     - [Responder](./Client/Responder.md)
 - [API](./main.md)
-- [AI](./AI.md)
+- [Agent](./Agent.md)
 
 If you want to check the details, you can either check the `Source` section or our GitHub repo code.

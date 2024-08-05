@@ -5,13 +5,13 @@ After the system is set up, we tested the pipeline with two cases:
 - US Election Debate:
     - In this case, we download the video, and then sample the video into segments, which will be used as video and
       audio input for the pipeline.
-    - This way can solve one of the problem that the multimodal conversational AI research is lacking of the dataset.
+    - This way can solve one of the problem that the multimodal conversational Agent research is lacking of the dataset.
 - Assist the visually impaired:
     - This is in the real world scenario, where we will use the pipeline to assist the visually impaired people when
       they
       are indoors.
     - It is not that critical for the latency, so potential can be applied even in current latency situation, because
-      the AI accuracy is quite high now.
+      the Agent accuracy is quite high now.
 
 ## US Election Debate
 
@@ -28,7 +28,7 @@ configurations:
 - replacing the quantization LLM with Hugging Face LLM for inference (HF_ETE)
 - and a version using only Whisper, GPT-3.5, and text-to-speech, ignoring video modality (GPT35_ETE).
 
-We ran the AI modules on a NVIDIA-3080 GPU with 12GB memory.
+We ran the Agent modules on a NVIDIA-3080 GPU with 12GB memory.
 
 To replicate what we are doing, you can download the video
 from [link](https://openomni.s3.eu-west-1.amazonaws.com/models/US-Election-2024.mp4)
@@ -75,7 +75,7 @@ In conclusion, AI cannot be the President of the US for now, from both latency a
 ## Help visual impaired people when indoors
 
 While latency and the need for external information currently prevent AI from being the President of the US, the current
-state of conversational AI can be production-ready and useful for areas that are not latency-critical and do not require
+state of conversational Agent can be production-ready and useful for areas that are not latency-critical and do not require
 extensive external knowledge. Assisting indoor activities for the visually impaired can be one such potential
 application area.
 
@@ -89,5 +89,5 @@ hardware setup.
 After annotation with context, the accuracy performance is impressive, with an overall score of 4.7/5. Most responses
 are accurate; however, the LLM lacks specific skills for assisting the visually impaired. For example, when asked *where
 the keyboard is*, the response could include more instructive steps on how to grab it rather than a general description.
-This indicates that while the conversational AI is nearly production-ready for assisting the visually impaired with
+This indicates that while the conversational Agent is nearly production-ready for assisting the visually impaired with
 indoor activities, improvements in latency and response content are still needed.

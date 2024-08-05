@@ -15,7 +15,7 @@ And then use your own account to create a Token.
 
 ![add_token](../images/add_token.png)
 
-So here all you need to do is deploy the `Client` and `AI` part.
+So here all you need to do is deploy the `Client` and `Agent` part.
 
 ## **Step 1**: Clone the repository
 
@@ -84,15 +84,15 @@ Something like below:
 ![audio](../images/Audio.png)
 ![video](../images/video.png)
 
-## **Step 4**: Run AI models
+## **Step 4**: Run Agent models
 
-Now we need to start AI module to consume the `Tasks`.
+Now we need to start Agent module to consume the `Tasks`.
 
 Same as above, we will need to first run the storage sync.
 
 ```bash
 cd ./OpenOmniFramework
-cd ./AI
+cd ./Agent
 
 python3 -m venv venv
 source venv/bin/activate
@@ -102,16 +102,16 @@ pip3 install -r requirements.dev.txt # if you are doing further development
 python3 storage.py --token your_token_from_step_0 --api_domain https://openomni.ai4wa.com
 ```
 
-Before we start the AI module, there are some pre configurations we need to do.
+Before we start the Agent module, there are some pre configurations we need to do.
 
-As provided functionalities within AI modules support OpenAI call, HuggingFace call, and there is also our provided
+As provided functionalities within Agent modules support OpenAI call, HuggingFace call, and there is also our provided
 emotion detection module.
 
 We need to get them setup first.
 
 *Setup OpenAI and HuggingFace Environment Variable*
 
-Create a `.env` file in `./AI` folder, and add the following content:
+Create a `.env` file in `./Agent` folder, and add the following content:
 
 ```bash
 HF_TOKEN=Your_HuggingFace_Token
@@ -128,19 +128,19 @@ export OPENAI_API_KEY=Your_OpenAI_API_KEY
 For the model part, if you want to get our emotion detection model running, you will need to download the model
 from [download link](https://openomni.s3.eu-west-1.amazonaws.com/models/emotion_detection.zip)
 
-And put it in the folder: `./AI/data/models/emotion_detection/model_data`.
+And put it in the folder: `./Agent/data/models/emotion_detection/model_data`.
 It should be like this
 
 ![emotion_model](../images/model_data.png)
 
-Then you should be ready to run the AI module.
+Then you should be ready to run the Agent module.
 
 ```bash
-# run the AI module
+# run the Agent module
 python3 main.py --token your_token_from_step_3
 ```
 
-You can also skip the steps to install the requirements, directly run the AI module with docker.
+You can also skip the steps to install the requirements, directly run the Agent module with docker.
 
 ```bash
 TOKEN=XXX docker compose up
@@ -150,7 +150,7 @@ This will allow you to utilise the GPU resources on your machine if you have one
 
 ![ai_running](../images/ai_running.png)
 
-Until now, you will have the client side to feed the video/audio data to the API, and the AI module to consume the data.
+Until now, you will have the client side to feed the video/audio data to the API, and the Agent module to consume the data.
 
 ## **Step 5**: Play speech audio in client side
 

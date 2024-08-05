@@ -15,7 +15,7 @@ Multimodal Open Source Framework for Conversational Agents Research and Developm
 - [Motivation](#motivation)
 - [Video Demonstration](#video-demonstration)
 - [Approaches](#approaches)
-    - [Traditional conversational AI](#traditional-conversational-ai)
+    - [Traditional conversational agents](#traditional-conversational-ai)
     - [OpenAI GPT-4o](#openai-gpt-4o)
     - [Hybrid Approach](#hybrid-approach)
     - [Summary](#summary)
@@ -71,7 +71,7 @@ Agent systems.
 - Other approaches is **Hybrid** Approach, an end to end voice model, which take audio and texts as input, and generate
   audio as output. Video modality input can be converted to text, and then feed into the model.
 
-### Traditional conversational AI
+### Traditional conversational Agents
 
 ![./images/OpenOmni.jpg](./images/OpenOmni.jpg)
 

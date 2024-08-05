@@ -4,8 +4,8 @@ This will be similar to the **Trail on Cloud** section, only differences is that
 
 Under this mode, your storage solution will be *s3*, you will need to
 
-- create a s3 bucket, and replace it to the *S3_BUCKET* setting in AI/API/Client
-- create an access key and secret key, set it properly for both AI, API and Client, refer to AWS documentation for more
+- create a s3 bucket, and replace it to the *S3_BUCKET* setting in Agent/API/Client
+- create an access key and secret key, set it properly for both Agent, API and Client, refer to AWS documentation for more
   details
 
 After this, the first step you will need to do is deploying it to your cloud server.
@@ -66,5 +66,5 @@ sudo service nginx restart
 Add a DNS A record for this sever for your domain, and you should be able to access the API
 at `http://your.domain.com`.
 
-Then you can follow the steps in the `Trail on Cloud` section to get the AI and Client running.
+Then you can follow the steps in the `Trail on Cloud` section to get the Agent and Client running.
 

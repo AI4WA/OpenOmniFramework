@@ -1,6 +1,6 @@
 # OpenOmni Framework
 
-Multimodal Open Source Framework for Conversational AI Research and Development.
+Multimodal Open Source Framework for Conversational Agents Research and Development.
 
 [![Demo](https://img.shields.io/badge/Demo-Available-blue)](https://openomni.ai4wa.com)
 [![Documentation](https://img.shields.io/badge/Documentation-Available-blue)](https://docs.openomni.ai4wa.com)
@@ -25,17 +25,17 @@ Multimodal Open Source Framework for Conversational AI Research and Development.
     - [Main Components](#main-components)
         - [Client](#client)
         - [API](#api)
-        - [AI](#ai)
+        - [Agent](#agent)
 - [Benchmark Examples](#benchmark-examples)
 - [Deployment Options](#deployment-options)
-- [Tutorial](Tutorial/index.md)
+- [Tutorial](./Tutorial/index.md)
 
 ----
 
 ## Motivation
 
-The development of Multimodal Large Language Models (LLMs) is opening new frontiers in conversational AI research and
-applications. Multimodal end-to-end conversational AI represents a significant advancement in our pursuit of general AI.
+The development of Multimodal Large Language Models (LLMs) is opening new frontiers in conversational agent research and
+applications. Multimodal end-to-end conversational agents represents a significant advancement in our pursuit of general AI.
 This progress, however, is not without its challenges. Balancing cost, accuracy, and latency remains a difficult task.
 
 <div style="text-align: center;">
@@ -47,22 +47,21 @@ GPT-4 has demonstrated the capability of a fully end-to-end multimodal model to 
 including audio and images, and generate coherent and contextually appropriate responses in a timely manner. Compared to
 traditional approaches such as speech-to-text, text generation, and text-to-speech, which suffer from latency issues
 that hinder their real-world applicability, GPT-4 has shown the potential to overcome these challenges. This showcases
-the potential of advanced AI models to navigate the rough path towards a bright future in conversational AI.
+the potential of advanced AI models to navigate the rough path towards a bright future in conversational agents.
 
 Despite these advancements, achieving the right balance between cost, accuracy, and latency is a significant hurdle.
 This difficulty is the motivation behind our project. We aim to establish an open-source framework that allows
 researchers to easily test their contributions and collaborate effectively. By doing so, we hope to facilitate the
 research and development process, accelerating the journey towards more efficient and capable multimodal conversational
-AI systems.
+Agent systems.
 
-----
+---
 
 ## Video Demonstration
 
 [![OpenOmni](https://img.youtube.com/vi/zaSiT3clWqY/0.jpg)](https://www.youtube.com/watch?v=zaSiT3clWqY&ab_channel=AI4WA)
 
 ----
-
 
 ## Approaches
 
@@ -74,7 +73,7 @@ AI systems.
 
 ### Traditional conversational AI
 
-![./docs/images/OpenOmni.jpg](./images/OpenOmni.jpg)
+![./images/OpenOmni.jpg](./images/OpenOmni.jpg)
 
 The whole pipeline divided into several components, mainly including:
 
@@ -94,7 +93,7 @@ seriously.
 
 ### OpenAI GPT-4o
 
-![./docs/images/GPT-4o.jpg](./images/GPT-4o.jpg)
+![./images/GPT-4o.jpg](./images/GPT-4o.jpg)
 
 Demonstration from OpenAI indicates that they have achieved acceptable **Latency** performance, which is around 250ms.
 At the same time, the **Accuracy** is also impressive, according to their released
@@ -109,7 +108,7 @@ Whisper,GPT-3.5,OpenAI TTS) still have 5-8 seconds latency.
 
 ### Hybrid Approach
 
-![./docs/images/VoiceE2E.jpg](./images/VoiceE2E.jpg)
+![./images/VoiceE2E.jpg](./images/VoiceE2E.jpg)
 
 Unlike GPT-4o, with audio, video, or/and text as input, which is challenging to implement, some researchers are
 exploring a hybrid approach, which is to take audio and/or text as input, and generate audio and/or text as output.
@@ -122,14 +121,15 @@ Brother is Watch you", potentially is more acceptable by the public.
 
 ### Summary
 
-The research focus for multimodal conversational AI is shifting towards end-to-end models, however, it is a **money**
+The research focus for multimodal conversational agents is shifting towards end-to-end models, however, it is a **money
+**
 game.
 To achieve that, you will need intelligent people (which we have in research community), data, and money.
 Data and money is not evenly distributed within the research community, which makes the wider research community hard to
 catch up with the cutting edge research.
 
 Sadly to say that, but reality is the rest research community without enough data and money can work towards the
-direction: adopt and applying conversational AI the into the real world, and make it more accessible to the public.
+direction: adopt and applying conversational agents the into the real world, and make it more accessible to the public.
 Contributing to the bigger picture as a small piece of the puzzle.
 
 This leads to the development and goal of OpenOmni Framework Project.
@@ -148,9 +148,9 @@ We want to:
 
 Our ultimate goal is to:
 
-- Develop an open-source, end-to-end conversational AI robot that match the capabilities of OpenAI's GPT-4o.
-- Enable easy data collection for advancing the development of end-to-end conversational AI systems.
-- Inspire and foster the development of innovative conversational AI applications and products.
+- Develop an open-source, end-to-end conversational agents robot that match the capabilities of OpenAI's GPT-4o.
+- Enable easy data collection for advancing the development of end-to-end conversational agents.
+- Inspire and foster the development of innovative conversational agent applications and products.
 
 ---
 
@@ -162,7 +162,7 @@ What the functions we need from the system perspective:
 
 1. **Data Collection:** Video and audio inputs are collected from hardware devices.
 2. **Data Transfer:** Data is sent to the API for downstream processing.
-3. **Data Processing:** The API uses AI and ML models to process the data, generate responses.
+3. **Data Processing:** The API uses Agents and ML models to process the data, generate responses.
 4. **Reaction:** The client side is notified to play the speech.
 
 There are two key metrics we are focusing on:
@@ -181,15 +181,17 @@ Which will allow to react to user's query in a timely manner, and provide the mo
 So as you can see from the system architecture, we have three main components: **Client**, **API**, and **AI**.
 
 Client will be in charge of data acquisition, and data presentation.
-Which means the video and audio data will be collected from the client side, and the speech generated by the AI will be
+Which means the video and audio data will be collected from the client side, and the speech generated by the Agent will
+be
 played by the client side.
 
-API will be the orchestrator, which will manage the models, and provide the API interface for the Client/AI module to
+API will be the orchestrator, which will manage the models, and provide the API interface for the Client/Agent module to
 access.
 It also provides the access and CURD to the data sources (Neo4j, PostgreSQL and Hard Disk).
 It also includes an interface for end users (Researchers and Annotators) to interact with the system.
 
-AI module is seperated to make sure it can be scaled to use different computation resources, and easily to integrate new
+Agent module is seperated to make sure it can be scaled to use different computation resources, and easily to integrate
+new
 work in.
 
 All modules are written in Python.
@@ -199,7 +201,7 @@ All modules are written in Python.
 - API end is built with Django, and have a customised admin interface, which will allow the management of the data
   sources, and the models.
 - Data side, we have Neo4j, PostgreSQL, and Hard Disk, which will allow the data to be stored in different places.
-- AI module is also a Python package.
+- Agent module is also a Python package.
 
 #### Client
 
@@ -217,7 +219,7 @@ The client side will mainly in charge of
 
 #### API
 
-Detailed information can be found in [API](./API.md).
+Detailed information can be found in [API](./Modules/API/main.md).
 
 This is the **Brain** of the system, which will be in charge of:
 
@@ -235,11 +237,11 @@ This is the **Brain** of the system, which will be in charge of:
 - Annotation Interface for the annotators
 - Benchmark report for the researchers
 
-#### AI
+#### Agent
 
-Detailed information can be found in [AI](./AI.md).
+Detailed information can be found in [Agent](./Modules/Agent.md).
 
-- Running the ML or AI models
+- Running the ML or Agent models
     - Running the models which require intensive computation
     - LLM models
     - Text2Speech models
@@ -320,16 +322,17 @@ Because the whole design is modular and decoupled, so you can use our system in 
 - **Trial on Cloud**: We deploy the API end on [https://openomni.ai4wa.com](https://openomni.ai4wa.com)
     - You can use this as the API end
     - Deploy the client side on your local machine to collect audio and video, and play the audio
-    - Deploy the AI module on your local machine or anywhere with good computation power, can be a cloud server, HPC
+    - Deploy the Agent module on your local machine or anywhere with good computation power, can be a cloud server, HPC
       center, etc
 - **All in One Local Machine**: You can deploy the whole system on your PC or laptop
     - You can use the camera, microphone, and speaker on your laptop
     - You can use the local storage to store the data, and get the data transfer process to be "None"
-    - You can use the computation power on your laptop to run the AI models (Which sometimes not that good)
+    - You can use the computation power on your laptop to run the Agent models (Which sometimes not that good)
 - **Private Offline Network**: You can deploy the whole system on a private network, different machines
     - Camera, Microphone, and Speaker can be one different machine within the same network
     - API will be running on another machine, which in charge of manage the whole system
-    - AI module can be running on a high speciation machine, which in charge of running the AI models, or a local high
+    - Agent module can be running on a high speciation machine, which in charge of running the Agent models, or a local
+      high
       performance GPU cluster
 - **Your Cloud**: This is similar to the **Trial on Cloud**, only difference is that you deploy the API end on your own
   cloud server, and you can have more control over the system.
@@ -337,4 +340,5 @@ Because the whole design is modular and decoupled, so you can use our system in 
 Client side can be deployed to very cheap devices like Raspberry Pi with camera, microphone and speaker, like show in
 ![Raspberry Pi](./images/client.jpg)
 
-We have detailed instruction about how to deploy the system in different ways in [Deployment](./Deployment.md).
+We have detailed instruction about how to deploy the system in different ways
+in [Deployment](./Deployment/index.md).

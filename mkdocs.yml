@@ -32,7 +32,7 @@ nav:
           - Listener: Modules/Client/Listener.md
           - Responder: Modules/Client/Responder.md
       - API: Modules/API/main.md
-      - AI: Modules/AI.md
+      - Agent: Modules/AI.md
 
   - Source:
       - Introduction: Source/index.md
@@ -125,51 +125,51 @@ nav:
                   - AccuracyBenchmark: Sources/API/orchestrator/metrics/accuracy_benchmark.md
                   - LatencyBenchmark: Sources/API/orchestrator/metrics/latency_benchmark.md
                   - Utils: Sources/API/orchestrator/metrics/utils.md
-      - AI:
-          - main: Sources/AI/main.md
-          - setup: Sources/AI/setup.md
-          - storage: Sources/AI/storage.md
+      - Agent:
+          - main: Sources/Agent/main.md
+          - setup: Sources/Agent/setup.md
+          - storage: Sources/Agent/storage.md
           - Models:
-              - Parameters: Sources/AI/models/parameters.md
-              - Results: Sources/AI/models/results.md
-              - Task: Sources/AI/models/task.md
-              - TrackType: Sources/AI/models/track_type.md
+              - Parameters: Sources/Agent/models/parameters.md
+              - Results: Sources/Agent/models/results.md
+              - Task: Sources/Agent/models/task.md
+              - TrackType: Sources/Agent/models/track_type.md
           - Modules:
               - EmotionDetection:
-                  - FeaturesExtraction: Sources/AI/modules/emotion_detection/features_extraction.md
-                  - Handler: Sources/AI/modules/emotion_detection/handler.md
-                  - Sentiment: Sources/AI/modules/emotion_detection/sentiment.md
+                  - FeaturesExtraction: Sources/Agent/modules/emotion_detection/features_extraction.md
+                  - Handler: Sources/Agent/modules/emotion_detection/handler.md
+                  - Sentiment: Sources/Agent/modules/emotion_detection/sentiment.md
               - GeneralML:
-                  - Handler: Sources/AI/modules/general_ml/handler.md
-                  - MLModels: Sources/AI/modules/general_ml/ml_models.md
+                  - Handler: Sources/Agent/modules/general_ml/handler.md
+                  - MLModels: Sources/Agent/modules/general_ml/ml_models.md
               - HFLLM:
-                  - Handler: Sources/AI/modules/hf_llm/handler.md
+                  - Handler: Sources/Agent/modules/hf_llm/handler.md
               - OpenAI:
-                  - Handler: Sources/AI/modules/openai/handler.md
+                  - Handler: Sources/Agent/modules/openai/handler.md
               - QuantizationLLM:
-                  - AdaptorWorker: Sources/AI/modules/quantization_llm/adaptor_worker.md
-                  - Handler: Sources/AI/modules/quantization_llm/handler.md
-                  - Models: Sources/AI/modules/quantization_llm/models.md
+                  - AdaptorWorker: Sources/Agent/modules/quantization_llm/adaptor_worker.md
+                  - Handler: Sources/Agent/modules/quantization_llm/handler.md
+                  - Models: Sources/Agent/modules/quantization_llm/models.md
               - RAG:
-                  - Handler: Sources/AI/modules/rag/handler.md
-                  - Neo4jConnector: Sources/AI/modules/rag/neo4j_connector.md
-                  - PostgreSQLConnector: Sources/AI/modules/rag/postgresql_connector.md
+                  - Handler: Sources/Agent/modules/rag/handler.md
+                  - Neo4jConnector: Sources/Agent/modules/rag/neo4j_connector.md
+                  - PostgreSQLConnector: Sources/Agent/modules/rag/postgresql_connector.md
               - SpeechToText:
-                  - Speech2Text: Sources/AI/modules/speech_to_text/speech2text.md
+                  - Speech2Text: Sources/Agent/modules/speech_to_text/speech2text.md
               - TextToSpeech:
-                  - Text2Speech: Sources/AI/modules/text_to_speech/text2speech.md
+                  - Text2Speech: Sources/Agent/modules/text_to_speech/text2speech.md
           - Utils:
-              - API: Sources/AI/utils/api.md
-              - AWS: Sources/AI/utils/aws.md
-              - Constants: Sources/AI/utils/constants.md
-              - GetLogger: Sources/AI/utils/get_logger.md
-              - TimeLogger: Sources/AI/utils/time_logger.md
-              - TimeTracker: Sources/AI/utils/time_tracker.md
-              - Timer: Sources/AI/utils/timer.md
+              - API: Sources/Agent/utils/api.md
+              - AWS: Sources/Agent/utils/aws.md
+              - Constants: Sources/Agent/utils/constants.md
+              - GetLogger: Sources/Agent/utils/get_logger.md
+              - TimeLogger: Sources/Agent/utils/time_logger.md
+              - TimeTracker: Sources/Agent/utils/time_tracker.md
+              - Timer: Sources/Agent/utils/timer.md
               - Storage:
-                  - APISyncHandler: Sources/AI/utils/storage/api_sync_handler.md
-                  - LocalSyncHandler: Sources/AI/utils/storage/local_sync_handler.md
-                  - S3SyncHandler: Sources/AI/utils/storage/s3_sync_handler.md
+                  - APISyncHandler: Sources/Agent/utils/storage/api_sync_handler.md
+                  - LocalSyncHandler: Sources/Agent/utils/storage/local_sync_handler.md
+                  - S3SyncHandler: Sources/Agent/utils/storage/s3_sync_handler.md
 plugins:
   - search
   - gen-files:

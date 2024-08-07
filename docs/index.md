@@ -8,7 +8,7 @@ Multimodal Open Source Framework for Conversational Agents Research and Developm
 ![Deployment](https://github.com/AI4WA/OpenOmniFramework/actions/workflows/deploy.yml/badge.svg)
 ![Lint](https://github.com/AI4WA/OpenOmniFramework/actions/workflows/tox.yml/badge.svg)
 ![Status](https://img.shields.io/badge/Status-Work%20in%20Progress-yellow)
-
+[![Paper](https://img.shields.io/badge/Paper-View-green?style=flat&logo=adobeacrobatreader)](https://arxiv.org/pdf/2408.03047)
 
 ----
 

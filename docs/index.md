@@ -342,3 +342,20 @@ Client side can be deployed to very cheap devices like Raspberry Pi with camera,
 
 We have detailed instruction about how to deploy the system in different ways
 in [Deployment](./Deployment/index.md).
+
+
+## Citation
+
+If you find this package useful, please consider citing our work:
+
+```bibtex
+@misc{sun2024openomnicollaborativeopensource,
+      title={OpenOmni: A Collaborative Open Source Tool for Building Future-Ready Multimodal Conversational Agents}, 
+      author={Qiang Sun and Yuanyi Luo and Sirui Li and Wenxiao Zhang and Wei Liu},
+      year={2024},
+      eprint={2408.03047},
+      archivePrefix={arXiv},
+      primaryClass={cs.HC},
+      url={https://arxiv.org/abs/2408.03047}, 
+}
+```

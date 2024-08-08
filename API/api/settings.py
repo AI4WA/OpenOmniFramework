@@ -239,7 +239,9 @@ JAZZMIN_SETTINGS = {
     # Copyright on the footer
     # Welcome text on the login screen
     "welcome_sign": f"""Welcome to Open Source OpenOmni Framework!    
-                        Default username is admin, password is password""",
+                        Default username is admin, password is password
+                        Please do not change password.
+                        If you have any questions, please contact us at pascal.sun@research.uwa.edu.au""",
     "copyright": "UWA NLP TLP GROUP",
     "topmenu_links": [
         # Url that gets reversed (Permissions can be added)

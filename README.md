@@ -8,6 +8,7 @@ Multimodal Open Source Framework for Conversational Agents Research and Developm
 ![Deployment](https://github.com/AI4WA/OpenOmniFramework/actions/workflows/deploy.yml/badge.svg)
 ![Lint](https://github.com/AI4WA/OpenOmniFramework/actions/workflows/tox.yml/badge.svg)
 ![Status](https://img.shields.io/badge/Status-Work%20in%20Progress-yellow)
+[![Paper](https://img.shields.io/badge/Paper-View-green?style=flat&logo=adobeacrobatreader)](https://arxiv.org/pdf/2408.03047)
 
 
 ----
@@ -342,3 +343,19 @@ Client side can be deployed to very cheap devices like Raspberry Pi with camera,
 
 We have detailed instruction about how to deploy the system in different ways
 in [Deployment](./docs/Deployment/index.md).
+
+## Citation
+
+If you find this package useful, please consider citing our work:
+
+```bibtex
+@misc{sun2024openomnicollaborativeopensource,
+      title={OpenOmni: A Collaborative Open Source Tool for Building Future-Ready Multimodal Conversational Agents}, 
+      author={Qiang Sun and Yuanyi Luo and Sirui Li and Wenxiao Zhang and Wei Liu},
+      year={2024},
+      eprint={2408.03047},
+      archivePrefix={arXiv},
+      primaryClass={cs.HC},
+      url={https://arxiv.org/abs/2408.03047}, 
+}
+```

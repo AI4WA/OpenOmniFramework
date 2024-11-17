@@ -1,5 +1,5 @@
 site_name: OpenOmni Framework by AI4WA
-site_url: https://openbenang.ai4wa.com
+site_url: https://openomni.ai4wa.com/
 theme:
   name: material
   logo: images/AI4WA.png
@@ -9,7 +9,7 @@ theme:
     - navigation.tabs
   icon:
     repo: fontawesome/brands/github
-repo_url: https://github.com/AI4WA/OpenBenang
+repo_url: https://github.com/AI4WA/OpenOmniFramework
 nav:
   - Home: index.md
   - Tutorial:
@@ -185,7 +185,7 @@ plugins:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/AI4WA/OpenBenang
+      link: https://github.com/AI4WA/OpenOmniFramework
     - icon: fontawesome/brands/linkedin
       link: https://www.linkedin.com/company/ai4wa
   analytics:

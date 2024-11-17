@@ -8,8 +8,12 @@ Multimodal Open Source Framework for Conversational Agents Research and Developm
 ![Deployment](https://github.com/AI4WA/OpenOmniFramework/actions/workflows/deploy.yml/badge.svg)
 ![Lint](https://github.com/AI4WA/OpenOmniFramework/actions/workflows/tox.yml/badge.svg)
 ![Status](https://img.shields.io/badge/Status-Work%20in%20Progress-yellow)
-[![Paper](https://img.shields.io/badge/Paper-View-green?style=flat&logo=adobeacrobatreader)](https://arxiv.org/pdf/2408.03047)
+[![Paper](https://img.shields.io/badge/Paper-View-green?style=flat&logo=adobeacrobatreader)](https://aclanthology.org/2024.emnlp-demo.5.pdf)
 
+## News
+
+- **2024-11-15**: OpenOmni Framework has been awarded the Best Demo Paper Award at EMNLP 2024. [Award](https://2024.emnlp.org/program/best_papers/)
+- **2024-10-06**: OpenOmni Framework is accepted by EMNLP 2024 Demo Track. [Paper](https://aclanthology.org/2024.emnlp-demo.5.pdf)
 
 ----
 
@@ -349,13 +353,24 @@ in [Deployment](./docs/Deployment/index.md).
 If you find this package useful, please consider citing our work:
 
 ```bibtex
-@misc{sun2024openomnicollaborativeopensource,
-      title={OpenOmni: A Collaborative Open Source Tool for Building Future-Ready Multimodal Conversational Agents}, 
-      author={Qiang Sun and Yuanyi Luo and Sirui Li and Wenxiao Zhang and Wei Liu},
-      year={2024},
-      eprint={2408.03047},
-      archivePrefix={arXiv},
-      primaryClass={cs.HC},
-      url={https://arxiv.org/abs/2408.03047}, 
+@inproceedings{sun-etal-2024-openomni,
+    title = "{O}pen{O}mni: A Collaborative Open Source Tool for Building Future-Ready Multimodal Conversational Agents",
+    author = "Sun, Qiang  and
+      Luo, Yuanyi  and
+      Li, Sirui  and
+      Zhang, Wenxiao  and
+      Liu, Wei",
+    editor = "Hernandez Farias, Delia Irazu  and
+      Hope, Tom  and
+      Li, Manling",
+    booktitle = "Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing: System Demonstrations",
+    month = nov,
+    year = "2024",
+    address = "Miami, Florida, USA",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.emnlp-demo.5",
+    pages = "46--52",
+    abstract = "Multimodal conversational agents are highly desirable because they offer natural and human-like interaction.However, there is a lack of comprehensive end-to-end solutions to support collaborative development and benchmarking.While proprietary systems like GPT-4o and Gemini demonstrating impressive integration of audio, video, and text with response times of 200-250ms, challenges remain in balancing latency, accuracy, cost, and data privacy.To better understand and quantify these issues, we developed \textbf{OpenOmni}, an open-source, end-to-end pipeline benchmarking tool that integrates advanced technologies such as Speech-to-Text, Emotion Detection, Retrieval Augmented Generation, Large Language Models, along with the ability to integrate customized models.OpenOmni supports local and cloud deployment, ensuring data privacy and supporting latency and accuracy benchmarking. This flexible framework allows researchers to customize the pipeline, focusing on real bottlenecks and facilitating rapid proof-of-concept development. OpenOmni can significantly enhance applications like indoor assistance for visually impaired individuals, advancing human-computer interaction.Our demonstration video is available https://www.youtube.com/watch?v=zaSiT3clWqY, demo is available via https://openomni.ai4wa.com, code is available via https://github.com/AI4WA/OpenOmniFramework.",
 }
+
 ```

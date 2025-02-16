@@ -6,6 +6,7 @@ from openai import OpenAI
 
 from models.parameters import (
     OpenAIGPT4OParameters,
+    OpenAIGPT4ORealTimeParameters,
     OpenAIGPT4OTextOnlyParameters,
     Speech2TextParameters,
     Text2SpeechParameters,
@@ -56,6 +57,11 @@ class OpenAIHandler:
             TimeLogger.log(latency_profile, "start_openai_gpt_35")
             text = self.gpt_35(task)
             TimeLogger.log(latency_profile, "end_openai_gpt_35")
+            result_profile["text"] = text
+        if "openai_gpt_4o_realtime" in task.task_name:
+            TimeLogger.log(latency_profile, "start_openai_gpt_4o_realtime")
+            text = self.gpt_4o_realtime(task)
+            TimeLogger.log(latency_profile, "end_openai_gpt_4o_realtime")
             result_profile["text"] = text
         if "text2speech" in task.task_name:
             TimeLogger.log(latency_profile, "start_openai_text2speech")
@@ -143,6 +149,43 @@ class OpenAIHandler:
         ):
             res = self.client.chat.completions.create(
                 model="gpt-4o",
+                messages=messages,
+            )
+        return res.choices[0].message.content
+
+    def gpt_4o_realtime(self, task: Task) -> Optional[str]:
+        """
+        Get the text and audio in real time
+        Args:
+            task:
+
+        Returns:
+
+        """
+        params = OpenAIGPT4ORealTimeParameters(**task.parameters)
+        text = params.text
+        audio = params.audio_file
+        prompt_template = params.prompt_template
+        logger.info(f"Text: {text}")
+        prompt = prompt_template.format(text=text)
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {"type": "audio", "audio": audio},
+                ],
+            }
+        ]
+
+        with time_tracker(
+                "gpt-4o-realtime-call",
+                task.result_json.latency_profile,
+                track_type=TrackType.MODEL.value,
+        ):
+            res = self.client.chat.completions.create(
+                model="gpt-4o-realtime-preview-2024-12-17",
+                modalities=["text", "audio"],
                 messages=messages,
             )
         return res.choices[0].message.content

@@ -138,6 +138,7 @@ class Task(models.Model):
             ("openai_text2speech", "OpenAI Text2Speech"),
             ("openai_gpt_4o_text_and_image", "OpenAI GPT4o Text and Image"),
             ("openai_gpt_4o_text_only", "OpenAI GPT4o Text"),
+            ("openai_gpt_4o_realtime", "OpenAI GPT4o Realtime"),
             ("rag", "RAG"),
         ]
 
@@ -156,6 +157,7 @@ class Task(models.Model):
             "openai_text2speech": "text2speech",
             "openai_gpt_4o_text_and_image": "text_generation",
             "openai_gpt_4o_text_only": "text_generation",
+            "openai_gpt_4o_realtime": "text_generation",
             "rag": "rag",
         }
 

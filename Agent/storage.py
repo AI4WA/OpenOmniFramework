@@ -9,11 +9,11 @@ It will include two process
 
 import argparse
 import multiprocessing
+import os
 import time
 from pathlib import Path
 
 import boto3
-import os
 import requests
 from watchdog.observers import Observer
 

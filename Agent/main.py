@@ -294,6 +294,7 @@ if __name__ == "__main__":
                 TaskName.text2speech.value,
                 TaskName.openai_gpt4o_text_only.value,
                 TaskName.openai_gpt_4o_text_and_image.value,
+                TaskName.openai_gpt_4o_realtime.value,
                 TaskName.rag.value,
             ]
         else:

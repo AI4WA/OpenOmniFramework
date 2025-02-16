@@ -78,6 +78,13 @@ def trigger_completed_task(sender, **kwargs):
         return completed_openai_gpt_4o_text_only.send(
             sender=sender, data=data, track_id=task_data.track_id
         )
+
+    if task_data.task_name == "openai_gpt_4o_realtime":
+        logger.info("OpenAI GPT4O Realtime task completed")
+        return completed_openai_gpt_4o_text_only.send(
+            sender=sender, data=data, track_id=task_data.track_id
+        )
+
     if task_data.task_name == "rag":
         logger.info("RAG task completed")
         return completed_rag.send(sender=sender, data=data, track_id=task_data.track_id)

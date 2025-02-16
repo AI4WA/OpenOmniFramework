@@ -55,3 +55,9 @@ class OpenAIGPT4OParameters(BaseModel):
 class OpenAIGPT4OTextOnlyParameters(BaseModel):
     text: str = Field(..., description="The text to analyze for GPT-4o text only")
     prompt_template: str = Field(description="The prompt template")
+
+class OpenAIGPT4ORealTimeParameters(BaseModel):
+    text: str = Field(..., description="The text to analyze for GPT-4o real time")
+    audio_file: str = Field(..., description="The audio data for GPT-4o real time")
+    prompt_template: str = Field(description="The prompt template")
+    sample_ratio: int = Field(1, description="The sample ratio")
